@@ -1,6 +1,6 @@
 package value
 
-import "jpc16-telnet-game/type/response"
+import "backend/type/response"
 
 func Iterate[A any, B any](a []A, mapper func(a A) (B, *response.ErrorInstance)) ([]B, *response.ErrorInstance) {
 	result := make([]B, 0)
