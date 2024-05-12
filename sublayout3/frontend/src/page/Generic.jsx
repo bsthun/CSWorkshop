@@ -2,8 +2,10 @@ import React from 'react';
 import Sidebar from "../component/Sidebar.jsx";
 import Page from "../component/Page.jsx";
 import Block from "../component/Block.jsx";
+import usePreview from "../hook/usePreview.js";
 
-const Concert = () => {
+const Generic = (props) => {
+	const url = usePreview(props.componentName)
 	return (
 		<Page>
 			<div style={{display: "flex", flexDirection: "row", gap: "0.5rem", padding: "0.5rem", height: "100%"}}>
@@ -18,7 +20,7 @@ const Concert = () => {
 					height: "100%"
 				}}>
 					<Block style={{height: "100%"}}>
-						<iframe src="http://csc105-workshop.bsthun.com/components/comp01"
+						<iframe src={url}
 						        height="100%"
 						        width="100%"
 						        frameBorder="0"
@@ -30,4 +32,4 @@ const Concert = () => {
 	);
 };
 
-export default Concert;
+export default Generic;

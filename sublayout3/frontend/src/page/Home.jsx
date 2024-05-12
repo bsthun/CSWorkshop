@@ -2,8 +2,12 @@ import React from 'react';
 import Block from "../component/Block.jsx";
 import Page from "../component/Page.jsx";
 import Sidebar from "../component/Sidebar.jsx";
+import usePreview from "../hook/usePreview.js";
 
 const Home = () => {
+	const recentlyPlayedUrl = usePreview("recentlyplayed")
+	const playlistSectionUrl = usePreview("playlistsection")
+	const nowPlayingUrl = usePreview("nowplaying")
 	return (
 		<Page>
 			<div style={{display: "flex", flexDirection: "row", gap: "0.5rem", padding: "0.5rem", height: "100%"}}>
@@ -18,14 +22,14 @@ const Home = () => {
 					height: "100%"
 				}}>
 					<Block>
-						<iframe src="http://csc105-workshop.bsthun.com/components/comp01"
+						<iframe src={recentlyPlayedUrl}
 						        height="100%"
 						        width="100%"
 						        frameBorder="0"
 						/>
 					</Block>
 					<Block style={{flex: 1}}>
-						<iframe src="http://csc105-workshop.bsthun.com/components/comp01"
+						<iframe src={playlistSectionUrl}
 						        height="100%"
 						        width="100%"
 						        frameBorder="0"
@@ -43,7 +47,7 @@ const Home = () => {
 					<Block style={{
 						height: "100%"
 					}}>
-						<iframe src="http://csc105-workshop.bsthun.com/components/comp01"
+						<iframe src={nowPlayingUrl}
 						        height="100%"
 						        width="100%"
 						        frameBorder="0"

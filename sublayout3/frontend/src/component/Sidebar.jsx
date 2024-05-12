@@ -1,8 +1,10 @@
 import React from 'react';
 import Block from "./Block.jsx";
 import style from "./Sidebar.module.scss";
+import usePreview from "../hook/usePreview.js";
 
 const Sidebar = () => {
+	const sidebarUrl = usePreview("sidebar")
 	return (
 		<div style={{
 			flex: 2,
@@ -41,7 +43,7 @@ const Sidebar = () => {
 			</div>
 		</Block>
 			<Block style={{flex: 1}}>
-				<iframe src="http://csc105-workshop.bsthun.com/components/comp01"
+				<iframe src={sidebarUrl}
 				        height="100%"
 				        width="100%"
 				        frameBorder="0"

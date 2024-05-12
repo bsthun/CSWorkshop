@@ -19,6 +19,7 @@ func Init() {
 		ErrorHandler:  ErrorHandler,
 		Prefork:       false,
 		StrictRouting: true,
+		Network:       fiber.NetworkTCP,
 	})
 
 	// Register root endpoint
@@ -29,6 +30,7 @@ func Init() {
 	// Register API endpoints
 	apiGroup := app.Group("api/")
 	apiGroup.Use(middleware.Recover())
+	apiGroup.Use(middleware.Cors())
 	endpoint.Init(apiGroup)
 
 	// Register not found endpoint
