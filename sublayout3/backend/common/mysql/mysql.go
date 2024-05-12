@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"backend/common"
+	"backend/type/table"
 	ilog "backend/util/log"
 )
 
@@ -54,7 +55,33 @@ func Init() {
 
 func migrate() error {
 	// * Migrate model
-	if err := cc.DB.AutoMigrate(); err != nil {
+	if err := cc.DB.AutoMigrate(
+		new(table.SystemGroup),
+		new(table.SystemComponent),
+		new(table.C01Sidebar),
+		new(table.C02Recent),
+		new(table.C03Track),
+		new(table.C04Artist),
+		new(table.C05Presearch),
+		new(table.C06Search),
+		new(table.C07Track),
+		new(table.C07Artist),
+		new(table.C08Track),
+		new(table.C08Album),
+		new(table.C10Concert),
+		new(table.C12Track),
+		new(table.C12Detail),
+		new(table.C12Playlist),
+		new(table.C13TrackDetail),
+		new(table.C14PodcastSection),
+		new(table.C14PodcastGenre),
+		new(table.C16PodcastShow),
+		new(table.C17PodcastEpisode),
+		new(table.C18PlaylistSection),
+		new(table.C18PlaylistItem),
+		new(table.C19Album),
+		new(table.C19Track),
+	); err != nil {
 		return err
 	}
 
