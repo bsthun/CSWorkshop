@@ -70,7 +70,7 @@ func migrate() error {
 		new(table.C08Album),
 		new(table.C10Concert),
 		new(table.C12Track),
-		new(table.C12Detail),
+		new(table.C11Detail),
 		new(table.C12Playlist),
 		new(table.C13TrackDetail),
 		new(table.C14PodcastSection),
