@@ -8,6 +8,8 @@ type C19Track struct {
 	Artist    *string    `gorm:"type:VARCHAR(255); not null"`
 	PlayCount *uint64    `gorm:"not null"`
 	Length    *time.Time `gorm:"not null"`
+	AlbumId   *uint64    `gorm:"not null"`
+	Album     *C19Album  `gorm:"foreignKey:AlbumId"`
 	CreatedAt *time.Time `gorm:"not null"` // Embedded field
 	UpdatedAt *time.Time `gorm:"not null"` // Embedded field
 }

@@ -7,7 +7,7 @@ type C17PodcastEpisode struct {
 	ImageUrl    *string         `gorm:"TEXT; null"`
 	Title       *string         `gorm:"type:VARCHAR(255); not null"`
 	ShowId      *uint64         `gorm:"not null"`
-	Show        *C16PodcastShow `gorm:"foreignKey:ShowId; references:Id"`
+	Show        *C16PodcastShow `gorm:"foreignKey:ShowId"`
 	Description *string         `gorm:"TEXT; null"`
 	Date        *time.Time      `gorm:"not null"`
 	Length      *uint64         `gorm:"not null"`

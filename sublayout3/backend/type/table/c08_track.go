@@ -5,7 +5,7 @@ import "time"
 type C08Track struct {
 	Id        *uint64        `gorm:"primaryKey"`
 	AlbumId   *uint64        `gorm:"not null"`
-	Album     *C08Album      `gorm:"foreignKey:AlbumId; references:Id"`
+	Album     *C08Album      `gorm:"foreignKey:AlbumId"`
 	Title     *string        `gorm:"type:VARCHAR(255); not null"`
 	Artist    *string        `gorm:"type:VARCHAR(255); not null"`
 	PlayCount *uint64        `gorm:"not null"`

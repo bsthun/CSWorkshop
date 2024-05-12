@@ -8,7 +8,7 @@ type C18PlaylistItem struct {
 	Title       *string             `gorm:"type:VARCHAR(255); not null"`
 	Description *string             `gorm:"TEXT; null"`
 	SectionId   *uint64             `gorm:"not null"`
-	Section     *C18PlaylistSection `gorm:"foreignKey:SectionId; references:Id"`
+	Section     *C18PlaylistSection `gorm:"foreignKey:SectionId"`
 	CreatedAt   *time.Time          `gorm:"not null"` // Embedded field
 	UpdatedAt   *time.Time          `gorm:"not null"` // Embedded field
 }
