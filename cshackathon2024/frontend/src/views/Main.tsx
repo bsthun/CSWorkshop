@@ -3,7 +3,6 @@ import MusicCard from "@/components/ui/music-card";
 import { LoadingButton } from "@mui/lab";
 import { Box, Divider, Stack, Typography } from "@mui/material";
 import { BiPlusCircle } from "react-icons/bi";
-import { FaPlay } from "react-icons/fa";
 import SearchDrawer from "@/components/ui/search-modal";
 import axios from "axios";
 import { SearchMusic, SearchMusicResponse } from "@/types/api";
@@ -20,7 +19,7 @@ export default function MainView() {
   const [openDrawer, setOpenDrawer] = React.useState(false);
   const [searchInput, setSearchInput] = React.useState("");
   const [searchList, setSearchList] = React.useState<SearchMusic[]>([]);
-  const [state, setState] = React.useState({});
+  const [state, setState] = React.useState<any>({});
 
   const searchSong = () => {
     axios
