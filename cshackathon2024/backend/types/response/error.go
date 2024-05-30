@@ -1,10 +1,6 @@
 package response
 
 import (
-	"context"
-	"errors"
-
-	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -21,21 +17,21 @@ func (v *ErrorInstance) Error() string {
 func Error(c *fiber.Ctx, critical bool, message string, args2 ...any) *ErrorInstance {
 	if c != nil {
 		// * Prepare sentry tracing
-		sentryCtx := c.Locals("sentry").(context.Context)
-		sentryHub := sentry.GetHubFromContext(sentryCtx)
+		//sentryCtx := c.Locals("sentry").(context.Context)
+		//sentryHub := sentry.GetHubFromContext(sentryCtx)
 
 		// * Capture critical error to sentry
-		if critical {
-			if len(args2) == 1 {
-				if err, ok := args2[0].(error); ok {
-					sentryHub.CaptureException(err)
-				} else {
-					sentryHub.CaptureException(errors.New(message))
-				}
-			} else {
-				sentryHub.CaptureException(errors.New(message))
-			}
-		}
+		//if critical {
+		//	if len(args2) == 1 {
+		//		if err, ok := args2[0].(error); ok {
+		//			sentryHub.CaptureException(err)
+		//		} else {
+		//			sentryHub.CaptureException(errors.New(message))
+		//		}
+		//	} else {
+		//		sentryHub.CaptureException(errors.New(message))
+		//	}
+		//}
 	}
 
 	// * Return error instance

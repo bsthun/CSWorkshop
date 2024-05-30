@@ -1,9 +1,6 @@
 package response
 
 import (
-	"context"
-
-	"github.com/getsentry/sentry-go"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -22,11 +19,11 @@ type GenericSuccessResponse[T any] struct {
 }
 
 func Success(c *fiber.Ctx, args1 any, args2 ...any) *SuccessResponse {
-	sentryCtx := c.Locals("sentry").(context.Context)
-	if sentryCtx.Value("span") != nil {
-		sentryCtx.Value("span").(*sentry.Span).Status = sentry.SpanStatusOK
-		sentryCtx.Value("span").(*sentry.Span).Finish()
-	}
+	//sentryCtx := c.Locals("sentry").(context.Context)
+	//if sentryCtx.Value("span") != nil {
+	//	sentryCtx.Value("span").(*sentry.Span).Status = sentry.SpanStatusOK
+	//	sentryCtx.Value("span").(*sentry.Span).Finish()
+	//}
 
 	if message, ok := args1.(string); ok {
 		if len(args2) == 0 {

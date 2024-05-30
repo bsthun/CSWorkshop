@@ -1,7 +1,6 @@
 package ifiber
 
 import (
-	"context"
 	"strings"
 
 	"github.com/getsentry/sentry-go"
@@ -14,21 +13,21 @@ import (
 
 func ErrorHandler(c *fiber.Ctx, err error) error {
 	// Defer sentry store
-	var sentryCtx context.Context
+	//var sentryCtx context.Context
 	var sentryHub *sentry.Hub
 	var sentryTrace map[string]any
 	if c.Locals("sentry") == nil {
 		goto switcher
 	}
 
-	sentryCtx = c.Locals("sentry").(context.Context)
-	sentryHub = sentry.GetHubFromContext(sentryCtx)
+	//sentryCtx = c.Locals("sentry").(context.Context)
+	//sentryHub = sentry.GetHubFromContext(sentryCtx)
 	defer func() {
 		sentryHub.Scope().SetContext("error", sentryTrace)
-		if sentryCtx.Value("span") != nil {
-			sentryCtx.Value("span").(*sentry.Span).Status = sentry.SpanStatusAborted
-			sentryCtx.Value("span").(*sentry.Span).Finish()
-		}
+		//if sentryCtx.Value("span") != nil {
+		//	sentryCtx.Value("span").(*sentry.Span).Status = sentry.SpanStatusAborted
+		//	sentryCtx.Value("span").(*sentry.Span).Finish()
+		//}
 	}()
 
 switcher:
