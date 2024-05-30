@@ -1,0 +1,7 @@
+events:
+  - name: Hackathon event
+    start_time: 2024-05-30T13:00:00.000Z
+    end_time: 2024-06-03T14:00:00.000Z
+  - name: Hackathon event
+    start_time: 2024-06-03T13:00:00.000Z
+    end_time: 2024-06-04T14:00:00.000Z
