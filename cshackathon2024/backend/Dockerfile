@@ -27,6 +27,8 @@ EXPOSE 8000
 
 ENV GIN_MODE=release
 
+RUN apk add --no-cache tzdata
+
 ENV TZ="Asia/Bangkok"
 
 ENTRYPOINT [ "/app/utilService" ]
