@@ -27,4 +27,6 @@ EXPOSE 8000
 
 ENV GIN_MODE=release
 
+ENV TZ="Asia/Bangkok"
+
 ENTRYPOINT [ "/app/utilService" ]
