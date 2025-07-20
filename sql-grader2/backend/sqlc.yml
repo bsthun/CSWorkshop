@@ -1,0 +1,17 @@
+version: 2
+sql:
+  - engine: postgresql
+    schema:
+      - database/postgres/migration/*.sql
+    queries:
+      - database/postgres/*.sql
+    gen:
+      go:
+        package: psql
+        out: generate/psql
+        sql_package: database/sql
+        emit_empty_slices: true
+        emit_params_struct_pointers: true
+        emit_interface: true
+        initialisms: []
+        overrides: []

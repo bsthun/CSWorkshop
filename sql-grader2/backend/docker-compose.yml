@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: sqlgrader-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - sqlgrader-postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sqlgrader1
+      POSTGRES_DB: sqlgrader1
+    cpus: 2.0
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: no
+    logging:
+      driver: none
+
+volumes:
+  sqlgrader-postgres-data:
