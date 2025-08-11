@@ -71,3 +71,16 @@ type ClassCreateRequest struct {
 type CollectionCreateRequest struct {
 	Name *string `json:"name" validate:"required"`
 }
+
+type CollectionSchemaUploadRequest struct {
+	CollectionId string `json:"collectionId" validate:"required"`
+}
+
+type CollectionTableStructure struct {
+	TableName *string `json:"tableName"`
+	RowCount  *uint64 `json:"rowCount"`
+}
+
+type CollectionSchemaMetadata struct {
+	Structure []*CollectionTableStructure `json:"structure"`
+}

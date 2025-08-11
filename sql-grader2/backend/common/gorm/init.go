@@ -26,7 +26,7 @@ func Init(config *config.Config) *gorm.DB {
 
 	conn, er := orm.Connect(*config.MysqlDsn, "mysql")
 	if er != nil {
-		gut.Fatal("unable to create mysql connection", err)
+		gut.Fatal("unable to create mysql connection", er)
 	}
 
 	dialector := mysql.New(

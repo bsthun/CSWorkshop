@@ -14,6 +14,7 @@ Endpoint implementation guideline:
 - Sqlc output is pointer by default, as well as payload. Use pointer as basis
 - When using gut.Iterate with SQLC results, the function parameter should NOT be a pointer (e.g., `func(collection psql.Collection)` not `func(collection *psql.Collection)`) because SQLC returns `[]Collection` not `[]*Collection`
 - Any function that return *gut.ErrorInstance should be named `er` amd handled with `if er != nil { return er }` without new gut.Err function.
+- The endpoint file should have only handler functions, types defined in `payload` package, and no other logic.
 
 Query guideline:
 

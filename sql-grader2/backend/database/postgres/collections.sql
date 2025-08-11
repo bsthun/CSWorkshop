@@ -16,3 +16,9 @@ WHERE ($1::text IS NULL OR LOWER(name) LIKE LOWER('%' || $1 || '%'));
 INSERT INTO collections (name, metadata)
 VALUES ($1, '{}'::jsonb)
 RETURNING *;
+
+-- name: CollectionUpdateMetadata :one
+UPDATE collections
+SET metadata = $2
+WHERE id = $1
+RETURNING *;
