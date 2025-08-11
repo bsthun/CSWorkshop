@@ -2,9 +2,10 @@ package config
 
 import (
 	"backend/type/enum"
+	"os"
+
 	"github.com/bsthun/gut"
 	"gopkg.in/yaml.v3"
-	"os"
 )
 
 type Config struct {
@@ -14,6 +15,7 @@ type Config struct {
 	FrontendUrl       *string           `yaml:"frontendUrl" validate:"required"`
 	Secret            *string           `yaml:"secret" validate:"required"`
 	PostgresDsn       *string           `yaml:"postgresDsn" validate:"required"`
+	MysqlDsn          *string           `yaml:"mysqlDsn" validate:"required"`
 	OauthClientId     *string           `yaml:"oauthClientId" validate:"required"`
 	OauthClientSecret *string           `yaml:"oauthClientSecret" validate:"required"`
 	OauthEndpoint     *string           `yaml:"oauthEndpoint" validate:"required"`

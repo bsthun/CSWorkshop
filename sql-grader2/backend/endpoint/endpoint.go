@@ -6,8 +6,9 @@ import (
 	"backend/endpoint/admin"
 	"backend/endpoint/public"
 	"backend/endpoint/state"
-	"github.com/gofiber/fiber/v2"
 	"path/filepath"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func Bind(
@@ -32,7 +33,12 @@ func Bind(
 
 	// * admin endpoints
 	admin := api.Group("/admin", middleware.Jwt(true))
-	_ = admin
+	admin.Post("/collection/list", adminEndpoint.HandleCollectionList)
+	admin.Post("/collection/create", adminEndpoint.HandleCollectionCreate)
+	admin.Post("/semester/list", adminEndpoint.HandleSemesterList)
+	admin.Post("/semester/create", adminEndpoint.HandleSemesterCreate)
+	admin.Post("/semester/edit", adminEndpoint.HandleSemesterEdit)
+	admin.Post("/class/create", adminEndpoint.HandleClassCreate)
 
 	// * static files
 	app.Static("/file", ".local/file")

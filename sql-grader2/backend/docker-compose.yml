@@ -17,5 +17,23 @@ services:
     logging:
       driver: none
 
+  mysql:
+    image: mysql:8
+    container_name: sqlgrader-mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - sqlgrader-mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sqlgrader1
+      MYSQL_DATABASE: sqlgrader1
+    cpus: 2.0
+    mem_limit: 2G
+    memswap_limit: 2G
+    restart: no
+    logging:
+      driver: none
+
 volumes:
   sqlgrader-postgres-data:
+  sqlgrader-mysql-data:

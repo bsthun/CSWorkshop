@@ -17,13 +17,11 @@ CREATE TABLE users
 
 CREATE TABLE collections
 (
-    id                 BIGSERIAL PRIMARY KEY,
-    name               VARCHAR(255) NOT NULL,
-    script_schema_path TEXT         NOT NULL,
-    script_data_path   TEXT         NOT NULL,
-    metadata           JSONB        NULL,
-    created_at         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id         BIGSERIAL PRIMARY KEY,
+    name       VARCHAR(255) NOT NULL,
+    metadata   JSONB        NOT NULL,
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE collection_questions
@@ -52,6 +50,7 @@ CREATE TABLE classes
 (
     id            BIGSERIAL PRIMARY KEY,
     semester_id   BIGINT REFERENCES semesters (id) ON DELETE CASCADE NOT NULL,
+    code          VARCHAR(255)                                       NOT NULL,
     name          VARCHAR(255)                                       NOT NULL,
     register_code VARCHAR(64)                                        NOT NULL UNIQUE,
     created_at    TIMESTAMP                                          NOT NULL DEFAULT CURRENT_TIMESTAMP,
