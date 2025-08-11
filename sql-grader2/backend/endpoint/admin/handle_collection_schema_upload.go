@@ -121,7 +121,8 @@ func (r *Handler) HandleCollectionSchemaUpload(c *fiber.Ctx) error {
 
 	// * marshal metadata
 	metadata := payload.CollectionSchemaMetadata{
-		Structure: structure,
+		SchemaFilename: &fileHeader.Filename,
+		Structure:      structure,
 	}
 
 	metadataJson, err := json.Marshal(metadata)

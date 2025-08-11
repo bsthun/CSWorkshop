@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/lithammer/dedent"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/lithammer/dedent"
 )
 
 type EndpointInfo struct {
@@ -18,6 +19,14 @@ type EndpointInfo struct {
 	ErrorType  string
 	QueryType  string
 	BodyType   string
+	FormFields []*FormField
+}
+
+type FormField struct {
+	Name     string
+	Type     string
+	Required bool
+	IsFile   bool
 }
 
 type RouteInfo struct {
@@ -130,7 +139,7 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 			Method:     matchedRoute.Method,
 			Path:       matchedRoute.Path,
 			ErrorType:  "response.ErrorResponse",
-			ReturnType: "response.SuccessResponse", // default return type
+			ReturnType: "response.SuccessResponse", // * default return type
 		}
 
 		// * extract tag from path
@@ -160,11 +169,19 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				endpoint.BodyType = bodyMatch[2]
 			}
 
-			// * Track variable declarations and their types
+			// * check for form fields
+			if endpoint.BodyType == "" {
+				formFields := extractFormFields(functionBody)
+				if len(formFields) > 0 {
+					endpoint.FormFields = formFields
+				}
+			}
+
+			// * track variable declarations and their types
 			varTypes := make(map[string]string)
 			varIsArray := make(map[string]bool)
 
-			// * Case 1: var varName *Type - explicit variable declarations
+			// * case 1: var varName *Type - explicit variable declarations
 			varDeclRegex := regexp.MustCompile(`var\s+(\w+)\s+\*([^\s]+)`)
 			for _, varMatch := range varDeclRegex.FindAllStringSubmatch(functionBody, -1) {
 				if len(varMatch) > 2 {
@@ -175,7 +192,7 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				}
 			}
 
-			// * Case 2: varName := &Type{...} - variable assignment with type initialization
+			// * case 2: varName := &Type{...} - variable assignment with type initialization
 			assignRegex := regexp.MustCompile(`(\w+)\s*:=\s*&([^\s{]+)`)
 			for _, assignMatch := range assignRegex.FindAllStringSubmatch(functionBody, -1) {
 				if len(assignMatch) > 2 {
@@ -186,7 +203,7 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				}
 			}
 
-			// * Case 3: var varName []*Type or var varName []Type - array variable declarations
+			// * case 3: var varName []*Type or var varName []Type - array variable declarations
 			arrayDeclRegex := regexp.MustCompile(`var\s+(\w+)\s+\[\]\*?([^\s]+)`)
 			for _, arrayMatch := range arrayDeclRegex.FindAllStringSubmatch(functionBody, -1) {
 				if len(arrayMatch) > 2 {
@@ -197,12 +214,12 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				}
 			}
 
-			// * Case 4: varName := make([]*Type, 0) or varName := []*Type{} - array initialization
+			// * case 4: varName := make([]*Type, 0) or varName := []*Type{} - array initialization
 			arrayInitRegex := regexp.MustCompile(`(\w+)\s*:=\s*(make\(\[\]\*?([^\s,]+)|(\[\]\*?([^\s{]+)))`)
 			for _, arrayInitMatch := range arrayInitRegex.FindAllStringSubmatch(functionBody, -1) {
 				if len(arrayInitMatch) > 2 {
 					varName := arrayInitMatch[1]
-					// Handle both make([]*Type, 0) and []*Type{} cases
+					// * handle both make([]*Type, 0) and []*Type{} cases
 					var varType string
 					if arrayInitMatch[3] != "" {
 						varType = arrayInitMatch[3]
@@ -216,7 +233,7 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				}
 			}
 
-			// * Find specific array declaration pattern: var varName []*structType
+			// * find specific array declaration pattern: var varName []*structType
 			specificArrayRegex := regexp.MustCompile(`var\s+(\w+)\s+\[]\*([^\s]+)`)
 			specificArrayMatches := specificArrayRegex.FindAllStringSubmatch(functionBody, -1)
 			for _, match := range specificArrayMatches {
@@ -228,7 +245,7 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				}
 			}
 
-			// * Find array initializations like: varName := make([]*Type, 0)
+			// * find array initializations like: varName := make([]*Type, 0)
 			makeArrayRegex := regexp.MustCompile(`(\w+)\s*:=\s*make\(\[]\*([^,]+)`)
 			makeArrayMatches := makeArrayRegex.FindAllStringSubmatch(functionBody, -1)
 			for _, match := range makeArrayMatches {
@@ -240,24 +257,24 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 				}
 			}
 
-			// * Find the return statement with response.Success
+			// * find the return statement with response.Success
 			returnRegex := regexp.MustCompile(`return\s+c\.JSON\(response\.Success\(c, ([^)]+)\)\)`)
 			returnMatch := returnRegex.FindStringSubmatch(functionBody)
 
 			if len(returnMatch) > 1 {
 				successArg := strings.TrimSpace(returnMatch[1])
 
-				// * Check if argument is a tracked variable
+				// * check if argument is a tracked variable
 				if varType, exists := varTypes[successArg]; exists {
 					if isArray, ok := varIsArray[successArg]; ok && isArray {
-						// It's an array type
+						// * it's an array type
 						endpoint.ReturnType = fmt.Sprintf("response.GenericResponse[[]%s]", varType)
 					} else {
-						// It's a single object type
+						// * it's a single object type
 						endpoint.ReturnType = fmt.Sprintf("response.GenericResponse[%s]", varType)
 					}
 				} else if strings.HasPrefix(successArg, "&") {
-					// * Handle inline struct creation &Type{...}
+					// * handle inline struct creation &Type{...}
 					typeRegex := regexp.MustCompile(`&([^\s{]+)`)
 					typeMatch := typeRegex.FindStringSubmatch(successArg)
 
@@ -275,6 +292,46 @@ func extractEndpointInfo(content string, routes []RouteInfo) []EndpointInfo {
 	return endpoints
 }
 
+func extractFormFields(functionBody string) []*FormField {
+	var formFields []*FormField
+
+	// * detect form value
+	formValueRegex := regexp.MustCompile(`(\w+)\s*:=\s*c\.FormValue\("([^"]+)"\)`)
+	formValueMatches := formValueRegex.FindAllStringSubmatch(functionBody, -1)
+
+	for _, match := range formValueMatches {
+		if len(match) > 2 {
+			fieldName := match[2]
+
+			formFields = append(formFields, &FormField{
+				Name:     fieldName,
+				Type:     "string",
+				Required: true,
+				IsFile:   false,
+			})
+		}
+	}
+
+	// * detect form file
+	formFileRegex := regexp.MustCompile(`[^,\s]+,\s*err\s*:=\s*c\.FormFile\("([^"]+)"\)`)
+	formFileMatches := formFileRegex.FindAllStringSubmatch(functionBody, -1)
+
+	for _, match := range formFileMatches {
+		if len(match) > 1 {
+			fieldName := match[1]
+
+			formFields = append(formFields, &FormField{
+				Name:     fieldName,
+				Type:     "file",
+				Required: true,
+				IsFile:   true,
+			})
+		}
+	}
+
+	return formFields
+}
+
 func generateSwaggerComment(endpoint EndpointInfo) string {
 	// * generate id from endpoint name
 	name := strings.TrimPrefix(endpoint.Name, "Handle")
@@ -282,11 +339,34 @@ func generateSwaggerComment(endpoint EndpointInfo) string {
 
 	// * build swagger parameters
 	params := ""
+
+	// * add query parameters
 	if endpoint.QueryType != "" {
 		params += fmt.Sprintf("\n// @Param query query %s true \"Query\"", endpoint.QueryType)
 	}
+
+	// * add body parameters
 	if endpoint.BodyType != "" {
 		params += fmt.Sprintf("\n// @Param body body %s true \"Body\"", endpoint.BodyType)
+	}
+
+	// * add form parameters
+	if len(endpoint.FormFields) > 0 {
+		for _, field := range endpoint.FormFields {
+			required := "true"
+			if !field.Required {
+				required = "false"
+			}
+
+			paramType := "formData"
+			fieldType := field.Type
+
+			params += fmt.Sprintf("\n// @Param %s %s %s %s \"%s\"",
+				field.Name, paramType, fieldType, required, field.Name)
+		}
+
+		// * add consumes annotation for multipart form
+		params += "\n// @Accept multipart/form-data"
 	}
 
 	return fmt.Sprintf(dedent.Dedent(`

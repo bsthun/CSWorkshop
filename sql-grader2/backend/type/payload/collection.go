@@ -82,5 +82,45 @@ type CollectionTableStructure struct {
 }
 
 type CollectionSchemaMetadata struct {
-	Structure []*CollectionTableStructure `json:"structure"`
+	SchemaFilename *string                     `json:"schemaFilename"`
+	Structure      []*CollectionTableStructure `json:"structure"`
+}
+
+type CollectionQuestionCreateRequest struct {
+	CollectionId *uint64 `json:"collectionId" validate:"required"`
+	Description  *string `json:"description"`
+}
+
+type CollectionQuestionEditRequest struct {
+	Id          *uint64 `json:"id" validate:"required"`
+	Title       *string `json:"title" validate:"required"`
+	Description *string `json:"description"`
+	CheckQuery  *string `json:"checkQuery" validate:"required"`
+	CheckPrompt *string `json:"checkPrompt" validate:"required"`
+}
+
+type CollectionQuestionListItem struct {
+	Id       *uint64 `json:"id"`
+	OrderNum *int32  `json:"orderNum"`
+	Title    *string `json:"title"`
+}
+
+type CollectionQuestionListResponse struct {
+	Questions []*CollectionQuestionListItem `json:"questions"`
+}
+
+type CollectionQuestionDetail struct {
+	Id           *uint64    `json:"id"`
+	CollectionId *uint64    `json:"collectionId"`
+	OrderNum     *int32     `json:"orderNum"`
+	Title        *string    `json:"title"`
+	Description  *string    `json:"description"`
+	CheckQuery   *string    `json:"checkQuery"`
+	CheckPrompt  *string    `json:"checkPrompt"`
+	CreatedAt    *time.Time `json:"createdAt"`
+	UpdatedAt    *time.Time `json:"updatedAt"`
+}
+
+type CollectionQuestionDeleteRequest struct {
+	Id *uint64 `json:"id" validate:"required"`
 }

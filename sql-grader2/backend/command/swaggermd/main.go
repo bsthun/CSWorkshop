@@ -26,6 +26,7 @@ type Operation struct {
 	OperationID string              `json:"operationId" yaml:"operationId"`
 	Parameters  []Parameter         `json:"parameters" yaml:"parameters"`
 	Responses   map[string]Response `json:"responses" yaml:"responses"`
+	Consumes    []string            `json:"consumes" yaml:"consumes"`
 }
 
 type Parameter struct {
@@ -119,6 +120,8 @@ func getExampleForType(paramType string) string {
 		return "1"
 	case "boolean":
 		return "true"
+	case "file":
+		return "file"
 	default:
 		return "\"example\""
 	}
@@ -177,6 +180,7 @@ func formatOperation(spc SwaggerSpec, op *Operation, method string, path string)
 
 	var queryParams []string
 	var bodyParam string
+	var formParams []string
 
 	for _, param := range op.Parameters {
 		switch param.In {
@@ -187,23 +191,41 @@ func formatOperation(spc SwaggerSpec, op *Operation, method string, path string)
 			}
 			example := getExampleForType(paramType)
 			queryParams = append(queryParams, fmt.Sprintf("   - %s: %s | %s", param.Name, paramType, example))
+
 		case "body":
 			if param.Schema != nil && param.Schema.Ref != "" {
 				bodyParam = strings.TrimPrefix(param.Schema.Ref, "#/definitions/")
 			} else if param.Schema != nil && param.Schema.Type == "array" && param.Schema.Items != nil && param.Schema.Items.Ref != "" {
 				bodyParam = strings.TrimPrefix(param.Schema.Items.Ref, "#/definitions/") + "[]"
 			}
+
+		case "formData":
+			required := ""
+			if param.Required {
+				required = " (required)"
+			}
+			example := getExampleForType(param.Type)
+			formParams = append(formParams, fmt.Sprintf("   - %s: %s%s | %s", param.Name, param.Type, required, example))
 		}
 	}
 
+	// * add query parameters
 	if len(queryParams) > 0 {
 		output.WriteString(" - query\n")
 		output.WriteString(strings.Join(queryParams, "\n"))
 		output.WriteString("\n")
 	}
 
+	// * add form parameters (for multipart form data)
+	if len(formParams) > 0 {
+		output.WriteString(" - form\n")
+		output.WriteString(strings.Join(formParams, "\n"))
+		output.WriteString("\n")
+	}
+
+	// * add body parameters (for JSON)
 	if bodyParam != "" {
-		output.WriteString(" - body\n")
+		output.WriteString(" - body (application/json)\n")
 		if strings.HasSuffix(bodyParam, "[]") {
 			arrayType := strings.TrimSuffix(bodyParam, "[]")
 			if schema, ok := spc.Definitions[arrayType]; ok {
@@ -215,6 +237,7 @@ func formatOperation(spc SwaggerSpec, op *Operation, method string, path string)
 		}
 	}
 
+	// * add response
 	if resp, ok := op.Responses["200"]; ok && resp.Schema != nil {
 		output.WriteString(" - response\n")
 		if resp.Schema.Ref != "" {
