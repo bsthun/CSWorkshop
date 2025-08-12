@@ -49,7 +49,7 @@ func (r *Handler) HandleCollectionSchemaUpload(c *fiber.Ctx) error {
 	}
 
 	// * create directory
-	dirPath := fmt.Sprintf(".local/collection/%s", gut.EncodeId(collectionId))
+	dirPath := fmt.Sprintf(".local/collection/%s", gut.Base62(collectionId))
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
 		return gut.Err(false, "failed to create directory", err)
 	}

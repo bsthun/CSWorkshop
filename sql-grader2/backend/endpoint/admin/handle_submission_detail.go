@@ -15,10 +15,10 @@ func (r *Handler) HandleSubmissionDetail(c *fiber.Ctx) error {
 	// * get user claims
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
-	// * get request body
-	var req payload.SubmissionDetailRequest
-	if err := c.BodyParser(&req); err != nil {
-		return gut.Err(false, "failed to parse request body", err)
+	// * parse body
+	body := new(payload.SubmissionDetailRequest)
+	if err := c.BodyParser(body); err != nil {
+		return gut.Err(false, "invalid body", err)
 	}
 
 	// * get user from database
@@ -33,7 +33,7 @@ func (r *Handler) HandleSubmissionDetail(c *fiber.Ctx) error {
 	}
 
 	// * get submission detail
-	row, err := r.database.P().SubmissionDetail(c.Context(), req.Id)
+	row, err := r.database.P().SubmissionDetail(c.Context(), body.Id)
 	if err != nil {
 		return gut.Err(false, "failed to get submission", err)
 	}
