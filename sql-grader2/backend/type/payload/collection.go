@@ -296,3 +296,44 @@ type SubmissionListRequest struct {
 type SubmissionListResponse struct {
 	Submissions []*SubmissionListItem `json:"submissions"`
 }
+
+type ExamQuestionAddRequest struct {
+	ExamId               *uint64 `json:"examId" validate:"required"`
+	CollectionQuestionId *uint64 `json:"collectionQuestionId" validate:"required"`
+}
+
+type ExamQuestionDeleteRequest struct {
+	ExamQuestionId *uint64 `json:"examQuestionId" validate:"required"`
+}
+
+type ExamQuestionEditRequest struct {
+	ExamQuestionId *uint64 `json:"examQuestionId" validate:"required"`
+	Title          *string `json:"title" validate:"required"`
+	Description    *string `json:"description"`
+	CheckQuery     *string `json:"checkQuery" validate:"required"`
+	CheckPrompt    *string `json:"checkPrompt" validate:"required"`
+}
+
+type ExamQuestionListRequest struct {
+	ExamId *uint64 `json:"examId" validate:"required"`
+}
+
+type ExamQuestionListItem struct {
+	Id       *uint64 `json:"id"`
+	OrderNum *int32  `json:"orderNum"`
+	Title    *string `json:"title"`
+}
+
+type ExamQuestionListResponse struct {
+	Questions []*ExamQuestionListItem `json:"questions"`
+}
+
+type ExamDetailRequest struct {
+	ExamId *uint64 `json:"examId" validate:"required"`
+}
+
+type ExamDetailResponse struct {
+	Exam       *Exam       `json:"exam"`
+	Class      *Class      `json:"class"`
+	Collection *Collection `json:"collection"`
+}

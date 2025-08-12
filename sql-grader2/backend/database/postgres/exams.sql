@@ -26,3 +26,47 @@ LEFT JOIN exam_submissions es ON eq.id = es.exam_question_id AND es.exam_attempt
 WHERE exam_attempts.exam_id = $1
 GROUP BY exam_attempts.id, class_joinees.id, users.id
 ORDER BY exam_attempts.created_at DESC;
+
+-- name: ExamQuestionAdd :one
+INSERT INTO exam_questions (exam_id, original_question_id, order_num, title, description, check_query, check_prompt)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING *;
+
+-- name: ExamQuestionMaxOrderNum :one
+SELECT COALESCE(MAX(order_num), 0)::int as max_order_num
+FROM exam_questions
+WHERE exam_id = $1;
+
+-- name: ExamQuestionDelete :exec
+DELETE FROM exam_questions
+WHERE id = $1;
+
+-- name: ExamQuestionEdit :one
+UPDATE exam_questions
+SET title = $2, description = $3, check_query = $4, check_prompt = $5
+WHERE id = $1
+RETURNING *;
+
+-- name: ExamQuestionList :many
+SELECT id, order_num, title
+FROM exam_questions
+WHERE exam_id = $1
+ORDER BY order_num ASC;
+
+-- name: CollectionQuestionGetById :one
+SELECT sqlc.embed(collection_questions), sqlc.embed(collections)
+FROM collection_questions
+JOIN collections ON collection_questions.collection_id = collections.id
+WHERE collection_questions.id = $1;
+
+-- name: ExamGetById :one
+SELECT *
+FROM exams
+WHERE id = $1;
+
+-- name: ExamDetail :one
+SELECT sqlc.embed(exams), sqlc.embed(classes), sqlc.embed(collections)
+FROM exams
+JOIN classes ON exams.class_id = classes.id
+JOIN collections ON exams.collection_id = collections.id
+WHERE exams.id = $1;
