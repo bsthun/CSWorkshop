@@ -5,7 +5,6 @@ import (
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
-	"strconv"
 
 	"github.com/bsthun/gut"
 	"github.com/gofiber/fiber/v2"
@@ -16,11 +15,10 @@ func (r *Handler) HandleClassDetail(c *fiber.Ctx) error {
 	// * get user claims
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
-	// * get class id from params
-	classIdParam := c.Params("id")
-	classId, err := strconv.ParseUint(classIdParam, 10, 64)
-	if err != nil {
-		return gut.Err(false, "invalid class id", err)
+	// * parse body
+	body := new(payload.ClassIdRequest)
+	if err := c.BodyParser(body); err != nil {
+		return gut.Err(false, "invalid body", err)
 	}
 
 	// * get user from database
@@ -35,13 +33,13 @@ func (r *Handler) HandleClassDetail(c *fiber.Ctx) error {
 	}
 
 	// * get class with semester info
-	classDetail, err := r.database.P().ClassGetById(c.Context(), &classId)
+	classDetail, err := r.database.P().ClassGetById(c.Context(), body.ClassId)
 	if err != nil {
 		return gut.Err(false, "failed to get class", err)
 	}
 
 	// * list class joinees
-	joineeRows, err := r.database.P().ClassJoineeList(c.Context(), &classId)
+	joineeRows, err := r.database.P().ClassJoineeList(c.Context(), body.ClassId)
 	if err != nil {
 		return gut.Err(false, "failed to get class joinees", err)
 	}

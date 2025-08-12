@@ -15,7 +15,7 @@ func (r *Handler) HandleSubmissionDetail(c *fiber.Ctx) error {
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
 	// * parse body
-	body := new(payload.SubmissionDetailRequest)
+	body := new(payload.SubmissionIdRequest)
 	if err := c.BodyParser(body); err != nil {
 		return gut.Err(false, "invalid body", err)
 	}
@@ -32,7 +32,7 @@ func (r *Handler) HandleSubmissionDetail(c *fiber.Ctx) error {
 	}
 
 	// * get submission detail
-	row, err := r.database.P().SubmissionDetail(c.Context(), body.Id)
+	row, err := r.database.P().SubmissionDetail(c.Context(), body.SubmissionId)
 	if err != nil {
 		return gut.Err(false, "failed to get submission", err)
 	}

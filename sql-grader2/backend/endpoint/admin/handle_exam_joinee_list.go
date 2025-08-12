@@ -5,7 +5,6 @@ import (
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
-	"strconv"
 
 	"github.com/bsthun/gut"
 	"github.com/gofiber/fiber/v2"
@@ -16,11 +15,10 @@ func (r *Handler) HandleExamJoineeList(c *fiber.Ctx) error {
 	// * get user claims
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
-	// * get exam id from params
-	examIdParam := c.Params("id")
-	examId, err := strconv.ParseUint(examIdParam, 10, 64)
-	if err != nil {
-		return gut.Err(false, "invalid exam id", err)
+	// * parse body
+	body := new(payload.ExamIdRequest)
+	if err := c.BodyParser(body); err != nil {
+		return gut.Err(false, "invalid body", err)
 	}
 
 	// * get user from database
@@ -35,7 +33,7 @@ func (r *Handler) HandleExamJoineeList(c *fiber.Ctx) error {
 	}
 
 	// * get exam joinee list with user info
-	joineeRows, err := r.database.P().ExamJoineeList(c.Context(), &examId)
+	joineeRows, err := r.database.P().ExamJoineeList(c.Context(), body.ExamId)
 	if err != nil {
 		return gut.Err(false, "failed to get exam joinees", err)
 	}

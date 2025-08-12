@@ -51,3 +51,16 @@ Common Implementation Pattern for Detail/List Endpoints:
 
 Command:
 - To check implementation, use `make generate` to check and generate code, if this command passed, it means the implementation is correct.
+
+Common SQLC Generation Issues (Manual Fixes Required):
+
+- **ExamQuestionMaxOrderNum Query**: The auto-generated function returns `interface{}` instead of typed result. Need to manually edit the SQL query to cast result as specific type:
+  - Original: `SELECT COALESCE(MAX(order_num), 0) as max_order_num`
+  - Fixed: `SELECT COALESCE(MAX(order_num), 0)::int as max_order_num`
+  - This makes SQLC generate `*int32` return type instead of `interface{}`
+
+- **Parameter Struct Issues**: When SQLC generates functions with multiple parameters, it sometimes creates generic `Column1, Column2` instead of named parameters. Use `sqlc.narg(param_name)` to fix:
+  - Original: `WHERE ($1::type IS NULL OR condition)` 
+  - Fixed: `WHERE (sqlc.narg(param_name)::type IS NULL OR condition)`
+
+- **Always regenerate SQLC after SQL changes**: Use `make sqlc` to regenerate types before implementing Go code to see correct function signatures and parameter structures.

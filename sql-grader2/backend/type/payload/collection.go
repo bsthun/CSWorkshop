@@ -284,8 +284,8 @@ type SubmissionListItem struct {
 	Student    *User           `json:"student"`
 }
 
-type SubmissionDetailRequest struct {
-	Id *uint64 `json:"id" validate:"required"`
+type SubmissionIdRequest struct {
+	SubmissionId *uint64 `json:"submissionId" validate:"required"`
 }
 
 type SubmissionListRequest struct {
@@ -314,10 +314,6 @@ type ExamQuestionEditRequest struct {
 	CheckPrompt    *string `json:"checkPrompt" validate:"required"`
 }
 
-type ExamQuestionListRequest struct {
-	ExamId *uint64 `json:"examId" validate:"required"`
-}
-
 type ExamQuestionListItem struct {
 	Id       *uint64 `json:"id"`
 	OrderNum *int32  `json:"orderNum"`
@@ -328,8 +324,20 @@ type ExamQuestionListResponse struct {
 	Questions []*ExamQuestionListItem `json:"questions"`
 }
 
-type ExamDetailRequest struct {
+type ClassIdRequest struct {
+	ClassId *uint64 `json:"classId" validate:"required"`
+}
+
+type ExamIdRequest struct {
 	ExamId *uint64 `json:"examId" validate:"required"`
+}
+
+type CollectionIdRequest struct {
+	CollectionId *uint64 `json:"collectionId" validate:"required"`
+}
+
+type QuestionIdRequest struct {
+	QuestionId *uint64 `json:"questionId" validate:"required"`
 }
 
 type ExamDetailResponse struct {

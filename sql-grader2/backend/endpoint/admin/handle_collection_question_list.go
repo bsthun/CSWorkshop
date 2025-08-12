@@ -5,7 +5,6 @@ import (
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
-	"strconv"
 
 	"github.com/bsthun/gut"
 	"github.com/gofiber/fiber/v2"
@@ -16,15 +15,10 @@ func (r *Handler) HandleCollectionQuestionList(c *fiber.Ctx) error {
 	// * get user claims
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
-	// * get collection id from query params
-	collectionIdStr := c.Query("collectionId")
-	if collectionIdStr == "" {
-		return gut.Err(false, "collection id is required", nil)
-	}
-
-	collectionId, err := strconv.ParseUint(collectionIdStr, 10, 64)
-	if err != nil {
-		return gut.Err(false, "invalid collection id", err)
+	// * parse body
+	body := new(payload.CollectionIdRequest)
+	if err := c.BodyParser(body); err != nil {
+		return gut.Err(false, "invalid body", err)
 	}
 
 	// * get user from database
@@ -39,7 +33,7 @@ func (r *Handler) HandleCollectionQuestionList(c *fiber.Ctx) error {
 	}
 
 	// * get collection questions
-	questions, err := r.database.P().CollectionQuestionList(c.Context(), gut.Ptr(collectionId))
+	questions, err := r.database.P().CollectionQuestionList(c.Context(), body.CollectionId)
 	if err != nil {
 		return gut.Err(false, "failed to get collection questions", err)
 	}
