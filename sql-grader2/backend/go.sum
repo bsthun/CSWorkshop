@@ -12,6 +12,8 @@ github.com/andybalholm/brotli v1.1.1 h1:PR2pgnyFznKEugtsUo0xLdDop5SKXd5Qf5ysW+7X
 github.com/andybalholm/brotli v1.1.1/go.mod h1:05ib4cKhjx3OQYUY22hTVd34Bc8upXjOLL2rKwwZBoA=
 github.com/arsmn/fiber-swagger/v2 v2.31.1 h1:VmX+flXiGGNqLX3loMEEzL3BMOZFSPwBEWR04GA6Mco=
 github.com/arsmn/fiber-swagger/v2 v2.31.1/go.mod h1:ZHhMprtB3M6jd2mleG03lPGhHH0lk9u3PtfWS1cBhMA=
+github.com/brianium/mnemonic v0.0.0-20180124190051-72af92c51f88 h1:futFTqrUAf1IanFLU+jK4D1NpgE/+gCbnCG7Fl0rHs0=
+github.com/brianium/mnemonic v0.0.0-20180124190051-72af92c51f88/go.mod h1:9+aSydpGKM9249AggXRGwzehCUhF41ttr2sdUEolnE8=
 github.com/bsthun/gut v1.2.4 h1:Yqdc0c9MAZ36B1cuIuhTVoH2Py1ygiLMfJBhSGf45Lw=
 github.com/bsthun/gut v1.2.4/go.mod h1:h0gPPIO3PdxWR2kaRdkbjNAU0iA9TZ8vMqwpPA7SIos=
 github.com/coreos/go-oidc/v3 v3.14.1 h1:9ePWwfdwC4QKRlCXsJGou56adA/owXczOzwKdOumLqk=

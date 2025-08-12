@@ -74,8 +74,8 @@ CREATE TABLE exams
     collection_id BIGINT REFERENCES collections (id) ON DELETE RESTRICT NOT NULL,
     name          VARCHAR(255)                                          NOT NULL,
     access_code   VARCHAR(64)                                           NOT NULL,
-    opened_at     TIMESTAMP                                             NULL,
-    closed_at     TIMESTAMP                                             NULL,
+    opened_at     TIMESTAMP                                             NOT NULL,
+    closed_at     TIMESTAMP                                             NOT NULL,
     created_at    TIMESTAMP                                             NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP                                             NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (class_id, access_code)
@@ -109,12 +109,12 @@ CREATE TABLE exam_attempts
     UNIQUE (exam_id, class_joinee_id)
 );
 
-CREATE TABLE exam_question_attempts
+CREATE TABLE exam_submissions
 (
     id                  BIGSERIAL PRIMARY KEY,
     exam_question_id    BIGINT REFERENCES exam_questions (id) ON DELETE CASCADE NOT NULL,
     exam_attempt_id     BIGINT REFERENCES exam_attempts (id) ON DELETE CASCADE  NOT NULL,
-    answer              TEXT                                                    NULL,
+    answer              TEXT                                                    NOT NULL,
     check_query_passed  BOOLEAN                                                 NULL,
     check_query_at      TIMESTAMP                                               NULL,
     check_prompt_passed BOOLEAN                                                 NULL,
@@ -189,9 +189,9 @@ CREATE TRIGGER auto_updated_at_exam_attempts
     FOR EACH ROW
 EXECUTE FUNCTION auto_updated_at();
 
-CREATE TRIGGER auto_updated_at_exam_question_attempts
+CREATE TRIGGER auto_updated_at_exam_submissions
     BEFORE UPDATE
-    ON exam_question_attempts
+    ON exam_submissions
     FOR EACH ROW
 EXECUTE FUNCTION auto_updated_at();
 
@@ -199,7 +199,7 @@ EXECUTE FUNCTION auto_updated_at();
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE exam_question_attempts;
+DROP TABLE exam_submissions;
 DROP TABLE exam_attempts;
 DROP TABLE exam_questions;
 DROP TABLE exams;

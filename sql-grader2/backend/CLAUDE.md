@@ -27,5 +27,27 @@ Query guideline:
 - Do not uses table alias in query if not necessary.
 - Use `sqlc.narg` instead of `Column1, Column2`. Use name of `sort` for order by.
 
+SQLC Generate Type Mapping Notes:
+
+- When using `sqlc.embed(table_name)` in queries, the generated row struct will use singular table names (e.g., `row.Collection` not `row.Collections`, `row.Exam` not `row.Exams`)
+- For queries with embedded structs, access fields like: `row.Collection.Id`, `row.User.Name`, `row.Class.RegisterCode`
+- For queries with joins and embeds, the generated struct follows pattern: `type QueryNameRow struct { EntityName Entity, AnotherEntity Entity, CustomField *Type }`
+- Always check generated types in `/generate/psql/*.sql.go` after writing queries to understand the exact field structure
+- When using `COUNT()` in queries with embed, the count field will be directly on the row struct (e.g., `row.QuestionCount`)
+
+Parameter Type Guidelines:
+
+- All SQLC query parameters should be pointers (e.g., `&classId` not `classId`) when the database field is nullable or when following the project's pointer convention
+- Route parameters need to be converted from string: `strconv.ParseUint(c.Params("id"), 10, 64)`
+- Payload validation should use `validate:"required"` for required fields
+- Time fields in request payloads should be `*time.Time` and validated as required if database field is NOT NULL
+
+Common Implementation Pattern for Detail/List Endpoints:
+
+- Detail endpoints: Get single entity with related data using joins and embeds
+- List endpoints: Get multiple entities with aggregated data (counts, etc.)
+- Always use ORDER BY with logical sorting (usually created_at DESC)
+- Map SQLC results to payload structs using gut.Iterate for arrays
+
 Command:
 - To check implementation, use `make generate` to check and generate code, if this command passed, it means the implementation is correct.

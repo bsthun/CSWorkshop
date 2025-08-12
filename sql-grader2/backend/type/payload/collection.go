@@ -68,6 +68,13 @@ type ClassCreateRequest struct {
 	Name       *string `json:"name" validate:"required"`
 }
 
+type ClassEditRequest struct {
+	Id           *uint64 `json:"id" validate:"required"`
+	Code         *string `json:"code" validate:"required"`
+	Name         *string `json:"name" validate:"required"`
+	RegisterCode *string `json:"registerCode" validate:"required"`
+}
+
 type CollectionCreateRequest struct {
 	Name *string `json:"name" validate:"required"`
 }
@@ -123,4 +130,169 @@ type CollectionQuestionDetail struct {
 
 type CollectionQuestionDeleteRequest struct {
 	Id *uint64 `json:"id" validate:"required"`
+}
+
+type Class struct {
+	Id           *uint64    `json:"id"`
+	SemesterId   *uint64    `json:"semesterId"`
+	Code         *string    `json:"code"`
+	Name         *string    `json:"name"`
+	RegisterCode *string    `json:"registerCode"`
+	CreatedAt    *time.Time `json:"createdAt"`
+	UpdatedAt    *time.Time `json:"updatedAt"`
+}
+
+type User struct {
+	Id         *uint64    `json:"id"`
+	Oid        *string    `json:"oid"`
+	Firstname  *string    `json:"firstname"`
+	Lastname   *string    `json:"lastname"`
+	Email      *string    `json:"email"`
+	PictureUrl *string    `json:"pictureUrl"`
+	IsAdmin    *bool      `json:"isAdmin"`
+	CreatedAt  *time.Time `json:"createdAt"`
+	UpdatedAt  *time.Time `json:"updatedAt"`
+}
+
+type ClassJoinee struct {
+	User      *User      `json:"user"`
+	CreatedAt *time.Time `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt"`
+}
+
+type SemesterInfo struct {
+	Id        *uint64    `json:"id"`
+	Name      *string    `json:"name"`
+	CreatedAt *time.Time `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt"`
+}
+
+type ClassDetailResponse struct {
+	Class    *Class         `json:"class"`
+	Semester *SemesterInfo  `json:"semester"`
+	Joinees  []*ClassJoinee `json:"joinees"`
+}
+
+type ExamCreateRequest struct {
+	ClassId      *uint64    `json:"classId" validate:"required"`
+	CollectionId *uint64    `json:"collectionId" validate:"required"`
+	Name         *string    `json:"name" validate:"required"`
+	OpenedAt     *time.Time `json:"openedAt" validate:"required"`
+	ClosedAt     *time.Time `json:"closedAt" validate:"required"`
+}
+
+type Exam struct {
+	Id           *uint64    `json:"id"`
+	ClassId      *uint64    `json:"classId"`
+	CollectionId *uint64    `json:"collectionId"`
+	Name         *string    `json:"name"`
+	AccessCode   *string    `json:"accessCode"`
+	OpenedAt     *time.Time `json:"openedAt"`
+	ClosedAt     *time.Time `json:"closedAt"`
+	CreatedAt    *time.Time `json:"createdAt"`
+	UpdatedAt    *time.Time `json:"updatedAt"`
+}
+
+type ExamListItem struct {
+	Exam          *Exam       `json:"exam"`
+	Collection    *Collection `json:"collection"`
+	QuestionCount *uint64     `json:"questionCount"`
+}
+
+type ExamListResponse struct {
+	Exams []*ExamListItem `json:"exams"`
+}
+
+type ExamJoinee struct {
+	Id   *uint64 `json:"id"`
+	User *User   `json:"user"`
+}
+
+type ExamScore struct {
+	Passed      *uint64 `json:"passed"`
+	Rejected    *uint64 `json:"rejected"`
+	Invalid     *uint64 `json:"invalid"`
+	Unsubmitted *int32  `json:"unsubmitted"`
+}
+
+type ExamJoineeListItem struct {
+	Id            *uint64     `json:"id"`
+	ExamId        *uint64     `json:"examId"`
+	ClassJoineeId *uint64     `json:"classJoineeId"`
+	OpenedAt      *time.Time  `json:"openedAt"`
+	StartedAt     *time.Time  `json:"startedAt"`
+	FinishedAt    *time.Time  `json:"finishedAt"`
+	CreatedAt     *time.Time  `json:"createdAt"`
+	UpdatedAt     *time.Time  `json:"updatedAt"`
+	Joinee        *ExamJoinee `json:"joinee"`
+	Score         *ExamScore  `json:"score"`
+}
+
+type ExamJoineeListResponse struct {
+	Joinees []*ExamJoineeListItem `json:"joinees"`
+}
+
+type ExamQuestion struct {
+	Id                 *uint64    `json:"id"`
+	ExamId             *uint64    `json:"examId"`
+	OriginalQuestionId *uint64    `json:"originalQuestionId"`
+	OrderNum           *int32     `json:"orderNum"`
+	Title              *string    `json:"title"`
+	Description        *string    `json:"description"`
+	CheckQuery         *string    `json:"checkQuery"`
+	CheckPrompt        *string    `json:"checkPrompt"`
+	CreatedAt          *time.Time `json:"createdAt"`
+	UpdatedAt          *time.Time `json:"updatedAt"`
+}
+
+type ExamAttempt struct {
+	Id            *uint64    `json:"id"`
+	ExamId        *uint64    `json:"examId"`
+	ClassJoineeId *uint64    `json:"classJoineeId"`
+	OpenedAt      *time.Time `json:"openedAt"`
+	StartedAt     *time.Time `json:"startedAt"`
+	FinishedAt    *time.Time `json:"finishedAt"`
+	CreatedAt     *time.Time `json:"createdAt"`
+	UpdatedAt     *time.Time `json:"updatedAt"`
+}
+
+type ExamSubmission struct {
+	Id                *uint64    `json:"id"`
+	ExamQuestionId    *uint64    `json:"examQuestionId"`
+	ExamAttemptId     *uint64    `json:"examAttemptId"`
+	Answer            *string    `json:"answer"`
+	CheckQueryPassed  *bool      `json:"checkQueryPassed"`
+	CheckQueryAt      *time.Time `json:"checkQueryAt"`
+	CheckPromptPassed *bool      `json:"checkPromptPassed"`
+	CheckPromptAt     *time.Time `json:"checkPromptAt"`
+	CreatedAt         *time.Time `json:"createdAt"`
+	UpdatedAt         *time.Time `json:"updatedAt"`
+}
+
+type SubmissionDetailResponse struct {
+	Submission *ExamSubmission `json:"submission"`
+	Question   *ExamQuestion   `json:"question"`
+	Attempt    *ExamAttempt    `json:"attempt"`
+	Student    *User           `json:"student"`
+	Exam       *Exam           `json:"exam"`
+}
+
+type SubmissionListItem struct {
+	Submission *ExamSubmission `json:"submission"`
+	Question   *ExamQuestion   `json:"question"`
+	Attempt    *ExamAttempt    `json:"attempt"`
+	Student    *User           `json:"student"`
+}
+
+type SubmissionDetailRequest struct {
+	Id *uint64 `json:"id" validate:"required"`
+}
+
+type SubmissionListRequest struct {
+	ExamAttemptId  *uint64 `json:"examAttemptId"`
+	ExamQuestionId *uint64 `json:"examQuestionId"`
+}
+
+type SubmissionListResponse struct {
+	Submissions []*SubmissionListItem `json:"submissions"`
 }
