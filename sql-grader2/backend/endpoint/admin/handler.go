@@ -11,11 +11,11 @@ import (
 type Handler struct {
 	config   *config.Config
 	database common.Database
-	entity   *entityProcedure.Service
+	entity   entityProcedure.Server
 	gorm     *gorm.DB
 }
 
-func Handle(config *config.Config, database common.Database, entity *entityProcedure.Service, gorm *gorm.DB) *Handler {
+func Handle(config *config.Config, database common.Database, entity entityProcedure.Server, gorm *gorm.DB) *Handler {
 	return &Handler{
 		config:   config,
 		database: database,

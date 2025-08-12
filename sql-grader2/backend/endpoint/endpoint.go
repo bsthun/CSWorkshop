@@ -45,6 +45,18 @@ func Bind(
 	admin.Post("/semester/create", adminEndpoint.HandleSemesterCreate)
 	admin.Post("/semester/edit", adminEndpoint.HandleSemesterEdit)
 	admin.Post("/class/create", adminEndpoint.HandleClassCreate)
+	admin.Post("/class/detail", adminEndpoint.HandleClassDetail)
+	admin.Post("/class/edit", adminEndpoint.HandleClassEdit)
+	admin.Post("/exam/create", adminEndpoint.HandleExamCreate)
+	admin.Post("/exam/list", adminEndpoint.HandleExamList)
+	admin.Post("/exam/detail", adminEndpoint.HandleExamDetail)
+	admin.Post("/exam/joinee/list", adminEndpoint.HandleExamJoineeList)
+	admin.Post("/exam/question/add", adminEndpoint.HandleExamQuestionAdd)
+	admin.Post("/exam/question/delete", adminEndpoint.HandleExamQuestionDelete)
+	admin.Post("/exam/question/edit", adminEndpoint.HandleExamQuestionEdit)
+	admin.Post("/exam/question/list", adminEndpoint.HandleExamQuestionList)
+	admin.Post("/submission/detail", adminEndpoint.HandleSubmissionDetail)
+	admin.Post("/submission/list", adminEndpoint.HandleSubmissionList)
 
 	// * static files
 	app.Static("/file", ".local/file")

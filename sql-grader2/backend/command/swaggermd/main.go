@@ -225,7 +225,7 @@ func formatOperation(spc SwaggerSpec, op *Operation, method string, path string)
 
 	// * add body parameters (for JSON)
 	if bodyParam != "" {
-		output.WriteString(" - body (application/json)\n")
+		output.WriteString(" - body\n")
 		if strings.HasSuffix(bodyParam, "[]") {
 			arrayType := strings.TrimSuffix(bodyParam, "[]")
 			if schema, ok := spc.Definitions[arrayType]; ok {
