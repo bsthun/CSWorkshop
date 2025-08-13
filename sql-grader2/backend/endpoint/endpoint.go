@@ -35,6 +35,7 @@ func Bind(
 	admin := api.Group("/admin", middleware.Jwt(true))
 	admin.Post("/collection/list", adminEndpoint.HandleCollectionList)
 	admin.Post("/collection/detail", adminEndpoint.HandleCollectionDetail)
+	admin.Post("/collection/edit", adminEndpoint.HandleCollectionEdit)
 	admin.Post("/collection/create", adminEndpoint.HandleCollectionCreate)
 	admin.Post("/collection/schema/upload", adminEndpoint.HandleCollectionSchemaUpload)
 	admin.Post("/collection/question/create", adminEndpoint.HandleCollectionQuestionCreate)

@@ -28,6 +28,12 @@ FROM collections
 WHERE collections.id = $1
 GROUP BY collections.id;
 
+-- name: CollectionEdit :one
+UPDATE collections
+SET name = $2
+WHERE id = $1
+RETURNING *;
+
 -- name: CollectionUpdateMetadata :one
 UPDATE collections
 SET metadata = $2

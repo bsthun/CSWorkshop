@@ -87,6 +87,11 @@ type CollectionCreateRequest struct {
 	Name *string `json:"name" validate:"required"`
 }
 
+type CollectionEditRequest struct {
+	Id   *uint64 `json:"id" validate:"required"`
+	Name *string `json:"name" validate:"required"`
+}
+
 type CollectionSchemaUploadRequest struct {
 	CollectionId string `json:"collectionId" validate:"required"`
 }

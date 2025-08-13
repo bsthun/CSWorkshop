@@ -7,6 +7,7 @@
 		ArrowLeftIcon,
 		BookOpenIcon,
 		DatabaseIcon,
+		EditIcon,
 		FileIcon,
 		InfoIcon,
 		Loader2Icon,
@@ -17,6 +18,7 @@
 	import type { PayloadCollection, PayloadCollectionDetailResponse } from '$/util/backend/backend.ts'
 	import TableStructureDialog from './dialog/TableStructureDialog.svelte'
 	import SchemaUploadDialog from './dialog/SchemaUploadDialog.svelte'
+	import EditCollectionDialog from './dialog/EditCollectionDialog.svelte'
 	import Questions from './components/Questions.svelte'
 
 	export let collection: number
@@ -26,6 +28,8 @@
 	let loading = true
 	let showTableDialog = false
 	let showSchemaDialog = false
+	let showEditDialog = false
+	let saving = false
 
 	const loadCollection = () => {
 		loading = true
@@ -46,6 +50,10 @@
 	}
 
 	const handleSchemaUploaded = () => {
+		loadCollection()
+	}
+
+	const handleCollectionSaved = () => {
 		loadCollection()
 	}
 
@@ -83,14 +91,19 @@
 				<ArrowLeftIcon size={16} />
 				<span class="text-xs font-medium tracking-wide uppercase">COLLECTION</span>
 			</button>
-			<h1 class="text-3xl font-bold">{collectionData.name}</h1>
+			<div class="flex items-center justify-between">
+				<h1 class="text-3xl font-bold">{collectionData.name}</h1>
+				<Button variant="outline" onclick={() => (showEditDialog = true)}>
+					<EditIcon class="mr-2 h-4 w-4" />
+					Edit
+				</Button>
+			</div>
 		</div>
 
 		<!-- Info Cards -->
 		<div class="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-			<!-- Question Count Card -->
-			<Card>
-				<CardContent class="px-6">
+			<Card class="flex justify-center">
+				<CardContent>
 					<div class="flex items-center gap-4">
 						<div class="rounded-lg bg-blue-100 p-2">
 							<BookOpenIcon class="h-6 w-6 text-blue-600" />
@@ -103,9 +116,8 @@
 				</CardContent>
 			</Card>
 
-			<!-- Database Structure Card -->
-			<Card>
-				<CardContent class="px-6">
+			<Card class="flex justify-center">
+				<CardContent>
 					<div class="flex items-center gap-4">
 						<div class="rounded-lg bg-green-100 p-2">
 							<DatabaseIcon class="h-6 w-6 text-green-600" />
@@ -131,9 +143,8 @@
 				</CardContent>
 			</Card>
 
-			<!-- Schema File Card -->
-			<Card>
-				<CardContent class="px-6">
+			<Card class="flex justify-center">
+				<CardContent>
 					<div class="flex items-center gap-4">
 						<div class="rounded-lg bg-purple-100 p-2">
 							<FileIcon class="h-6 w-6 text-purple-600" />
@@ -170,4 +181,11 @@
 	{collection}
 	schemaFilename={metadata?.schemaFilename}
 	on:uploaded={handleSchemaUploaded}
+/>
+
+<EditCollectionDialog
+	bind:open={showEditDialog}
+	{saving}
+	collection={collectionData}
+	on:saved={handleCollectionSaved}
 />

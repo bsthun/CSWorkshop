@@ -21,7 +21,7 @@
 	let nameFilter = ''
 	let currentPage = 1
 	let totalCount = 0
-	const itemsPerPage = 2
+	const itemsPerPage = 24
 
 	const loadCollections = (name: string, page: number) => {
 		loading = true

@@ -6,7 +6,7 @@
 
 	export let query: string = ''
 	export let currentPage: number = 1
-	export let totalItems: number = 0
+	export let totalItems: number = 1
 	export let itemsPerPage: number = 24
 	export let placeholder: string = 'Search...'
 
