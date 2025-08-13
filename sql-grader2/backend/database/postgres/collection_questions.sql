@@ -9,7 +9,7 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: CollectionQuestionList :many
-SELECT id, order_num, title
+SELECT id, order_num, title, description
 FROM collection_questions
 WHERE collection_id = $1
 ORDER BY order_num ASC;

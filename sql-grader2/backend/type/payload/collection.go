@@ -2,7 +2,7 @@ package payload
 
 import (
 	"backend/type/common"
-	"encoding/json"
+	"backend/type/tuple"
 	"time"
 )
 
@@ -12,11 +12,12 @@ type CollectionListRequest struct {
 }
 
 type Collection struct {
-	Id        *uint64         `json:"id"`
-	Name      *string         `json:"name"`
-	Metadata  json.RawMessage `json:"metadata"`
-	CreatedAt *time.Time      `json:"createdAt"`
-	UpdatedAt *time.Time      `json:"updatedAt"`
+	Id            *uint64                         `json:"id"`
+	Name          *string                         `json:"name"`
+	Metadata      *tuple.CollectionSchemaMetadata `json:"metadata"`
+	QuestionCount *int32                          `json:"questionCount"`
+	CreatedAt     *time.Time                      `json:"createdAt"`
+	UpdatedAt     *time.Time                      `json:"updatedAt"`
 }
 
 type CollectionListResponse struct {
@@ -75,22 +76,19 @@ type ClassEditRequest struct {
 	RegisterCode *string `json:"registerCode" validate:"required"`
 }
 
+type QuestionListItem struct {
+	Id          *uint64 `json:"id"`
+	OrderNum    *int32  `json:"orderNum"`
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+}
+
 type CollectionCreateRequest struct {
 	Name *string `json:"name" validate:"required"`
 }
 
 type CollectionSchemaUploadRequest struct {
 	CollectionId string `json:"collectionId" validate:"required"`
-}
-
-type CollectionTableStructure struct {
-	TableName *string `json:"tableName"`
-	RowCount  *uint64 `json:"rowCount"`
-}
-
-type CollectionSchemaMetadata struct {
-	SchemaFilename *string                     `json:"schemaFilename"`
-	Structure      []*CollectionTableStructure `json:"structure"`
 }
 
 type CollectionQuestionCreateRequest struct {
@@ -106,14 +104,8 @@ type CollectionQuestionEditRequest struct {
 	CheckPrompt *string `json:"checkPrompt" validate:"required"`
 }
 
-type CollectionQuestionListItem struct {
-	Id       *uint64 `json:"id"`
-	OrderNum *int32  `json:"orderNum"`
-	Title    *string `json:"title"`
-}
-
 type CollectionQuestionListResponse struct {
-	Questions []*CollectionQuestionListItem `json:"questions"`
+	Questions []*QuestionListItem `json:"questions"`
 }
 
 type CollectionQuestionDetail struct {
@@ -314,14 +306,8 @@ type ExamQuestionEditRequest struct {
 	CheckPrompt    *string `json:"checkPrompt" validate:"required"`
 }
 
-type ExamQuestionListItem struct {
-	Id       *uint64 `json:"id"`
-	OrderNum *int32  `json:"orderNum"`
-	Title    *string `json:"title"`
-}
-
 type ExamQuestionListResponse struct {
-	Questions []*ExamQuestionListItem `json:"questions"`
+	Questions []*QuestionListItem `json:"questions"`
 }
 
 type ClassIdRequest struct {
@@ -338,6 +324,10 @@ type CollectionIdRequest struct {
 
 type QuestionIdRequest struct {
 	QuestionId *uint64 `json:"questionId" validate:"required"`
+}
+
+type CollectionDetailResponse struct {
+	Collection *Collection `json:"collection"`
 }
 
 type ExamDetailResponse struct {

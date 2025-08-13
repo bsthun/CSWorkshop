@@ -48,7 +48,7 @@ WHERE id = $1
 RETURNING *;
 
 -- name: ExamQuestionList :many
-SELECT id, order_num, title
+SELECT id, order_num, title, description
 FROM exam_questions
 WHERE exam_id = $1
 ORDER BY order_num ASC;

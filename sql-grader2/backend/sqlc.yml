@@ -14,4 +14,9 @@ sql:
         emit_params_struct_pointers: true
         emit_interface: true
         initialisms: []
-        overrides: []
+        overrides:
+          - column: "collections.metadata"
+            go_type:
+              import: "backend/type/tuple"
+              type: "CollectionSchemaMetadata"
+              pointer: true

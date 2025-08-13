@@ -39,11 +39,12 @@ func (r *Handler) HandleCollectionQuestionList(c *fiber.Ctx) error {
 	}
 
 	// * map to payload
-	questionItems, _ := gut.Iterate(questions, func(question psql.CollectionQuestionListRow) (*payload.CollectionQuestionListItem, *gut.ErrorInstance) {
-		return &payload.CollectionQuestionListItem{
-			Id:       question.Id,
-			OrderNum: question.OrderNum,
-			Title:    question.Title,
+	questionItems, _ := gut.Iterate(questions, func(question psql.CollectionQuestionListRow) (*payload.QuestionListItem, *gut.ErrorInstance) {
+		return &payload.QuestionListItem{
+			Id:          question.Id,
+			OrderNum:    question.OrderNum,
+			Title:       question.Title,
+			Description: question.Description,
 		}, nil
 	})
 

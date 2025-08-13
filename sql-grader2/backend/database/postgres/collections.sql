@@ -1,10 +1,13 @@
 -- name: CollectionList :many
-SELECT *
+SELECT collections.*,
+       COALESCE(COUNT(collection_questions.collection_id), 0)::int as question_count
 FROM collections
-WHERE (sqlc.narg('name')::text IS NULL OR LOWER(name) LIKE LOWER('%' || sqlc.narg('name') || '%'))
+LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
+WHERE (sqlc.narg('name')::text IS NULL OR LOWER(collections.name) LIKE LOWER('%' || sqlc.narg('name') || '%'))
+GROUP BY collections.id
 ORDER BY
-    CASE WHEN sqlc.narg('sort') = 'name' THEN name END ASC,
-    CASE WHEN sqlc.narg('sort') = 'createdAt' THEN created_at END DESC
+    CASE WHEN sqlc.narg('sort') = 'name' THEN collections.name END ASC,
+    CASE WHEN sqlc.narg('sort') = 'createdAt' THEN collections.created_at END DESC
 LIMIT $1 OFFSET $2;
 
 -- name: CollectionCount :one
@@ -16,6 +19,14 @@ WHERE ($1::text IS NULL OR LOWER(name) LIKE LOWER('%' || $1 || '%'));
 INSERT INTO collections (name, metadata)
 VALUES ($1, '{}'::jsonb)
 RETURNING *;
+
+-- name: CollectionDetail :one
+SELECT collections.*,
+       COALESCE(COUNT(collection_questions.collection_id), 0)::int as question_count
+FROM collections
+         LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
+WHERE collections.id = $1
+GROUP BY collections.id;
 
 -- name: CollectionUpdateMetadata :one
 UPDATE collections

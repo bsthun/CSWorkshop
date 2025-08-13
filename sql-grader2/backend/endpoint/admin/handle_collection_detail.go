@@ -1,7 +1,6 @@
 package adminEndpoint
 
 import (
-	"backend/generate/psql"
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
@@ -11,14 +10,19 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func (r *Handler) HandleExamQuestionList(c *fiber.Ctx) error {
+func (r *Handler) HandleCollectionDetail(c *fiber.Ctx) error {
 	// * get user claims
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
 	// * parse body
-	body := new(payload.ExamIdRequest)
+	body := new(payload.CollectionIdRequest)
 	if err := c.BodyParser(body); err != nil {
 		return gut.Err(false, "invalid body", err)
+	}
+
+	// * validate body
+	if err := gut.Validate(body); err != nil {
+		return err
 	}
 
 	// * get user from database
@@ -32,28 +36,22 @@ func (r *Handler) HandleExamQuestionList(c *fiber.Ctx) error {
 		return gut.Err(false, "access denied", nil)
 	}
 
-	// * get exam question list
-	rows, err := r.database.P().ExamQuestionList(c.Context(), body.ExamId)
+	// * get collection detail
+	collectionDetail, err := r.database.P().CollectionDetail(c.Context(), body.CollectionId)
 	if err != nil {
-		return gut.Err(false, "failed to get exam questions", err)
+		return gut.Err(false, "failed to get collection", err)
 	}
 
-	// * map questions to payload
-	questions, er := gut.Iterate(rows, func(row psql.ExamQuestionListRow) (*payload.QuestionListItem, *gut.ErrorInstance) {
-		return &payload.QuestionListItem{
-			Id:          row.Id,
-			OrderNum:    row.OrderNum,
-			Title:       row.Title,
-			Description: row.Description,
-		}, nil
-	})
-	if er != nil {
-		return er
-	}
-
-	// * prepare response
-	responsePayload := &payload.ExamQuestionListResponse{
-		Questions: questions,
+	// * map to response
+	responsePayload := &payload.CollectionDetailResponse{
+		Collection: &payload.Collection{
+			Id:            collectionDetail.Id,
+			Name:          collectionDetail.Name,
+			Metadata:      collectionDetail.Metadata,
+			QuestionCount: collectionDetail.QuestionCount,
+			CreatedAt:     collectionDetail.CreatedAt,
+			UpdatedAt:     collectionDetail.UpdatedAt,
+		},
 	}
 
 	// * response
