@@ -6,10 +6,11 @@ import (
 	"backend/type/common"
 	"database/sql"
 	"embed"
+	"strings"
+
 	"github.com/bsthun/gut"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
-	"strings"
 )
 
 func Init(config *config.Config, migration embed.FS) common.Database {

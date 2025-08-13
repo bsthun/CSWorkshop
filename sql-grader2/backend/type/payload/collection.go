@@ -26,9 +26,6 @@ type CollectionListResponse struct {
 }
 
 type SemesterListRequest struct {
-	common.Paginate
-	Name *string `json:"name"`
-	Sort *string `json:"sort" validate:"omitempty,oneof=name createdAt"`
 }
 
 type SemesterClass struct {
@@ -168,6 +165,10 @@ type ClassDetailResponse struct {
 	Class    *Class         `json:"class"`
 	Semester *SemesterInfo  `json:"semester"`
 	Joinees  []*ClassJoinee `json:"joinees"`
+}
+
+type ClassJoineeListResponse struct {
+	Joinees []*ClassJoinee `json:"joinees"`
 }
 
 type ExamCreateRequest struct {

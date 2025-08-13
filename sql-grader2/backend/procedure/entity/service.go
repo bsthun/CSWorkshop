@@ -9,7 +9,7 @@ import (
 )
 
 type Server interface {
-	ServeSemesterList(ctx context.Context, req *payload.SemesterListRequest) (*payload.SemesterListResponse, *gut.ErrorInstance)
+	ServeSemesterList(ctx context.Context) (*payload.SemesterListResponse, *gut.ErrorInstance)
 }
 
 type Service struct {

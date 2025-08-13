@@ -8,31 +8,15 @@ import (
 	"github.com/bsthun/gut"
 )
 
-func (r *Service) ServeSemesterList(ctx context.Context, req *payload.SemesterListRequest) (*payload.SemesterListResponse, *gut.ErrorInstance) {
-	// * set default values
-	if req.Limit == nil {
-		req.Limit = gut.Ptr(int32(10))
-	}
-	if req.Offset == nil {
-		req.Offset = gut.Ptr(int32(0))
-	}
-	if req.Sort == nil {
-		req.Sort = gut.Ptr("createdAt")
-	}
-
+func (r *Service) ServeSemesterList(ctx context.Context) (*payload.SemesterListResponse, *gut.ErrorInstance) {
 	// * count semesters
-	count, err := r.database.P().SemesterCount(ctx, req.Name)
+	count, err := r.database.P().SemesterCount(ctx)
 	if err != nil {
 		return nil, gut.Err(false, "failed to count semesters", err)
 	}
 
 	// * list semesters
-	semesters, err := r.database.P().SemesterList(ctx, &psql.SemesterListParams{
-		Name:   req.Name,
-		Sort:   req.Sort,
-		Limit:  req.Limit,
-		Offset: req.Offset,
-	})
+	semesters, err := r.database.P().SemesterList(ctx)
 	if err != nil {
 		return nil, gut.Err(false, "failed to list semesters", err)
 	}

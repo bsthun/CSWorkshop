@@ -37,8 +37,14 @@ func (r *Handler) HandleSemesterList(c *fiber.Ctx) error {
 	}
 
 	// * list semesters
-	result, err := r.entity.ServeSemesterList(c.Context(), body)
+	result, er := r.entity.ServeSemesterList(c.Context())
+	if er != nil {
+		return er
+	}
 
 	// * response
-	return c.JSON(response.Success(c, result))
+	return c.JSON(response.Success(c, &payload.SemesterListResponse{
+		Count:     result.Count,
+		Semesters: result.Semesters,
+	}))
 }

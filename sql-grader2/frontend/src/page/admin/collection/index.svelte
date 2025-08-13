@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$/lib/shadcn/components/ui/card'
+	import { Card, CardContent, CardHeader, CardTitle } from '$/lib/shadcn/components/ui/card'
 	import { Button } from '$/lib/shadcn/components/ui/button'
 	import { SectionIcon, GraduationCapIcon, PlusIcon, Loader2Icon, BookOpenIcon, HashIcon } from 'lucide-svelte'
 	import { Link } from 'svelte-navigator'
@@ -8,7 +8,7 @@
 	import Container from '$/component/layout/Container.svelte'
 	import FloatingAction from '$/component/ui/FloatingAction.svelte'
 	import SearchPaginate from '$/component/ui/floating/SearchPaginate.svelte'
-	import CreateCollectionDialog from './dialog/CreateCollectionDialog.svelte'
+	import CreateCollectionDialog from '../dialog/CreateCollectionDialog.svelte'
 	import { backend, catcher } from '$/util/backend.ts'
 	import type { PayloadCollection } from '$/util/backend/backend.ts'
 
@@ -150,11 +150,15 @@
 			</div>
 		{/if}
 	{:else}
-		<div class="flex min-h-[400px] flex-col items-center justify-center">
-			<GraduationCapIcon class="mb-4 h-16 w-16 text-gray-400" />
-			<h3 class="mb-2 text-lg font-semibold">Classes</h3>
-			<p class="text-muted-foreground">Class management coming soon...</p>
-		</div>
+		{#await import('../class/index.svelte') then ClassList}
+			<ClassList.default />
+		{:catch}
+			<div class="flex min-h-[400px] flex-col items-center justify-center">
+				<GraduationCapIcon class="mb-4 h-16 w-16 text-gray-400" />
+				<h3 class="mb-2 text-lg font-semibold">Classes</h3>
+				<p class="text-muted-foreground">Loading class management...</p>
+			</div>
+		{/await}
 	{/if}
 </Container>
 
