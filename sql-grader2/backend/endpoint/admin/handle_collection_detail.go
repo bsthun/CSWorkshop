@@ -48,9 +48,9 @@ func (r *Handler) HandleCollectionDetail(c *fiber.Ctx) error {
 			Id:            collectionDetail.Id,
 			Name:          collectionDetail.Name,
 			Metadata:      collectionDetail.Metadata,
-			QuestionCount: collectionDetail.QuestionCount,
 			CreatedAt:     collectionDetail.CreatedAt,
 			UpdatedAt:     collectionDetail.UpdatedAt,
+			QuestionCount: collectionDetail.QuestionCount,
 		},
 	}
 

@@ -42,24 +42,25 @@ func (r *Handler) HandleExamList(c *fiber.Ctx) error {
 	exams, er := gut.Iterate(examRows, func(row psql.ExamListRow) (*payload.ExamListItem, *gut.ErrorInstance) {
 		return &payload.ExamListItem{
 			Exam: &payload.Exam{
-				Id:           row.Exam.Id,
-				ClassId:      row.Exam.ClassId,
-				CollectionId: row.Exam.CollectionId,
-				Name:         row.Exam.Name,
-				AccessCode:   row.Exam.AccessCode,
-				OpenedAt:     row.Exam.OpenedAt,
-				ClosedAt:     row.Exam.ClosedAt,
-				CreatedAt:    row.Exam.CreatedAt,
-				UpdatedAt:    row.Exam.UpdatedAt,
+				Id:            row.Exam.Id,
+				ClassId:       row.Exam.ClassId,
+				CollectionId:  row.Exam.CollectionId,
+				Name:          row.Exam.Name,
+				AccessCode:    row.Exam.AccessCode,
+				OpenedAt:      row.Exam.OpenedAt,
+				ClosedAt:      row.Exam.ClosedAt,
+				CreatedAt:     row.Exam.CreatedAt,
+				UpdatedAt:     row.Exam.UpdatedAt,
+				QuestionCount: row.ExamQuestionCount,
 			},
 			Collection: &payload.Collection{
-				Id:        row.Collection.Id,
-				Name:      row.Collection.Name,
-				Metadata:  row.Collection.Metadata,
-				CreatedAt: row.Collection.CreatedAt,
-				UpdatedAt: row.Collection.UpdatedAt,
+				Id:            row.Collection.Id,
+				Name:          row.Collection.Name,
+				Metadata:      row.Collection.Metadata,
+				CreatedAt:     row.Collection.CreatedAt,
+				UpdatedAt:     row.Collection.UpdatedAt,
+				QuestionCount: row.CollectionQuestionCount,
 			},
-			QuestionCount: row.QuestionCount,
 		}, nil
 	})
 	if er != nil {

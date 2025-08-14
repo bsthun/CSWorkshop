@@ -4,10 +4,14 @@ VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
 -- name: ExamList :many
-SELECT sqlc.embed(exams), sqlc.embed(collections), COUNT(collection_questions.id) as question_count
+SELECT sqlc.embed(exams),
+       sqlc.embed(collections),
+       COALESCE(COUNT(exam_questions.id), 0)::int as exam_question_count,
+       COALESCE(COUNT(collection_questions.id), 0)::int as collection_question_count
 FROM exams
 JOIN collections ON exams.collection_id = collections.id
 LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
+LEFT JOIN exam_questions ON exams.id = exam_questions.exam_id
 WHERE exams.class_id = $1
 GROUP BY exams.id, collections.id
 ORDER BY exams.created_at DESC;

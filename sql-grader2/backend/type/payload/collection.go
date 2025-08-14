@@ -15,9 +15,9 @@ type Collection struct {
 	Id            *uint64                         `json:"id"`
 	Name          *string                         `json:"name"`
 	Metadata      *tuple.CollectionSchemaMetadata `json:"metadata"`
-	QuestionCount *int32                          `json:"questionCount"`
 	CreatedAt     *time.Time                      `json:"createdAt"`
 	UpdatedAt     *time.Time                      `json:"updatedAt"`
+	QuestionCount *int32                          `json:"questionCount"`
 }
 
 type CollectionListResponse struct {
@@ -180,21 +180,22 @@ type ExamCreateRequest struct {
 }
 
 type Exam struct {
-	Id           *uint64    `json:"id"`
-	ClassId      *uint64    `json:"classId"`
-	CollectionId *uint64    `json:"collectionId"`
-	Name         *string    `json:"name"`
-	AccessCode   *string    `json:"accessCode"`
-	OpenedAt     *time.Time `json:"openedAt"`
-	ClosedAt     *time.Time `json:"closedAt"`
-	CreatedAt    *time.Time `json:"createdAt"`
-	UpdatedAt    *time.Time `json:"updatedAt"`
+	Id            *uint64    `json:"id"`
+	ClassId       *uint64    `json:"classId"`
+	CollectionId  *uint64    `json:"collectionId"`
+	Name          *string    `json:"name"`
+	AccessCode    *string    `json:"accessCode"`
+	OpenedAt      *time.Time `json:"openedAt"`
+	ClosedAt      *time.Time `json:"closedAt"`
+	CreatedAt     *time.Time `json:"createdAt"`
+	UpdatedAt     *time.Time `json:"updatedAt"`
+	QuestionCount *int32     `json:"questionCount"`
 }
 
 type ExamListItem struct {
 	Exam          *Exam       `json:"exam"`
 	Collection    *Collection `json:"collection"`
-	QuestionCount *uint64     `json:"questionCount"`
+	QuestionCount *int32      `json:"questionCount"`
 }
 
 type ExamListResponse struct {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte'
+	import { createEventDispatcher } from 'svelte'
 	import {
 		Dialog,
 		DialogContent,
@@ -18,6 +18,7 @@
 	import type { PayloadSemester } from '$/util/backend/backend.ts'
 
 	export let open = false
+	export let semesters: PayloadSemester[] = []
 
 	const dispatch = createEventDispatcher<{
 		created: void
@@ -25,27 +26,9 @@
 	}>()
 
 	let creating = false
-	let semesters: PayloadSemester[] = []
-	let loadingSemesters = false
 	let name = ''
 	let code = ''
-	let selectedSemesterId: string[]
-
-	const loadSemesters = () => {
-		loadingSemesters = true
-		backend.admin
-			.semesterList({})
-			.then((response) => {
-				semesters = response.data.semesters!
-				selectedSemesterId = [semesters[0]?.id + '']
-			})
-			.catch((err) => {
-				catcher(err)
-			})
-			.finally(() => {
-				loadingSemesters = false
-			})
-	}
+	let selectedSemesterId: string | undefined
 
 	const createClass = () => {
 		if (!name.trim()) {
@@ -85,7 +68,7 @@
 	const resetForm = () => {
 		name = ''
 		code = ''
-		selectedSemesterId = []
+		selectedSemesterId = undefined
 	}
 
 	const resetDialog = () => {
@@ -98,17 +81,13 @@
 		if (!isOpen) {
 			resetDialog()
 		} else {
-			loadSemesters()
+			selectedSemesterId = semesters[0]?.id as any
 		}
 	}
 
 	$: isFormValid = () => {
-		return name.trim() !== '' && code.trim() !== '' && selectedSemesterId.length > 0
+		return name.trim() !== '' && code.trim() !== '' && selectedSemesterId
 	}
-
-	onMount(() => {
-		loadSemesters()
-	})
 </script>
 
 <Dialog bind:open onOpenChange={handleOpenChange}>
@@ -128,22 +107,16 @@
 			</div>
 			<div class="grid gap-2">
 				<Label for="semester">Semester</Label>
-				{#if loadingSemesters}
-					<div class="flex items-center justify-center py-2">
-						<Loader2Icon class="h-4 w-4 animate-spin" />
-					</div>
-				{:else}
-					<Select bind:value={selectedSemesterId} disabled={creating}>
-						<SelectTrigger>
-							{semesters.find((s) => s.id + '' === selectedSemesterId[0])?.name || 'Select Semester'}
-						</SelectTrigger>
-						<SelectContent>
-							{#each semesters as semester}
-								<SelectItem value={semester.id + ''}>{semester.name}</SelectItem>
-							{/each}
-						</SelectContent>
-					</Select>
-				{/if}
+				<Select type="single" bind:value={selectedSemesterId} disabled={creating}>
+					<SelectTrigger class="w-full">
+						{semesters.find((s) => s.id + '' === selectedSemesterId)?.name || 'Select Semester'}
+					</SelectTrigger>
+					<SelectContent>
+						{#each semesters as semester}
+							<SelectItem value={semester.id + ''}>{semester.name}</SelectItem>
+						{/each}
+					</SelectContent>
+				</Select>
 			</div>
 		</div>
 		<DialogFooter>

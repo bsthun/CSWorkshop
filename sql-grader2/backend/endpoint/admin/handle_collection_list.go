@@ -68,9 +68,9 @@ func (r *Handler) HandleCollectionList(c *fiber.Ctx) error {
 			Id:            collection.Id,
 			Name:          collection.Name,
 			Metadata:      collection.Metadata,
-			QuestionCount: collection.QuestionCount,
 			CreatedAt:     collection.CreatedAt,
 			UpdatedAt:     collection.UpdatedAt,
+			QuestionCount: collection.QuestionCount,
 		}, nil
 	})
 

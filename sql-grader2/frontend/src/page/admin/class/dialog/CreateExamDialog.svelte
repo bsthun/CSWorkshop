@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte'
+	import { createEventDispatcher } from 'svelte'
 	import {
 		Dialog,
 		DialogContent,
@@ -43,6 +43,7 @@
 			})
 			.then((response) => {
 				collections = response.data.collections!
+				selectedCollectionId = collections[0].id as any
 			})
 			.catch((err) => {
 				catcher(err)
@@ -83,7 +84,7 @@
 			.examCreate({
 				classId: classId,
 				name: name.trim(),
-				collectionId: parseInt(selectedCollectionId),
+				collectionId: selectedCollectionId as any,
 				openedAt: openDate.toISOString(),
 				closedAt: closeDate.toISOString(),
 			})
@@ -122,7 +123,7 @@
 		}
 	}
 
-	const isFormValid = () => {
+	$: isFormValid = () => {
 		return name.trim() && selectedCollectionId && openedAt && closedAt && !creating
 	}
 
@@ -135,7 +136,6 @@
 		return `${year}-${month}-${day}T${hours}:${minutes}`
 	}
 
-	// Set default dates when dialog opens
 	$: if (open && !openedAt && !closedAt) {
 		const now = new Date()
 		const defaultOpen = new Date(now.getTime() + 24 * 60 * 60 * 1000)
@@ -145,11 +145,11 @@
 		closedAt = formatDateTimeForInput(defaultClose)
 	}
 
-	onMount(() => {
+	$: {
 		if (open) {
 			loadCollections()
 		}
-	})
+	}
 </script>
 
 <Dialog bind:open onOpenChange={handleOpenChange}>
@@ -171,12 +171,14 @@
 						<Loader2Icon class="h-4 w-4 animate-spin" />
 					</div>
 				{:else}
-					<Select bind:value={selectedCollectionId} disabled={creating}>
-						<SelectTrigger>Select a collection</SelectTrigger>
+					<Select bind:value={selectedCollectionId} type="single" disabled={creating}>
+						<SelectTrigger class="w-full">
+							{collections.find((c) => c.id.toString() === selectedCollectionId)?.name}
+						</SelectTrigger>
 						<SelectContent>
 							{#each collections as collection}
 								<SelectItem value={collection.id.toString()}>
-									{collection.name} ({collection.questionCount} questions)
+									{collection.name}
 								</SelectItem>
 							{/each}
 						</SelectContent>
