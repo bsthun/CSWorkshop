@@ -5,9 +5,12 @@ import (
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
+	"backend/type/tuple"
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
+
 	"github.com/bsthun/gut"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
@@ -49,12 +52,32 @@ func (r *Handler) HandleLoginCallback(c *fiber.Ctx) error {
 	if err != nil {
 		// * if user not exist, create new user
 		if errors.Is(err, sql.ErrNoRows) {
+			// * generate unique username
+			var username string
+			for {
+				username = strings.ToLower(*oidcClaims.FirstName) + "_" + *gut.Random(gut.RandomSet.Num, 4)
+				_, err := r.database.P().UserGetByMetadataUsername(c.Context(), &username)
+				if errors.Is(err, sql.ErrNoRows) {
+					break
+				}
+				if err != nil {
+					return gut.Err(false, "failed to check username uniqueness", err)
+				}
+			}
+
 			user, err = r.database.P().UserCreate(c.Context(), &psql.UserCreateParams{
 				Oid:        oidcClaims.Id,
 				Firstname:  oidcClaims.FirstName,
 				Lastname:   oidcClaims.Lastname,
 				Email:      oidcClaims.Email,
 				PictureUrl: oidcClaims.Picture,
+				IsAdmin:    gut.Ptr(false),
+				Metadata: &tuple.UserMetadata{
+					Credential: &tuple.UserMetadataCredential{
+						Username: &username,
+						Password: gut.Random(gut.RandomSet.MixedAlphaNum, 8),
+					},
+				},
 			})
 			if err != nil {
 				return gut.Err(false, "failed to create user", err)

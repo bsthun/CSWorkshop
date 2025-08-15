@@ -15,6 +15,11 @@ sql:
         emit_interface: true
         initialisms: []
         overrides:
+          - column: "users.metadata"
+            go_type:
+              import: "backend/type/tuple"
+              type: "UserMetadata"
+              pointer: true
           - column: "collections.metadata"
             go_type:
               import: "backend/type/tuple"

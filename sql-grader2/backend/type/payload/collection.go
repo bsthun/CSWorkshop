@@ -365,3 +365,18 @@ type ExamDetailResponse struct {
 	Collection   *Collection       `json:"collection"`
 	AttemptCount *ExamAttemptCount `json:"attemptCount"`
 }
+
+type StudentClassListItem struct {
+	Class                    *Class        `json:"class"`
+	Semester                 *SemesterInfo `json:"semester"`
+	ExamAttemptTotalCount    *uint64       `json:"examAttemptTotalCount"`
+	ExamAttemptFinishedCount *uint64       `json:"examAttemptFinishedCount"`
+}
+
+type StudentClassListResponse struct {
+	Classes []*StudentClassListItem `json:"classes"`
+}
+
+type ClassJoinRequest struct {
+	RegisterCode *string `json:"registerCode" validate:"required"`
+}

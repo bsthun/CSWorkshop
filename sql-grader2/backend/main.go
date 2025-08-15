@@ -6,6 +6,7 @@ import (
 	"backend/common/fiber"
 	"backend/common/fiber/middleware"
 	"backend/common/gorm"
+	"backend/common/openai"
 	"backend/endpoint"
 	adminEndpoint "backend/endpoint/admin"
 	publicEndpoint "backend/endpoint/public"
@@ -37,6 +38,7 @@ func main() {
 			gorm.Init,
 			fiber.Init,
 			middleware.Init,
+			openai.Init,
 			entityProcedure.Serve,
 			publicEndpoint.Handle,
 			stateEndpoint.Handle,

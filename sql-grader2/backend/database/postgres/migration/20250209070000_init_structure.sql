@@ -10,7 +10,8 @@ CREATE TABLE users
     lastname    VARCHAR(255) NOT NULL,
     email       VARCHAR(255) UNIQUE,
     picture_url TEXT         NULL,
-    is_admin    BOOLEAN      NOT NULL DEFAULT FALSE,
+    is_admin    BOOLEAN      NOT NULL,
+    metadata    JSONB        NOT NULL,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -104,6 +105,7 @@ CREATE TABLE exam_attempts
     opened_at       TIMESTAMP                                              NULL,
     started_at      TIMESTAMP                                              NULL,
     finished_at     TIMESTAMP                                              NULL,
+    database_name   VARCHAR(255)                                           NULL,
     created_at      TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (exam_id, class_joinee_id)

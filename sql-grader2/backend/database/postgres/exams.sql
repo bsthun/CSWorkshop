@@ -92,3 +92,27 @@ FROM exam_questions
 JOIN collection_questions ON exam_questions.original_question_id = collection_questions.id
 WHERE exam_questions.id = $1;
 
+-- name: ClassExamList :many
+SELECT sqlc.embed(exams),
+       COALESCE(COUNT(exam_questions.id), 0)::bigint as exam_question_count
+FROM exams
+LEFT JOIN exam_questions ON exams.id = exam_questions.exam_id
+WHERE exams.class_id = $1
+GROUP BY exams.id
+ORDER BY exams.created_at DESC;
+
+-- name: ExamAttemptCreate :one
+INSERT INTO exam_attempts (exam_id, class_joinee_id, opened_at, database_name)
+VALUES ($1, $2, CURRENT_TIMESTAMP, $3)
+RETURNING *;
+
+-- name: ExamAttemptGetByExamAndJoinee :one
+SELECT *
+FROM exam_attempts
+WHERE exam_id = $1 AND class_joinee_id = $2;
+
+-- name: ExamAttemptUpdateOpenedAt :one
+UPDATE exam_attempts
+SET opened_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;

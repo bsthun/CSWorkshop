@@ -169,17 +169,17 @@
 	</CardHeader>
 	<CardContent class="pb-0">
 		<div class="flex">
-			<div class="flex h-full max-h-[640px] w-1/3 flex-col">
+			<div class="flex w-1/3 flex-col">
 				<div class="mb-4 flex items-center justify-between">
 					<h3 class="text-sm font-medium">Questions ({questions.length})</h3>
 				</div>
 				<div class="overflow-y-auto">
 					{#if questionsLoading}
-						<div class="flex items-center justify-center py-8">
+						<div class="flex min-h-80 items-center justify-center py-8">
 							<Loader2Icon class="text-muted-foreground h-6 w-6 animate-spin" />
 						</div>
 					{:else if questions.length === 0}
-						<div class="flex flex-col items-center justify-center py-8">
+						<div class="flex min-h-80 flex-col items-center justify-center py-8">
 							<BookOpenIcon class="mb-4 h-16 w-16 text-gray-400" />
 							<p class="text-muted-foreground mb-4 text-center">No questions in this exam</p>
 						</div>
@@ -263,7 +263,7 @@
 									id="description"
 									bind:value={editedDescription}
 									placeholder="Question description..."
-									rows="3"
+									rows={3}
 								/>
 							</div>
 
@@ -273,7 +273,7 @@
 									id="checkPrompt"
 									bind:value={editedCheckPrompt}
 									placeholder="Check prompt for validation..."
-									rows="4"
+									rows={4}
 								/>
 							</div>
 
@@ -283,7 +283,7 @@
 									id="checkQuery"
 									bind:value={editedCheckQuery}
 									placeholder="SQL query for validation..."
-									rows="4"
+									rows={4}
 									class="font-mono text-sm"
 								/>
 							</div>
