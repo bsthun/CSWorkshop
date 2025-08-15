@@ -1,6 +1,6 @@
 -- name: CollectionList :many
 SELECT collections.*,
-       COALESCE(COUNT(collection_questions.collection_id), 0)::int as question_count
+       COALESCE(COUNT(collection_questions.collection_id), 0)::bigint as question_count
 FROM collections
 LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
 WHERE (sqlc.narg('name')::text IS NULL OR LOWER(collections.name) LIKE LOWER('%' || sqlc.narg('name') || '%'))
@@ -22,7 +22,7 @@ RETURNING *;
 
 -- name: CollectionDetail :one
 SELECT collections.*,
-       COALESCE(COUNT(collection_questions.collection_id), 0)::int as question_count
+       COALESCE(COUNT(collection_questions.collection_id), 0)::bigint as question_count
 FROM collections
          LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
 WHERE collections.id = $1

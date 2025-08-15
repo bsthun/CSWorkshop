@@ -32,7 +32,6 @@ SQLC Generate Type Mapping Notes:
 - When using `sqlc.embed(table_name)` in queries, the generated row struct will use singular table names (e.g., `row.Collection` not `row.Collections`, `row.Exam` not `row.Exams`)
 - For queries with embedded structs, access fields like: `row.Collection.Id`, `row.User.Name`, `row.Class.RegisterCode`
 - For queries with joins and embeds, the generated struct follows pattern: `type QueryNameRow struct { EntityName Entity, AnotherEntity Entity, CustomField *Type }`
-- Always check generated types in `/generate/psql/*.sql.go` after writing queries to understand the exact field structure
 - When using `COUNT()` in queries with embed, the count field will be directly on the row struct (e.g., `row.QuestionCount`)
 
 Parameter Type Guidelines:
@@ -63,4 +62,4 @@ Common SQLC Generation Issues (Manual Fixes Required):
   - Original: `WHERE ($1::type IS NULL OR condition)` 
   - Fixed: `WHERE (sqlc.narg(param_name)::type IS NULL OR condition)`
 
-- **Always regenerate SQLC after SQL changes**: Use `make sqlc` to regenerate types before implementing Go code to see correct function signatures and parameter structures.
+- The querier file is in `./database/postgres/*.sql`

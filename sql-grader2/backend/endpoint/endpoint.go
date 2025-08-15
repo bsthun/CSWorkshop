@@ -57,9 +57,10 @@ func Bind(
 	admin.Post("/exam/detail", adminEndpoint.HandleExamDetail)
 	admin.Post("/exam/joinee/list", adminEndpoint.HandleExamJoineeList)
 	admin.Post("/exam/question/add", adminEndpoint.HandleExamQuestionAdd)
+	admin.Post("/exam/question/list", adminEndpoint.HandleExamQuestionList)
+	admin.Post("/exam/question/detail", adminEndpoint.HandleExamQuestionDetail)
 	admin.Post("/exam/question/delete", adminEndpoint.HandleExamQuestionDelete)
 	admin.Post("/exam/question/edit", adminEndpoint.HandleExamQuestionEdit)
-	admin.Post("/exam/question/list", adminEndpoint.HandleExamQuestionList)
 	admin.Post("/submission/detail", adminEndpoint.HandleSubmissionDetail)
 	admin.Post("/submission/list", adminEndpoint.HandleSubmissionList)
 

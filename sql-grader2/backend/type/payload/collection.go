@@ -17,7 +17,7 @@ type Collection struct {
 	Metadata      *tuple.CollectionSchemaMetadata `json:"metadata"`
 	CreatedAt     *time.Time                      `json:"createdAt"`
 	UpdatedAt     *time.Time                      `json:"updatedAt"`
-	QuestionCount *int32                          `json:"questionCount"`
+	QuestionCount *uint64                         `json:"questionCount"`
 }
 
 type CollectionListResponse struct {
@@ -73,13 +73,6 @@ type ClassEditRequest struct {
 	RegisterCode *string `json:"registerCode" validate:"required"`
 }
 
-type QuestionListItem struct {
-	Id          *uint64 `json:"id"`
-	OrderNum    *int32  `json:"orderNum"`
-	Title       *string `json:"title"`
-	Description *string `json:"description"`
-}
-
 type CollectionCreateRequest struct {
 	Name *string `json:"name" validate:"required"`
 }
@@ -107,7 +100,14 @@ type CollectionQuestionEditRequest struct {
 }
 
 type CollectionQuestionListResponse struct {
-	Questions []*QuestionListItem `json:"questions"`
+	Questions []*CollectionQuestionItem `json:"questions"`
+}
+
+type CollectionQuestionItem struct {
+	Id          *uint64 `json:"id"`
+	OrderNum    *int32  `json:"orderNum"`
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
 }
 
 type CollectionQuestionDetail struct {
@@ -189,13 +189,12 @@ type Exam struct {
 	ClosedAt      *time.Time `json:"closedAt"`
 	CreatedAt     *time.Time `json:"createdAt"`
 	UpdatedAt     *time.Time `json:"updatedAt"`
-	QuestionCount *int32     `json:"questionCount"`
+	QuestionCount *uint64    `json:"questionCount"`
 }
 
 type ExamListItem struct {
-	Exam          *Exam       `json:"exam"`
-	Collection    *Collection `json:"collection"`
-	QuestionCount *int32      `json:"questionCount"`
+	Exam       *Exam       `json:"exam"`
+	Collection *Collection `json:"collection"`
 }
 
 type ExamListResponse struct {
@@ -272,15 +271,22 @@ type SubmissionDetailResponse struct {
 	Submission *ExamSubmission `json:"submission"`
 	Question   *ExamQuestion   `json:"question"`
 	Attempt    *ExamAttempt    `json:"attempt"`
-	Student    *User           `json:"student"`
-	Exam       *Exam           `json:"exam"`
+}
+
+type ClassJoineeInfo struct {
+	Id        *uint64    `json:"id"`
+	UserId    *uint64    `json:"userId"`
+	ClassId   *uint64    `json:"classId"`
+	CreatedAt *time.Time `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt"`
 }
 
 type SubmissionListItem struct {
-	Submission *ExamSubmission `json:"submission"`
-	Question   *ExamQuestion   `json:"question"`
-	Attempt    *ExamAttempt    `json:"attempt"`
-	Student    *User           `json:"student"`
+	Submission *ExamSubmission  `json:"submission"`
+	Question   *ExamQuestion    `json:"question"`
+	Attempt    *ExamAttempt     `json:"attempt"`
+	Student    *User            `json:"student"`
+	Joinee     *ClassJoineeInfo `json:"joinee"`
 }
 
 type SubmissionIdRequest struct {
@@ -293,6 +299,7 @@ type SubmissionListRequest struct {
 }
 
 type SubmissionListResponse struct {
+	Exam        *Exam                 `json:"exam"`
 	Submissions []*SubmissionListItem `json:"submissions"`
 }
 
@@ -314,7 +321,7 @@ type ExamQuestionEditRequest struct {
 }
 
 type ExamQuestionListResponse struct {
-	Questions []*QuestionListItem `json:"questions"`
+	Questions []*CollectionQuestionItem `json:"questions"`
 }
 
 type ClassIdRequest struct {
@@ -337,8 +344,24 @@ type CollectionDetailResponse struct {
 	Collection *Collection `json:"collection"`
 }
 
+type ExamAttemptCount struct {
+	OpenedCount   *uint64 `json:"openedCount"`
+	StartedCount  *uint64 `json:"startedCount"`
+	FinishedCount *uint64 `json:"finishedCount"`
+}
+
+type ExamQuestionIdRequest struct {
+	ExamQuestionId *uint64 `json:"examQuestionId" validate:"required"`
+}
+
+type ExamQuestionDetailResponse struct {
+	ExamQuestion       *ExamQuestion             `json:"examQuestion"`
+	CollectionQuestion *CollectionQuestionDetail `json:"collectionQuestion"`
+}
+
 type ExamDetailResponse struct {
-	Exam       *Exam       `json:"exam"`
-	Class      *Class      `json:"class"`
-	Collection *Collection `json:"collection"`
+	Exam         *Exam             `json:"exam"`
+	Class        *Class            `json:"class"`
+	Collection   *Collection       `json:"collection"`
+	AttemptCount *ExamAttemptCount `json:"attemptCount"`
 }

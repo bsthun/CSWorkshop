@@ -32,13 +32,13 @@ func (r *Handler) HandleExamQuestionAdd(c *fiber.Ctx) error {
 		return gut.Err(false, "access denied", nil)
 	}
 
-	// * get exam to verify it exists and get collection_id
+	// * get exam
 	exam, err := r.database.P().ExamGetById(c.Context(), body.ExamId)
 	if err != nil {
 		return gut.Err(false, "failed to get exam", err)
 	}
 
-	// * get collection question to verify it exists and check collection_id match
+	// * get collection question
 	collectionQuestion, err := r.database.P().CollectionQuestionGetById(c.Context(), body.CollectionQuestionId)
 	if err != nil {
 		return gut.Err(false, "failed to get collection question", err)

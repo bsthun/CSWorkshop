@@ -24,27 +24,27 @@ type Config struct {
 }
 
 func Init() *Config {
-	// * Parse arguments
+	// * parse arguments
 	path := os.Getenv("BACKEND_CONFIG_PATH")
 	if path == "" {
 		path = "config.yml"
 	}
 
-	// * Declare struct
+	// * declare struct
 	config := new(Config)
 
-	// * Read config
+	// * read config
 	yml, err := os.ReadFile(path)
 	if err != nil {
 		gut.Fatal("Unable to read configuration file", err)
 	}
 
-	// * Parse config
+	// * parse config
 	if err := yaml.Unmarshal(yml, config); err != nil {
 		gut.Fatal("Unable to parse configuration file", err)
 	}
 
-	// * Validate config
+	// * validate config
 	if err := gut.Validate(config); err != nil {
 		gut.Fatal("Invalid configuration", err)
 	}

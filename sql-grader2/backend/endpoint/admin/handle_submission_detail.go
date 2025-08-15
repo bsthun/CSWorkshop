@@ -73,28 +73,6 @@ func (r *Handler) HandleSubmissionDetail(c *fiber.Ctx) error {
 			CreatedAt:     row.ExamAttempt.CreatedAt,
 			UpdatedAt:     row.ExamAttempt.UpdatedAt,
 		},
-		Student: &payload.User{
-			Id:         row.User.Id,
-			Oid:        row.User.Oid,
-			Firstname:  row.User.Firstname,
-			Lastname:   row.User.Lastname,
-			Email:      row.User.Email,
-			PictureUrl: row.User.PictureUrl,
-			IsAdmin:    row.User.IsAdmin,
-			CreatedAt:  row.User.CreatedAt,
-			UpdatedAt:  row.User.UpdatedAt,
-		},
-		Exam: &payload.Exam{
-			Id:           row.Exam.Id,
-			ClassId:      row.Exam.ClassId,
-			CollectionId: row.Exam.CollectionId,
-			Name:         row.Exam.Name,
-			AccessCode:   row.Exam.AccessCode,
-			OpenedAt:     row.Exam.OpenedAt,
-			ClosedAt:     row.Exam.ClosedAt,
-			CreatedAt:    row.Exam.CreatedAt,
-			UpdatedAt:    row.Exam.UpdatedAt,
-		},
 	}
 
 	// * response

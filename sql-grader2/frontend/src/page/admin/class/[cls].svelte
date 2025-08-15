@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { navigate } from 'svelte-navigator'
+	import { navigate, Link } from 'svelte-navigator'
 	import { Card, CardContent, CardHeader, CardTitle } from '$/lib/shadcn/components/ui/card'
 	import { Button } from '$/lib/shadcn/components/ui/button'
 	import {
@@ -19,6 +19,7 @@
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
+	import Tab from '$/component/ui/Tab.svelte'
 	import { backend, catcher } from '$/util/backend.ts'
 	import { toast } from 'svelte-sonner'
 	import { formatDate, formatDateTime } from '$/util/format.ts'
@@ -102,7 +103,6 @@
 			toast.success('Register code copied to clipboard')
 		}
 	}
-
 
 	onMount(() => {
 		loadClass()
@@ -237,15 +237,16 @@
 				{:else}
 					<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 						{#each exams as examItem}
-							<Card class="cursor-pointer transition-shadow hover:shadow-lg">
-								<CardHeader class="gap-2">
-									<CardTitle class="flex items-center gap-1">
-										<BookOpenIcon size={12} class="text-muted-foreground" />
-										<span class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-											EXAM
-										</span>
-									</CardTitle>
-									<h3 class="text-lg font-semibold">{examItem.exam.name}</h3>
+							<Link to="/admin/exam/{examItem.exam.id}">
+								<Card class="cursor-pointer transition-shadow hover:shadow-lg">
+									<CardHeader class="gap-2">
+										<CardTitle class="flex items-center gap-1">
+											<BookOpenIcon size={12} class="text-muted-foreground" />
+											<span class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+												EXAM
+											</span>
+										</CardTitle>
+										<h3 class="text-lg font-semibold">{examItem.exam.name}</h3>
 									<div class="flex items-center gap-1 text-sm text-gray-600">
 										<span class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
 											COLLECTION
@@ -258,7 +259,7 @@
 										<div class="flex items-center gap-2 text-gray-600">
 											<HelpCircleIcon class="h-4 w-4" />
 											<span class="font-medium">
-												{examItem.questionCount} / {examItem.collection.questionCount} questions
+												{examItem.exam.questionCount} / {examItem.collection.questionCount} questions
 											</span>
 										</div>
 
@@ -317,7 +318,8 @@
 										</div>
 									</div>
 								</CardContent>
-							</Card>
+								</Card>
+							</Link>
 						{/each}
 					</div>
 				{/if}

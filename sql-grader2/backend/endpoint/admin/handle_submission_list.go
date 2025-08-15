@@ -46,6 +46,26 @@ func (r *Handler) HandleSubmissionList(c *fiber.Ctx) error {
 		return gut.Err(false, "failed to get submissions", err)
 	}
 
+	// * get exam
+	var exam *payload.Exam
+	if len(rows) > 0 {
+		examRow, err := r.database.P().ExamGetById(c.Context(), rows[0].ExamAttempt.ExamId)
+		if err != nil {
+			return gut.Err(false, "failed to get exam", err)
+		}
+		exam = &payload.Exam{
+			Id:           examRow.Id,
+			ClassId:      examRow.ClassId,
+			CollectionId: examRow.CollectionId,
+			Name:         examRow.Name,
+			AccessCode:   examRow.AccessCode,
+			OpenedAt:     examRow.OpenedAt,
+			ClosedAt:     examRow.ClosedAt,
+			CreatedAt:    examRow.CreatedAt,
+			UpdatedAt:    examRow.UpdatedAt,
+		}
+	}
+
 	// * map submissions to payload
 	submissions, er := gut.Iterate(rows, func(row psql.SubmissionListRow) (*payload.SubmissionListItem, *gut.ErrorInstance) {
 		return &payload.SubmissionListItem{
@@ -94,6 +114,13 @@ func (r *Handler) HandleSubmissionList(c *fiber.Ctx) error {
 				CreatedAt:  row.User.CreatedAt,
 				UpdatedAt:  row.User.UpdatedAt,
 			},
+			Joinee: &payload.ClassJoineeInfo{
+				Id:        row.ClassJoinee.Id,
+				UserId:    row.ClassJoinee.UserId,
+				ClassId:   row.ClassJoinee.ClassId,
+				CreatedAt: row.ClassJoinee.CreatedAt,
+				UpdatedAt: row.ClassJoinee.UpdatedAt,
+			},
 		}, nil
 	})
 	if er != nil {
@@ -102,6 +129,7 @@ func (r *Handler) HandleSubmissionList(c *fiber.Ctx) error {
 
 	// * prepare response
 	responsePayload := &payload.SubmissionListResponse{
+		Exam:        exam,
 		Submissions: submissions,
 	}
 

@@ -66,6 +66,11 @@ func (r *Handler) HandleExamDetail(c *fiber.Ctx) error {
 			CreatedAt: row.Collection.CreatedAt,
 			UpdatedAt: row.Collection.UpdatedAt,
 		},
+		AttemptCount: &payload.ExamAttemptCount{
+			OpenedCount:   row.AttemptOpenedCount,
+			StartedCount:  row.AttemptStartedCount,
+			FinishedCount: row.AttemptFinishedCount,
+		},
 	}
 
 	// * response

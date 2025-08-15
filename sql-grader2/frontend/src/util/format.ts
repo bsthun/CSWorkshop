@@ -9,7 +9,7 @@ export const formatDate = (dateString: string | undefined): string => {
 
 export const formatDateTime = (dateString: string): string => {
 	const date = new Date(dateString)
-	return date.toLocaleDateString('en-GB', {
+	const formatted = date.toLocaleDateString('en-GB', {
 		day: 'numeric',
 		month: 'short',
 		year: 'numeric',
@@ -17,4 +17,5 @@ export const formatDateTime = (dateString: string): string => {
 		minute: '2-digit',
 		hour12: true,
 	})
+	return formatted.replace(/am|pm/gi, (match) => match.toUpperCase())
 }

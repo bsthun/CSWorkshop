@@ -39,8 +39,8 @@ func (r *Handler) HandleExamQuestionList(c *fiber.Ctx) error {
 	}
 
 	// * map questions to payload
-	questions, er := gut.Iterate(rows, func(row psql.ExamQuestionListRow) (*payload.QuestionListItem, *gut.ErrorInstance) {
-		return &payload.QuestionListItem{
+	questions, er := gut.Iterate(rows, func(row psql.ExamQuestionListRow) (*payload.CollectionQuestionItem, *gut.ErrorInstance) {
+		return &payload.CollectionQuestionItem{
 			Id:          row.Id,
 			OrderNum:    row.OrderNum,
 			Title:       row.Title,
