@@ -152,30 +152,14 @@
 
 		<!-- Tab Navigation -->
 		<div class="mb-6 flex items-center justify-between">
-			<div class="flex space-x-1 rounded-lg bg-gray-100 p-1">
-				<button
-					class="rounded-md px-3 py-2 text-sm font-medium transition-colors {activeTab === 'students'
-						? 'bg-white text-gray-900 shadow-sm'
-						: 'text-gray-500 hover:text-gray-900'}"
-					onclick={() => handleTabChange('students')}
-				>
-					<span class="flex items-center gap-2">
-						<UsersIcon size={16} />
-						Students
-					</span>
-				</button>
-				<button
-					class="rounded-md px-3 py-2 text-sm font-medium transition-colors {activeTab === 'exams'
-						? 'bg-white text-gray-900 shadow-sm'
-						: 'text-gray-500 hover:text-gray-900'}"
-					onclick={() => handleTabChange('exams')}
-				>
-					<span class="flex items-center gap-2">
-						<BookOpenIcon size={16} />
-						Exams
-					</span>
-				</button>
-			</div>
+			<Tab
+				tabs={[
+					{ id: 'students', label: 'Students', icon: UsersIcon },
+					{ id: 'exams', label: 'Exams', icon: BookOpenIcon }
+				]}
+				activeTab={activeTab}
+				on:change={(e) => handleTabChange(e.detail)}
+			/>
 
 			{#if activeTab === 'exams'}
 				<Button class="gap-2" onclick={() => (showCreateExamDialog = true)}>
