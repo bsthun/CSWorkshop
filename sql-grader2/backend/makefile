@@ -34,6 +34,7 @@ swagger:
 	sed -i '' -e 's/response.GenericResponse/Res/g' -e 's/payload_//g' ./generate/swagger/*.{json,yaml}
 	swagger2openapi --yaml --outfile ./generate/swagger/openapi.yaml ./generate/swagger/swagger.yaml
 	go run ./command/swaggermd
+	(cd ../frontend && bun run generate)
 
 .PHONY: mock
 mock:
@@ -41,5 +42,8 @@ mock:
 
 .PHONY: build
 build:
-	nilaway ./...
+	make generate
+	nilaway ./... || true
+	(cd ../frontend && bun run build)
+	cp -r ../frontend/dist/ .local/dist/
 	env GOOS=linux GOARCH=amd64 go build -o .local/backend .

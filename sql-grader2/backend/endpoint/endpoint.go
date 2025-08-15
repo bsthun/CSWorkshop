@@ -6,6 +6,8 @@ import (
 	"backend/endpoint/admin"
 	"backend/endpoint/public"
 	"backend/endpoint/state"
+	"backend/type/common"
+	"mime"
 	"path/filepath"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,11 +15,12 @@ import (
 
 func Bind(
 	app *fiber.App,
+	config *config.Config,
+	frontend common.FrontendFS,
 	publicEndpoint *publicEndpoint.Handler,
 	stateEndpoint *stateEndpoint.Handler,
 	adminEndpoint *adminEndpoint.Handler,
 	middleware *middleware.Middleware,
-	config *config.Config,
 ) {
 	api := app.Group("/api")
 	api.Use(middleware.Id())
@@ -60,12 +63,20 @@ func Bind(
 	admin.Post("/submission/detail", adminEndpoint.HandleSubmissionDetail)
 	admin.Post("/submission/list", adminEndpoint.HandleSubmissionList)
 
-	// * static files
-	app.Static("/file", ".local/file")
+	// * frontend
+	app.Get("*", func(c *fiber.Ctx) error {
+		filePath := filepath.Join(".local/dist", c.Path())
+		file, err := frontend.Open(filePath)
+		if err != nil {
+			file, _ = frontend.Open(".local/dist/index.html")
+			c.Set("Content-Type", "text/html")
 
-	// * static
-	app.Static("/", *config.WebRoot)
-	app.Get("/*", func(c *fiber.Ctx) error {
-		return c.SendFile(filepath.Join(*config.WebRoot, "index.html"))
+			return c.SendStream(file)
+		}
+
+		contentType := mime.TypeByExtension(filepath.Ext(filePath))
+		c.Set("Content-Type", contentType)
+
+		return c.SendStream(file)
 	})
 }

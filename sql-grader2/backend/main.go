@@ -11,18 +11,23 @@ import (
 	publicEndpoint "backend/endpoint/public"
 	stateEndpoint "backend/endpoint/state"
 	entityProcedure "backend/procedure/entity"
+	"backend/type/common"
 	"embed"
 
 	"go.uber.org/fx"
 )
 
 //go:embed database/postgres/migration/*.sql
-var embedMigrations embed.FS
+var migration embed.FS
+
+//go:embed .local/dist/*
+var frontend embed.FS
 
 func main() {
 	fx.New(
 		fx.Supply(
-			embedMigrations,
+			common.MigrationFS(migration),
+			common.FrontendFS(frontend),
 		),
 		fx.Provide(
 			config.Init,

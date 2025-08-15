@@ -5,7 +5,6 @@ import (
 	"backend/generate/psql"
 	"backend/type/common"
 	"database/sql"
-	"embed"
 	"strings"
 
 	"github.com/bsthun/gut"
@@ -13,7 +12,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-func Init(config *config.Config, migration embed.FS) common.Database {
+func Init(config *config.Config, migration common.MigrationFS) common.Database {
 	// * initialize postgres database
 	postgres, err := sql.Open("postgres", *config.PostgresDsn)
 	if err != nil {
