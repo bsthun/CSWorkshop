@@ -10,7 +10,6 @@ import (
 
 type Config struct {
 	Environment       *enum.Environment `yaml:"environment" validate:"required"`
-	WebRoot           *string           `yaml:"webRoot" validate:"omitempty"`
 	WebListen         [2]*string        `yaml:"webListen" validate:"required"`
 	FrontendUrl       *string           `yaml:"frontendUrl" validate:"required"`
 	Secret            *string           `yaml:"secret" validate:"required"`

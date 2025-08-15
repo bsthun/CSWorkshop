@@ -43,7 +43,7 @@ mock:
 .PHONY: build
 build:
 	make generate
-	nilaway ./... || true
+	# nilaway ./... || true
 	(cd ../frontend && bun run build)
 	cp -r ../frontend/dist/ .local/dist/
 	env GOOS=linux GOARCH=amd64 go build -o .local/backend .

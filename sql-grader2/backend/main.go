@@ -25,11 +25,13 @@ var frontend embed.FS
 
 func main() {
 	fx.New(
-		fx.Supply(
-			common.MigrationFS(migration),
-			common.FrontendFS(frontend),
-		),
 		fx.Provide(
+			func() common.MigrationFS {
+				return migration
+			},
+			func() common.FrontendFS {
+				return frontend
+			},
 			config.Init,
 			database.Init,
 			gorm.Init,

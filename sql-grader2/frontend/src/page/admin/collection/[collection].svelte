@@ -77,7 +77,7 @@
 			<InfoIcon class="mb-4 h-16 w-16 text-gray-400" />
 			<h3 class="mb-2 text-lg font-semibold">Collection not found</h3>
 			<p class="text-muted-foreground mb-4">The collection you're looking for doesn't exist</p>
-			<Button onclick={() => navigate('/admin/collection')}>
+			<Button onclick={() => navigate('/admin')}>
 				<ArrowLeftIcon class="mr-2 h-4 w-4" />
 				Back to Collections
 			</Button>
@@ -86,7 +86,7 @@
 		<div class="mb-6 flex flex-col gap-4">
 			<button
 				class="text-muted-foreground hover:text-primary flex items-center gap-2 hover:cursor-pointer"
-				on:click={() => navigate('/admin/collection')}
+				on:click={() => navigate('/admin')}
 			>
 				<ArrowLeftIcon size={16} />
 				<span class="text-xs font-medium tracking-wide uppercase">COLLECTION</span>

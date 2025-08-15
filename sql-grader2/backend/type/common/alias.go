@@ -6,4 +6,4 @@ import (
 
 type MigrationFS fs.FS
 
-type FrontendFS fs.FS
+type FrontendFS fs.ReadFileFS

@@ -66,17 +66,16 @@ func Bind(
 	// * frontend
 	app.Get("*", func(c *fiber.Ctx) error {
 		filePath := filepath.Join(".local/dist", c.Path())
-		file, err := frontend.Open(filePath)
+		file, err := frontend.ReadFile(filePath)
 		if err != nil {
-			file, _ = frontend.Open(".local/dist/index.html")
+			file, _ = frontend.ReadFile(".local/dist/index.html")
 			c.Set("Content-Type", "text/html")
-
-			return c.SendStream(file)
+			return c.Send(file)
 		}
 
 		contentType := mime.TypeByExtension(filepath.Ext(filePath))
 		c.Set("Content-Type", contentType)
 
-		return c.SendStream(file)
+		return c.Send(file)
 	})
 }

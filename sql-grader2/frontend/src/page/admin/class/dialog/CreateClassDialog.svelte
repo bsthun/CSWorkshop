@@ -49,7 +49,7 @@
 			.classCreate({
 				name: name.trim(),
 				code: code.trim(),
-				semesterId: selectedSemesterId[0] as any,
+				semesterId: selectedSemesterId as any,
 			})
 			.then(() => {
 				toast.success('Class created successfully')
@@ -81,7 +81,7 @@
 		if (!isOpen) {
 			resetDialog()
 		} else {
-			selectedSemesterId = semesters[0]?.id as any
+			selectedSemesterId = semesters?.id as any
 		}
 	}
 
