@@ -74,11 +74,15 @@ SELECT sqlc.embed(exams),
        sqlc.embed(collections),
        COALESCE(COUNT(CASE WHEN exam_attempts.opened_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_opened_count,
        COALESCE(COUNT(CASE WHEN exam_attempts.started_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_started_count,
-       COALESCE(COUNT(CASE WHEN exam_attempts.finished_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_finished_count
+       COALESCE(COUNT(CASE WHEN exam_attempts.finished_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_finished_count,
+       COALESCE(COUNT(DISTINCT exam_questions.id), 0)::bigint as exam_question_count,
+       COALESCE(COUNT(DISTINCT collection_questions.id), 0)::bigint as collection_question_count
 FROM exams
 JOIN classes ON exams.class_id = classes.id
 JOIN collections ON exams.collection_id = collections.id
 LEFT JOIN exam_attempts ON exams.id = exam_attempts.exam_id
+LEFT JOIN exam_questions ON exams.id = exam_questions.exam_id
+LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
 WHERE exams.id = $1
 GROUP BY exams.id, classes.id, collections.id;
 
@@ -87,3 +91,4 @@ SELECT sqlc.embed(exam_questions), sqlc.embed(collection_questions)
 FROM exam_questions
 JOIN collection_questions ON exam_questions.original_question_id = collection_questions.id
 WHERE exam_questions.id = $1;
+

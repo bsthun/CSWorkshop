@@ -5,18 +5,14 @@
 		DialogContent,
 		DialogDescription,
 		DialogHeader,
-		DialogTitle
+		DialogTitle,
 	} from '$/lib/shadcn/components/ui/dialog'
 	import { Button } from '$/lib/shadcn/components/ui/button'
 	import { Input } from '$/lib/shadcn/components/ui/input'
 	import { Label } from '$/lib/shadcn/components/ui/label'
-	import { Card, CardContent } from '$/lib/shadcn/components/ui/card'
 	import { BookOpenIcon, Loader2Icon, SearchIcon, PlusIcon } from 'lucide-svelte'
 	import { backend, catcher } from '$/util/backend.ts'
-	import type {
-		PayloadCollectionQuestionListItem,
-		PayloadCollection
-	} from '$/util/backend/backend.ts'
+	import type { PayloadCollectionQuestionItem, PayloadCollection } from '$/util/backend/backend.ts'
 	import { toast } from 'svelte-sonner'
 
 	export let open = false
@@ -27,8 +23,8 @@
 		added: void
 	}>()
 
-	let questions: PayloadCollectionQuestionListItem[] = []
-	let filteredQuestions: PayloadCollectionQuestionListItem[] = []
+	let questions: PayloadCollectionQuestionItem[] = []
+	let filteredQuestions: PayloadCollectionQuestionItem[] = []
 	let loading = true
 	let adding = false
 	let searchQuery = ''
@@ -56,8 +52,7 @@
 			const query = searchQuery.toLowerCase()
 			filteredQuestions = questions.filter(
 				(question) =>
-					question.title?.toLowerCase().includes(query) ||
-					question.description?.toLowerCase().includes(query)
+					question.title?.toLowerCase().includes(query) || question.description?.toLowerCase().includes(query)
 			)
 		}
 	}
@@ -67,7 +62,7 @@
 		backend.admin
 			.examQuestionAdd({
 				examId,
-				collectionQuestionId: questionId
+				collectionQuestionId: questionId,
 			})
 			.then((response) => {
 				if (response.success) {
@@ -105,7 +100,7 @@
 		<DialogHeader>
 			<DialogTitle>Add Question to Exam</DialogTitle>
 			<DialogDescription>
-				Select questions from the "{collectionData.name}" collection to add to your exam.
+				Add question from "{collectionData.name}" collection to exam.
 			</DialogDescription>
 		</DialogHeader>
 
@@ -114,19 +109,18 @@
 			<div class="space-y-2">
 				<Label for="search">Search Questions</Label>
 				<div class="relative">
-					<SearchIcon class="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+					<SearchIcon class="absolute top-3 left-3 h-4 w-4 text-gray-400" />
 					<Input
 						id="search"
 						bind:value={searchQuery}
 						placeholder="Search by title or description..."
 						class="pl-10"
-						on:keydown={handleKeydown}
+						onkeydown={handleKeydown}
 					/>
 				</div>
 			</div>
 
-			<!-- Questions List -->
-			<div class="max-h-96 space-y-2 overflow-y-auto">
+			<div class="max-h-96 space-y-2 overflow-x-visible overflow-y-scroll">
 				{#if loading}
 					<div class="flex items-center justify-center py-8">
 						<Loader2Icon class="text-muted-foreground h-6 w-6 animate-spin" />
@@ -135,43 +129,36 @@
 					<div class="flex flex-col items-center justify-center py-8">
 						<BookOpenIcon class="mb-4 h-12 w-12 text-gray-400" />
 						<p class="text-muted-foreground text-center">
-							{searchQuery ? 'No questions match your search' : 'No questions available in this collection'}
+							{searchQuery
+								? 'No questions match your search'
+								: 'No questions available in this collection'}
 						</p>
 					</div>
 				{:else}
-					{#each filteredQuestions as question}
-						<Card class="transition-shadow hover:shadow-md">
-							<CardContent class="p-4">
-								<div class="flex items-start justify-between">
-									<div class="flex-1">
-										<h4 class="font-medium">
-											{question.title || `Question ${question.orderNum || question.id}`}
-										</h4>
-										{#if question.description}
-											<p class="mt-1 text-sm text-gray-600 line-clamp-2">
-												{question.description}
-											</p>
-										{/if}
-										<div class="mt-2 text-xs text-gray-500">
-											ID: {question.id} • Order: {question.orderNum || 'N/A'}
-										</div>
-									</div>
-									<Button
-										size="sm"
-										onclick={() => handleAddQuestion(question.id)}
-										disabled={adding}
-									>
-										{#if adding}
-											<Loader2Icon class="h-4 w-4 animate-spin" />
-										{:else}
-											<PlusIcon class="h-4 w-4 mr-1" />
-											Add
-										{/if}
-									</Button>
+					<div class="divide-y divide-gray-200">
+						{#each filteredQuestions as question}
+							<div class="flex items-start justify-between py-4 transition-colors hover:bg-gray-50">
+								<div class="flex-1">
+									<h4 class="font-medium">
+										{question.title || `Question ${question.orderNum || question.id}`}
+									</h4>
+									{#if question.description}
+										<p class="mt-1 line-clamp-2 text-sm text-gray-600">
+											{question.description}
+										</p>
+									{/if}
 								</div>
-							</CardContent>
-						</Card>
-					{/each}
+								<Button size="sm" onclick={() => handleAddQuestion(question.id)} disabled={adding}>
+									{#if adding}
+										<Loader2Icon class="h-4 w-4 animate-spin" />
+									{:else}
+										<PlusIcon class="mr-1 h-4 w-4" />
+										Add
+									{/if}
+								</Button>
+							</div>
+						{/each}
+					</div>
 				{/if}
 			</div>
 		</div>

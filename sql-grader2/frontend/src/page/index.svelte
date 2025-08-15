@@ -1,5 +1,5 @@
 <script lang="ts">
 	import { navigate } from 'svelte-navigator'
 
-	navigate('/home')
+	navigate('/student')
 </script>

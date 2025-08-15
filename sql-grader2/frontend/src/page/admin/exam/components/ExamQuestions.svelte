@@ -10,7 +10,7 @@
 	import type {
 		PayloadCollectionQuestionListItem,
 		PayloadExamQuestionDetailResponse,
-		PayloadCollection
+		PayloadCollection,
 	} from '$/util/backend/backend.ts'
 	import { toast } from 'svelte-sonner'
 	import AddQuestionDialog from '../dialog/AddQuestionDialog.svelte'
@@ -107,7 +107,7 @@
 
 	const handleReset = () => {
 		if (!selectedQuestionDetail) return
-		
+
 		// Reset to collection question values
 		editedTitle = selectedQuestionDetail.collectionQuestion.title || ''
 		editedDescription = selectedQuestionDetail.collectionQuestion.description || ''
@@ -162,7 +162,7 @@
 				Exam Questions
 			</CardTitle>
 			<Button onclick={() => (addDialogOpen = true)} size="sm">
-				<PlusIcon class="h-4 w-4 mr-2" />
+				<PlusIcon class="mr-2 h-4 w-4" />
 				Add Question
 			</Button>
 		</div>
@@ -181,11 +181,7 @@
 					{:else if questions.length === 0}
 						<div class="flex flex-col items-center justify-center py-8">
 							<BookOpenIcon class="mb-4 h-16 w-16 text-gray-400" />
-							<p class="text-muted-foreground text-center mb-4">No questions in this exam</p>
-							<Button size="sm" onclick={() => (addDialogOpen = true)}>
-								<PlusIcon class="mr-2 h-4 w-4" />
-								Add First Question
-							</Button>
+							<p class="text-muted-foreground mb-4 text-center">No questions in this exam</p>
 						</div>
 					{:else}
 						<div class="divide-y divide-gray-200">
@@ -198,7 +194,8 @@
 									onclick={() => handleQuestionSelect(question)}
 								>
 									<div
-										class="mb-1 text-sm font-medium {selectedQuestionDetail?.examQuestion.id === question.id
+										class="mb-1 text-sm font-medium {selectedQuestionDetail?.examQuestion.id ===
+										question.id
 											? 'text-blue-600'
 											: ''}"
 									>
@@ -226,12 +223,12 @@
 						<h3 class="text-sm font-medium">Question Details</h3>
 						<div class="flex items-center gap-2">
 							<Button variant="outline" onclick={handleReset} size="sm">
-								<RotateCcwIcon class="h-4 w-4 mr-2" />
+								<RotateCcwIcon class="mr-2 h-4 w-4" />
 								Reset
 							</Button>
 							{#if hasChanges}
 								<Button onclick={handleSave} disabled={saving} size="sm">
-									<SaveIcon class="h-4 w-4 mr-2" />
+									<SaveIcon class="mr-2 h-4 w-4" />
 									Save
 								</Button>
 							{/if}
@@ -318,9 +315,4 @@
 	</CardContent>
 </Card>
 
-<AddQuestionDialog
-	bind:open={addDialogOpen}
-	{examId}
-	{collectionData}
-	on:added={handleQuestionAdded}
-/>
+<AddQuestionDialog bind:open={addDialogOpen} {examId} {collectionData} on:added={handleQuestionAdded} />

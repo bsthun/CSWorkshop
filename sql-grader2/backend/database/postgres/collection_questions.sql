@@ -28,3 +28,4 @@ RETURNING *;
 -- name: CollectionQuestionDelete :exec
 DELETE FROM collection_questions
 WHERE id = $1;
+

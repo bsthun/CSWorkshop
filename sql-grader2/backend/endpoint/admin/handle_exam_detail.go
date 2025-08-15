@@ -40,15 +40,16 @@ func (r *Handler) HandleExamDetail(c *fiber.Ctx) error {
 	// * prepare response
 	responsePayload := &payload.ExamDetailResponse{
 		Exam: &payload.Exam{
-			Id:           row.Exam.Id,
-			ClassId:      row.Exam.ClassId,
-			CollectionId: row.Exam.CollectionId,
-			Name:         row.Exam.Name,
-			AccessCode:   row.Exam.AccessCode,
-			OpenedAt:     row.Exam.OpenedAt,
-			ClosedAt:     row.Exam.ClosedAt,
-			CreatedAt:    row.Exam.CreatedAt,
-			UpdatedAt:    row.Exam.UpdatedAt,
+			Id:            row.Exam.Id,
+			ClassId:       row.Exam.ClassId,
+			CollectionId:  row.Exam.CollectionId,
+			Name:          row.Exam.Name,
+			AccessCode:    row.Exam.AccessCode,
+			OpenedAt:      row.Exam.OpenedAt,
+			ClosedAt:      row.Exam.ClosedAt,
+			CreatedAt:     row.Exam.CreatedAt,
+			UpdatedAt:     row.Exam.UpdatedAt,
+			QuestionCount: row.ExamQuestionCount,
 		},
 		Class: &payload.Class{
 			Id:           row.Class.Id,
@@ -60,11 +61,12 @@ func (r *Handler) HandleExamDetail(c *fiber.Ctx) error {
 			UpdatedAt:    row.Class.UpdatedAt,
 		},
 		Collection: &payload.Collection{
-			Id:        row.Collection.Id,
-			Name:      row.Collection.Name,
-			Metadata:  row.Collection.Metadata,
-			CreatedAt: row.Collection.CreatedAt,
-			UpdatedAt: row.Collection.UpdatedAt,
+			Id:            row.Collection.Id,
+			Name:          row.Collection.Name,
+			Metadata:      row.Collection.Metadata,
+			CreatedAt:     row.Collection.CreatedAt,
+			UpdatedAt:     row.Collection.UpdatedAt,
+			QuestionCount: row.CollectionQuestionCount,
 		},
 		AttemptCount: &payload.ExamAttemptCount{
 			OpenedCount:   row.AttemptOpenedCount,
