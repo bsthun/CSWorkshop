@@ -85,26 +85,16 @@
 	<DialogContent class="sm:max-w-[425px]">
 		<DialogHeader>
 			<DialogTitle>Edit Class</DialogTitle>
-			<DialogDescription>Update class information. Semester: {semester?.name}</DialogDescription>
+			<DialogDescription>Update class information.</DialogDescription>
 		</DialogHeader>
 		<div class="grid gap-4 py-4">
 			<div class="grid gap-2">
 				<Label for="name">Class Name</Label>
-				<Input
-					bind:value={name}
-					disabled={editing}
-					id="name"
-					placeholder="Enter class name"
-				/>
+				<Input bind:value={name} disabled={editing} id="name" placeholder="Enter class name" />
 			</div>
 			<div class="grid gap-2">
 				<Label for="code">Class Code</Label>
-				<Input
-					bind:value={code}
-					disabled={editing}
-					id="code"
-					placeholder="Enter class code"
-				/>
+				<Input bind:value={code} disabled={editing} id="code" placeholder="Enter class code" />
 			</div>
 		</div>
 		<DialogFooter>

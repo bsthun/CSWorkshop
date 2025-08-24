@@ -127,21 +127,29 @@ RETURNING *;
 - Use `sqlc.narg(name)` instead of Column1, Column2
 - Avoid use alias table when joining
 
-### SQLC Embeds
+### SQLC example
 
 ```sql
--- name: CollectionDetail :one
-SELECT sqlc.embed(collections), sqlc.embed(users), COUNT(items) as item_count
-FROM collections
-         JOIN users ON collections.user_id = users.id
-WHERE collections.id = $1;
+SELECT sqlc.embed(exams),
+       sqlc.embed(collections),
+       (SELECT COUNT(*)::BIGINT FROM exam_attempts WHERE exam_attempts.exam_id = exams.id) AS exam_attempt_count,
+       (SELECT COUNT(*)::BIGINT FROM exam_questions WHERE exam_questions.exam_id = exams.id) AS exam_question_count,
+       (SELECT COUNT(*)::BIGINT FROM collection_questions WHERE collection_questions.collection_id = collections.id) AS collection_question_count
+FROM exams
+JOIN collections ON exams.collection_id = collections.id
+WHERE exams.class_id = $1
+GROUP BY exams.id, collections.id
+ORDER BY exams.created_at DESC;
 ```
 
-- Generated: `row.Collection.Id`, `row.User.Name`, `row.ItemCount`
+Key points:
+
+- Generated: `row.Exam.Id`, `row.Collection.Name`, `row.ExamAttemptCount`
+- Use subquery for counts
 
 ## Common Fixes
 
-- ExamQuestionMaxOrderNum: `COALESCE(MAX(order_num), 0)::bigint`, need to cast to bigint
+- ExamQuestionMaxOrderNum: `COALESCE(MAX(order_num), 0)::BIGINT`, need to cast to bigint
 - Use `sqlc.narg(param_name)` for named parameters
 - Queries in `./database/postgres/*.sql`
 

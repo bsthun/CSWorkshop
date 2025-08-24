@@ -71,7 +71,7 @@ func Bind(
 	student.Post("/class/list", studentEndpoint.HandleClassList)
 	student.Post("/class/join", studentEndpoint.HandleClassJoin)
 	student.Post("/class/exam/list", studentEndpoint.HandleClassExamList)
-	student.Post("/class/exam/detail", studentEndpoint.HandleClassExamDetail)
+	student.Post("/class/exam/attempt/detail", studentEndpoint.HandleClassExamAttemptDetail)
 	student.Post("/class/exam/attempt", studentEndpoint.HandleClassExamAttempt)
 
 	// * frontend

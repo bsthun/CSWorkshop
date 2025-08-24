@@ -20,7 +20,7 @@
 	const loadClasses = () => {
 		loading = true
 		backend.student
-			.classList()
+			.classList({})
 			.then((response) => {
 				classes = response.data.classes
 			})
@@ -78,9 +78,9 @@
 		{:else}
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each classes as classItem}
-					<div onclick={() => handleClassClick(classItem)}>
+					<button onclick={() => handleClassClick(classItem)}>
 						<Card class="cursor-pointer transition-shadow hover:shadow-lg">
-							<CardHeader>
+							<CardHeader class="flex flex-col items-start">
 								<div class="mb-2 flex items-center justify-between">
 									<Badge variant="outline" class="gap-1">
 										<CalendarIcon size={12} />
@@ -104,9 +104,7 @@
 											<CheckCircleIcon class="h-4 w-4 text-green-600" />
 											<span class="text-muted-foreground">Completed</span>
 										</div>
-										<span class="font-medium text-green-600"
-											>{classItem.examFinishedCount}</span
-										>
+										<span class="font-medium text-green-600">{classItem.examFinishedCount}</span>
 									</div>
 									{#if classItem.examTotalCount > 0}
 										<div class="mt-3">
@@ -116,9 +114,7 @@
 												<span>Progress</span>
 												<span
 													>{Math.round(
-														(classItem.examFinishedCount /
-															classItem.examTotalCount) *
-															100
+														(classItem.examFinishedCount / classItem.examTotalCount) * 100
 													)}%</span
 												>
 											</div>
@@ -135,7 +131,7 @@
 								</div>
 							</CardContent>
 						</Card>
-					</div>
+					</button>
 				{/each}
 			</div>
 		{/if}
@@ -144,7 +140,4 @@
 
 <JoinClassDialog bind:open={joinClassDialogOpen} on:joined={handleClassJoined} />
 
-<ExamListDrawer 
-	bind:open={examDrawerOpen}
-	{selectedClass}
-/>
+<ExamListDrawer bind:open={examDrawerOpen} {selectedClass} />

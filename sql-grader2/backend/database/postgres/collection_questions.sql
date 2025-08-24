@@ -1,5 +1,5 @@
 -- name: CollectionQuestionMaxOrderNum :one
-SELECT COALESCE(MAX(order_num), 0)::int AS max_order_num
+SELECT COALESCE(MAX(order_num), 0)::INT AS max_order_num
 FROM collection_questions
 WHERE collection_id = $1;
 

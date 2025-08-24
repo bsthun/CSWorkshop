@@ -9,6 +9,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/bsthun/gut"
@@ -55,7 +56,7 @@ func (r *Handler) HandleLoginCallback(c *fiber.Ctx) error {
 			// * generate unique username
 			var username string
 			for {
-				username = strings.ToLower(*oidcClaims.FirstName) + "_" + *gut.Random(gut.RandomSet.Num, 4)
+				username = strings.ToLower(*oidcClaims.FirstName) + *gut.Random(gut.RandomSet.Num, 4)
 				_, err := r.database.P().UserGetByMetadataUsername(c.Context(), &username)
 				if errors.Is(err, sql.ErrNoRows) {
 					break
@@ -63,6 +64,15 @@ func (r *Handler) HandleLoginCallback(c *fiber.Ctx) error {
 				if err != nil {
 					return gut.Err(false, "failed to check username uniqueness", err)
 				}
+			}
+
+			password := gut.Random(gut.RandomSet.MixedAlphaNum, 8)
+
+			// * create mysql user
+			createUserSQL := fmt.Sprintf("CREATE USER IF NOT EXISTS '%s'@'%%' IDENTIFIED BY '%s'", username, *password)
+			tx := r.gorm.Exec(createUserSQL)
+			if tx.Error != nil {
+				return gut.Err(false, "failed to create mysql user", tx.Error)
 			}
 
 			user, err = r.database.P().UserCreate(c.Context(), &psql.UserCreateParams{
@@ -75,7 +85,7 @@ func (r *Handler) HandleLoginCallback(c *fiber.Ctx) error {
 				Metadata: &tuple.UserMetadata{
 					Credential: &tuple.UserMetadataCredential{
 						Username: &username,
-						Password: gut.Random(gut.RandomSet.MixedAlphaNum, 8),
+						Password: password,
 					},
 				},
 			})

@@ -13,6 +13,7 @@ import (
 	stateEndpoint "backend/endpoint/state"
 	studentEndpoint "backend/endpoint/student"
 	entityProcedure "backend/procedure/entity"
+	schemaProcedure "backend/procedure/schema"
 	"backend/type/common"
 	"embed"
 
@@ -41,6 +42,7 @@ func main() {
 			middleware.Init,
 			openai.Init,
 			entityProcedure.Serve,
+			schemaProcedure.Serve,
 			publicEndpoint.Handle,
 			stateEndpoint.Handle,
 			adminEndpoint.Handle,

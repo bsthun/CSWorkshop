@@ -389,8 +389,10 @@ type ClassExamListRequest struct {
 }
 
 type ClassExamListItem struct {
-	Exam          *Exam   `json:"exam"`
-	QuestionCount *uint64 `json:"questionCount"`
+	Exam          *Exam        `json:"exam"`
+	QuestionCount *uint64      `json:"questionCount"`
+	ExamAttempt   *ExamAttempt `json:"examAttempt"`
+	Status        *string      `json:"status" validate:"required,oneof=upcoming opened closed finished attempted unknown"`
 }
 
 type ClassExamListResponse struct {
@@ -403,7 +405,7 @@ type ClassExamAttemptRequest struct {
 }
 
 type ClassExamDetailRequest struct {
-	ExamId *uint64 `json:"examId" validate:"required"`
+	ExamAttemptId *uint64 `json:"examAttemptId" validate:"required"`
 }
 
 type ExamCredential struct {
@@ -420,4 +422,8 @@ type ClassExamDetailResponse struct {
 	Exam              *Exam           `json:"exam"`
 	ExamQuestionCount *uint64         `json:"examQuestionCount"`
 	Credential        *ExamCredential `json:"credential"`
+}
+
+type ClassExamAttemptResponse struct {
+	ExamAttempt *ExamAttempt `json:"examAttempt"`
 }

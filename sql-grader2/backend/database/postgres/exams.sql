@@ -6,12 +6,11 @@ RETURNING *;
 -- name: ExamList :many
 SELECT sqlc.embed(exams),
        sqlc.embed(collections),
-       COALESCE(COUNT(exam_questions.id), 0)::bigint as exam_question_count,
-       COALESCE(COUNT(collection_questions.id), 0)::bigint as collection_question_count
+       (SELECT COUNT(*)::BIGINT FROM exam_attempts WHERE exam_attempts.exam_id = exams.id) AS exam_attempt_count,
+       (SELECT COUNT(*)::BIGINT FROM exam_questions WHERE exam_questions.exam_id = exams.id) AS exam_question_count,
+       (SELECT COUNT(*)::BIGINT FROM collection_questions WHERE collection_questions.collection_id = collections.id) AS collection_question_count
 FROM exams
 JOIN collections ON exams.collection_id = collections.id
-LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
-LEFT JOIN exam_questions ON exams.id = exam_questions.exam_id
 WHERE exams.class_id = $1
 GROUP BY exams.id, collections.id
 ORDER BY exams.created_at DESC;
@@ -37,7 +36,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 
 -- name: ExamQuestionMaxOrderNum :one
-SELECT COALESCE(MAX(order_num), 0)::int as max_order_num
+SELECT COALESCE(MAX(order_num), 0)::INT as max_order_num
 FROM exam_questions
 WHERE exam_id = $1;
 
@@ -72,11 +71,11 @@ WHERE id = $1;
 SELECT sqlc.embed(exams),
        sqlc.embed(classes),
        sqlc.embed(collections),
-       COALESCE(COUNT(CASE WHEN exam_attempts.opened_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_opened_count,
-       COALESCE(COUNT(CASE WHEN exam_attempts.started_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_started_count,
-       COALESCE(COUNT(CASE WHEN exam_attempts.finished_at IS NOT NULL THEN 1 END), 0)::bigint as attempt_finished_count,
-       COALESCE(COUNT(DISTINCT exam_questions.id), 0)::bigint as exam_question_count,
-       COALESCE(COUNT(DISTINCT collection_questions.id), 0)::bigint as collection_question_count
+       COALESCE(COUNT(CASE WHEN exam_attempts.opened_at IS NOT NULL THEN 1 END), 0)::BIGINT as attempt_opened_count,
+       COALESCE(COUNT(CASE WHEN exam_attempts.started_at IS NOT NULL THEN 1 END), 0)::BIGINT as attempt_started_count,
+       COALESCE(COUNT(CASE WHEN exam_attempts.finished_at IS NOT NULL THEN 1 END), 0)::BIGINT as attempt_finished_count,
+       COALESCE(COUNT(DISTINCT exam_questions.id), 0)::BIGINT as exam_question_count,
+       COALESCE(COUNT(DISTINCT collection_questions.id), 0)::BIGINT as collection_question_count
 FROM exams
 JOIN classes ON exams.class_id = classes.id
 JOIN collections ON exams.collection_id = collections.id
@@ -94,11 +93,14 @@ WHERE exam_questions.id = $1;
 
 -- name: ClassExamList :many
 SELECT sqlc.embed(exams),
-       COALESCE(COUNT(exam_questions.id), 0)::bigint as exam_question_count
+       sqlc.embed(exam_attempts),
+       COALESCE(COUNT(DISTINCT exam_questions.id), 0)::BIGINT as exam_question_count
 FROM exams
 LEFT JOIN exam_questions ON exams.id = exam_questions.exam_id
+LEFT JOIN class_joinees ON class_joinees.class_id = exams.class_id AND class_joinees.user_id = sqlc.narg(user_id)
+LEFT JOIN exam_attempts ON exams.id = exam_attempts.exam_id AND exam_attempts.class_joinee_id = class_joinees.id
 WHERE exams.class_id = $1
-GROUP BY exams.id
+GROUP BY exams.id, exam_attempts.id
 ORDER BY exams.created_at DESC;
 
 -- name: ExamAttemptCreate :one
@@ -116,3 +118,23 @@ UPDATE exam_attempts
 SET opened_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
+
+-- name: ExamAttemptGetById :one
+SELECT sqlc.embed(exam_attempts),
+       sqlc.embed(exams),
+       sqlc.embed(class_joinees),
+       sqlc.embed(users),
+       sqlc.embed(classes),
+       sqlc.embed(semesters)
+FROM exam_attempts
+JOIN exams ON exam_attempts.exam_id = exams.id
+JOIN class_joinees ON exam_attempts.class_joinee_id = class_joinees.id
+JOIN users ON class_joinees.user_id = users.id
+JOIN classes ON exams.class_id = classes.id
+JOIN semesters ON classes.semester_id = semesters.id
+WHERE exam_attempts.id = $1;
+
+-- name: ExamAttemptGetByDatabaseName :one
+SELECT *
+FROM exam_attempts
+WHERE database_name = $1;

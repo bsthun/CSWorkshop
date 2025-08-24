@@ -40,7 +40,7 @@ func (r *Handler) HandleClassList(c *fiber.Ctx) error {
 				SemesterId:   row.Class.SemesterId,
 				Code:         row.Class.Code,
 				Name:         row.Class.Name,
-				RegisterCode: row.Class.RegisterCode,
+				RegisterCode: nil,
 				CreatedAt:    row.Class.CreatedAt,
 				UpdatedAt:    row.Class.UpdatedAt,
 			},

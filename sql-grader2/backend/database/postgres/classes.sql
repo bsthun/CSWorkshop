@@ -48,3 +48,8 @@ RETURNING *;
 SELECT *
 FROM class_joinees
 WHERE user_id = $1 AND class_id = $2;
+
+-- name: ClassJoineeGetById :one
+SELECT *
+FROM class_joinees
+WHERE id = $1;
