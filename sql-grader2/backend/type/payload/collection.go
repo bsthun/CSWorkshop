@@ -367,10 +367,13 @@ type ExamDetailResponse struct {
 }
 
 type StudentClassListItem struct {
-	Class                    *Class        `json:"class"`
-	Semester                 *SemesterInfo `json:"semester"`
-	ExamAttemptTotalCount    *uint64       `json:"examAttemptTotalCount"`
-	ExamAttemptFinishedCount *uint64       `json:"examAttemptFinishedCount"`
+	Class             *Class        `json:"class"`
+	Semester          *SemesterInfo `json:"semester"`
+	ExamTotalCount    *uint64       `json:"examTotalCount"`
+	ExamFinishedCount *uint64       `json:"examFinishedCount"`
+}
+
+type StudentClassListRequest struct {
 }
 
 type StudentClassListResponse struct {
@@ -379,4 +382,42 @@ type StudentClassListResponse struct {
 
 type ClassJoinRequest struct {
 	RegisterCode *string `json:"registerCode" validate:"required"`
+}
+
+type ClassExamListRequest struct {
+	ClassId *uint64 `json:"classId" validate:"required"`
+}
+
+type ClassExamListItem struct {
+	Exam          *Exam   `json:"exam"`
+	QuestionCount *uint64 `json:"questionCount"`
+}
+
+type ClassExamListResponse struct {
+	Exams []*ClassExamListItem `json:"exams"`
+}
+
+type ClassExamAttemptRequest struct {
+	ExamId     *uint64 `json:"examId" validate:"required"`
+	AccessCode *string `json:"accessCode" validate:"required"`
+}
+
+type ClassExamDetailRequest struct {
+	ExamId *uint64 `json:"examId" validate:"required"`
+}
+
+type ExamCredential struct {
+	Dialect      *string `json:"dialect"`
+	Host         *string `json:"host"`
+	Port         *string `json:"port"`
+	User         *string `json:"user"`
+	Password     *string `json:"password"`
+	DatabaseName *string `json:"databaseName"`
+}
+
+type ClassExamDetailResponse struct {
+	Class             *Class          `json:"class"`
+	Exam              *Exam           `json:"exam"`
+	ExamQuestionCount *uint64         `json:"examQuestionCount"`
+	Credential        *ExamCredential `json:"credential"`
 }

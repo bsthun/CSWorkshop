@@ -16,7 +16,43 @@
 
 - Use PascalCase for Svelte components (`.svelte` files)
 - Import paths use `$` alias for src directory (`$/component/ui/...`)
-- Group imports logically (Svelte, UI components, utilities, types)
+
+```typescript
+// * import structure example
+import { onMount } from 'svelte'
+import { useParams } from 'svelte-navigator'
+import { UserIcon, Loader2Icon } from 'lucide-svelte'
+import { Card, CardContent } from '$/lib/shadcn/components/ui/card'
+import { backend, catcher } from '$/util/backend'
+import type { PayloadProject } from '$/util/backend/backend.ts'
+```
+
+## Backend Integration Patterns
+
+### API Client Usage
+
+- **Backend Import**: Always use `backend` and `catcher` from `$/util/backend`
+- **Promise Chain**: Use `.then()`, `.catch()`, `.finally()` pattern
+- **Error Handling**: Use `catcher` utility for consistent error handling
+- **Loading States**: Always handle loading states properly
+
+```typescript
+// * backend api call pattern
+const loadProjectDetail = () => {
+    loading = true
+    backend.project
+        .projectDetail({ projectId })
+        .then((response) => {
+            projectData = response.data.project
+        })
+        .catch((err) => {
+            catcher(err)
+        })
+        .finally(() => {
+            loading = false
+        })
+}
+```
 
 ## UI & Styling Patterns
 
@@ -25,11 +61,31 @@
 - **shadcn/ui Components**: Primary UI component library
     - Cards: `Card`, `CardContent`, `CardHeader`, `CardTitle`, `CardDescription`
     - Forms: `Input`, `Label`, `Button`, `Dialog` components
+    - Tables: `Table`, `TableBody`, `TableCell`, `TableHead`, `TableHeader`, `TableRow`
     - Layout: Consistent spacing and typography
 - **Tailwind CSS**: Utility-first styling with consistent design tokens
 - **Lucide Icons**: Consistent iconography throughout the application
-    - Use `size` prop for consistent icon sizing
+    - Use `size` prop for consistent icon sizing instead of `h-4 w-4`
     - Import specific icons to reduce bundle size
+
+### Loading States Pattern
+
+```typescript
+// * loading indicator component
+{#if loading}
+    <div class="flex min-h-[400px] items-center justify-center">
+        <Loader2Icon class="text-primary h-8 w-8 animate-spin" />
+    </div>
+{:else if !projectData}
+    <div class="flex min-h-[400px] flex-col items-center justify-center">
+        <InfoIcon class="mb-4 h-16 w-16 text-gray-400" />
+        <h3 class="mb-2 text-lg font-semibold">Project not found</h3>
+        <Button onclick={() => navigate('/project')}>Back to Projects</Button>
+    </div>
+{:else}
+    <!-- * main content -->
+{/if}
+```
 
 ### Layout Patterns
 
@@ -40,19 +96,97 @@
 
 ### Card Design Pattern
 
-- **Header Structure**: Icon + label + title layout
-- **Content Structure**: Consistent spacing and typography
-- **Hover Effects**: `transition-shadow hover:shadow-lg` for interactivity
-- **Icon Integration**: Mini icons with consistent sizing and color
+```typescript
+// * standard card layout with header and actions
+<div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <UserIcon class="h-6 w-6 text-purple-600" />
+        <div>
+            <h1 class="text-2xl font-bold">Users</h1>
+            <p class="text-muted-foreground">Manage project members</p>
+        </div>
+    </div>
+    <Button on:click={() => addUserDialogOpen = true}>
+        <PlusIcon class="h-4 w-4" />
+        Add User
+    </Button>
+</div>
+```
 
 ## Component Development Patterns
 
-### Reusable Components
+### Dialog Management Pattern
 
-- **Props Interface**: Clear, typed props with defaults
-- **Event Dispatching**: Use `createEventDispatcher` for parent communication
-- **Slot Support**: Use `<slot />` for flexible content injection
-- **Visibility Control**: `visible` prop for conditional rendering
+```typescript
+// * dialog state management
+let addUserDialogOpen = false
+let editUserDialogOpen = false
+let editingUser: PayloadProjectUser | null = null
+
+// * dialog event handlers
+const handleUserAdded = () => {
+    loadUsers()
+    addUserDialogOpen = false
+}
+
+const handleEditUser = (user: PayloadProjectUser) => {
+    editingUser = user
+    editUserDialogOpen = true
+}
+
+// * dialog components at bottom of template
+<AddUserDialog
+    bind:open={addUserDialogOpen}
+    {projectId}
+    on:created={handleUserAdded}
+/>
+
+<EditUserDialog
+    bind:open={editUserDialogOpen}
+    {projectId}
+    user={editingUser}
+    on:updated={handleUserUpdated}
+/>
+```
+
+### Table with Actions Pattern
+
+```typescript
+// * data table with action buttons
+<Table>
+    <TableHeader>
+        <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead class="text-right">Actions</TableHead>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        {#each users as user (user.id)}
+            <TableRow>
+                <TableCell class="font-medium">{user.name}</TableCell>
+                <TableCell class="text-muted-foreground">{user.email}</TableCell>
+                <TableCell>
+                    <Badge variant={getRoleBadgeVariant(user.role)}>
+                        {user.role}
+                    </Badge>
+                </TableCell>
+                <TableCell class="text-right">
+                    <div class="flex justify-end gap-2">
+                        <Button variant="ghost" size="sm" on:click={() => handleEditUser(user)}>
+                            <EditIcon class="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" on:click={() => handleRemoveUser(user.id)}>
+                            <TrashIcon class="h-4 w-4" />
+                        </Button>
+                    </div>
+                </TableCell>
+            </TableRow>
+        {/each}
+    </TableBody>
+</Table>
+```
 
 ### State Management
 
@@ -63,119 +197,48 @@
 ### Event Handling Patterns
 
 - **Custom Events**: Dispatch typed events with `createEventDispatcher<T>`
-- **Event Naming**: Use descriptive names (`search`, `paginate`, `created`)
+- **Event Naming**: Use descriptive names (`created`, `updated`, `removed`)
 - **Event Data**: Pass relevant data in event detail object
 - **Handler Functions**: Separate functions for complex event logic
 
-## Data & API Patterns
-
-### Backend Integration
-
-- **API Client**: Use generated `backend` client from OpenAPI spec
-- **Error Handling**: Consistent error handling with `catcher` utility
-- **Loading States**: Always handle loading states with proper UI feedback
-- **Toast Notifications**: Use `svelte-sonner` for user feedback
-
-### Pagination Implementation
-
-- **Items Per Page**: Standardize pagination (24 items per page)
-- **API Parameters**: Use `limit`, `offset`, `name` for consistent API calls
-- **State Synchronization**: Keep pagination state in sync with API responses
-- **Validation**: Validate page numbers and reset invalid inputs
-
-### Search Functionality
-
-- **Search Query**: Bind search input with debouncing consideration
-- **Search Events**: Dispatch search events with query and page reset
-- **Enter Key Support**: Handle Enter key for immediate search
-- **Placeholder Text**: Descriptive placeholder text for context
-
-## Form & Dialog Patterns
-
-### Dialog Management
-
-- **Separation of Concerns**: Move dialogs to separate components
-- **State Management**: Handle open/close state and form data separately
-- **Event Communication**: Use events for dialog-to-parent communication
-- **Form Validation**: Client-side validation with user feedback
-- **Loading States**: Disable forms during API calls
-
-### Form Patterns
-
-- **Input Binding**: Two-way binding for form inputs
-- **Validation**: Real-time validation with error display
-- **Submit Handling**: Async form submission with proper error handling
-- **Reset Functionality**: Clear forms on success or cancel
-
-## Animation & Transitions
-
-### Svelte Transitions
-
-- **Fly Animations**: Use `fly` transition for floating elements
-- **Duration**: Consistent animation timing (200ms)
-- **Direction**: Appropriate direction for element entry/exit
-
 ## Error Handling & User Experience
 
-### Loading States
+### Toast Notifications
 
-- **Loading Indicators**: Use `Loader2Icon` with spin animation
-- **Empty States**: Meaningful empty state messages with actions
-- **Error States**: Graceful error handling with user-friendly messages
-
-### User Feedback
-
-- **Toast Messages**: Success/error toasts for user actions
-- **Button States**: Disabled states during loading
-- **Visual Feedback**: Hover states and transitions for interactivity
+```typescript
+import { toast } from 'svelte-sonner'
+toast.success('user added successfully')
+toast.error(response.message)
+```
 
 ## TypeScript Integration
 
 ### Type Safety
 
-- **Import Types**: Import types explicitly (`import type { ... }`)
-- **Event Types**: Type event dispatchers and handlers
-- **API Types**: Use generated types from backend API
-- **Component Props**: Type component props interfaces
+```typescript
+// * import types explicitly
+import type { PayloadProject, PayloadProjectUser } from '$/util/backend/backend.ts'
 
-## Performance Considerations
-
-### Bundle Optimization
-
-- **Selective Imports**: Import only needed components and utilities
-- **Icon Optimization**: Import specific icons rather than entire libraries
-- **Code Splitting**: Separate dialogs and heavy components
+// * typed variables
+let projectData: PayloadProject
+let users: PayloadProjectUser[] = []
+let editingUser: PayloadProjectUser | null = null
+```
 
 ## Navigation & Routing
 
-### Tab Navigation
+### Parameter Handling
 
-- **Active States**: Visual indication of active tabs
-- **Consistent Styling**: Shared styling patterns for tab interfaces
-- **Icon Integration**: Icons with text labels for better UX
+```typescript
+// path: src/page/project/[project]/user.svelte
+export let project: number
+```
 
-## Best Practices Summary
+## Key Points
 
-### Code Organization
-
-- Separate concerns into focused components
-- Use feature-based directory structure
-- Group related functionality together
-
-### User Interface
-
-- Consistent design system usage
-- Responsive design patterns
-- Accessible component implementations
-
-### Data Management
-
-- Consistent API integration patterns
-- Proper error handling and user feedback
-- Efficient state management
-
-### Component Design
-
-- Reusable, composable components
-- Clear prop interfaces and event contracts
-- Proper separation of concerns
+- Always read `src/backend/backend.md` for backend types documentation
+- Use `backend` and `catcher` from `$/util/backend` for all backend calls
+- Implement proper loading states and user feedback
+- Separate dialog components for better organization
+- Use consistent naming patterns and file structure
+- Handle edge cases like empty states and errors gracefully

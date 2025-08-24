@@ -25,12 +25,11 @@ RETURNING *;
 -- name: StudentClassList :many
 SELECT sqlc.embed(classes),
        sqlc.embed(semesters),
-       COALESCE(COUNT(exam_attempts.id), 0)::bigint as exam_attempt_total_count,
-       COALESCE(COUNT(CASE WHEN exam_attempts.finished_at IS NOT NULL THEN 1 END), 0)::bigint as exam_attempt_finished_count
+       (SELECT COUNT(*)::BIGINT FROM exams WHERE exams.class_id = classes.id) AS exam_total_count,
+       (SELECT COUNT(*)::BIGINT FROM exam_attempts WHERE exam_attempts.class_joinee_id = class_joinees.id AND exam_attempts.finished_at IS NOT NULL) AS exam_finished_count
 FROM class_joinees
 JOIN classes ON class_joinees.class_id = classes.id
 JOIN semesters ON classes.semester_id = semesters.id
-LEFT JOIN exam_attempts ON class_joinees.id = exam_attempts.class_joinee_id
 WHERE class_joinees.user_id = $1
 GROUP BY classes.id, semesters.id, class_joinees.id
 ORDER BY class_joinees.created_at DESC;

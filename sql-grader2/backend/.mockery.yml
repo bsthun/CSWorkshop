@@ -2,8 +2,8 @@ all: true
 dir: "generate/mockery"
 pkgname: "mockery"
 outpkg: "{{.PackageName}}"
-filename: "mock_{{.InterfaceFile|dir|base}}_{{.InterfaceName|lower}}.go"
-mockname: "Mock{{.InterfaceFile|dir|base|firstUpper}}{{.InterfaceName}}"
+filename: "mock_{{.InterfaceDir|dir|base}}_{{.InterfaceFile|dir|base}}_{{.InterfaceName|lower}}.go"
+mockname: "Mock{{.InterfaceDir|dir|base}}{{.InterfaceFile|dir|base|firstUpper}}{{.InterfaceName}}"
 force-file-write: true
 template: testify
 recursive: true

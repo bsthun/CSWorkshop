@@ -39,3 +39,8 @@ UPDATE collections
 SET metadata = $2
 WHERE id = $1
 RETURNING *;
+
+-- name: CollectionGetById :one
+SELECT *
+FROM collections
+WHERE id = $1;

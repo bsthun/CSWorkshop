@@ -6,6 +6,7 @@ import (
 	"backend/endpoint/admin"
 	"backend/endpoint/public"
 	"backend/endpoint/state"
+	"backend/endpoint/student"
 	"backend/type/common"
 	"mime"
 	"path/filepath"
@@ -20,6 +21,7 @@ func Bind(
 	publicEndpoint *publicEndpoint.Handler,
 	stateEndpoint *stateEndpoint.Handler,
 	adminEndpoint *adminEndpoint.Handler,
+	studentEndpoint *studentEndpoint.Handler,
 	middleware *middleware.Middleware,
 ) {
 	api := app.Group("/api")
@@ -63,6 +65,14 @@ func Bind(
 	admin.Post("/exam/question/edit", adminEndpoint.HandleExamQuestionEdit)
 	admin.Post("/submission/detail", adminEndpoint.HandleSubmissionDetail)
 	admin.Post("/submission/list", adminEndpoint.HandleSubmissionList)
+
+	// * student endpoints
+	student := api.Group("/student", middleware.Jwt(true))
+	student.Post("/class/list", studentEndpoint.HandleClassList)
+	student.Post("/class/join", studentEndpoint.HandleClassJoin)
+	student.Post("/class/exam/list", studentEndpoint.HandleClassExamList)
+	student.Post("/class/exam/detail", studentEndpoint.HandleClassExamDetail)
+	student.Post("/class/exam/attempt", studentEndpoint.HandleClassExamAttempt)
 
 	// * frontend
 	app.Get("*", func(c *fiber.Ctx) error {

@@ -8,10 +8,8 @@ sqlc:
 	sqlc generate
 	find ./generate/*sql -type f \( -name "models.go" -o -name "*.sql.go" -o -name "querier.go" \) -exec sed -i '' \
 		-e 's/\"database\/sql\"//g' \
-		-e 's/\[\]*string/strarr/g' \
 		-e 's/string/\*string/g' \
-		-e 's/strarr/\[\]string/g' \
-		-e 's/bool/\*bool/g' \
+		-e 's/\([^:]\)bool/\1*bool/g' \
 		-e 's/int64/\*uint64/g' \
 		-e 's/int32/\*int32/g' \
 		-e 's/float64/\*float64/g' \
@@ -43,7 +41,7 @@ mock:
 .PHONY: build
 build:
 	make generate
-	# nilaway ./... || true
+	nilaway ./... || true
 	(cd ../frontend && bun run build)
 	cp -r ../frontend/dist/ .local/dist/
 	env GOOS=linux GOARCH=amd64 go build -o .local/backend .

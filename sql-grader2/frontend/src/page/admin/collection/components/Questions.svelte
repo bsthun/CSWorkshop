@@ -142,7 +142,6 @@
 		deleteDialogOpen = false
 	}
 
-	// Track changes
 	$: {
 		if (selectedQuestion) {
 			hasChanges =

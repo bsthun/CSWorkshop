@@ -5,7 +5,6 @@ import (
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
-	"database/sql"
 
 	"github.com/bsthun/gut"
 	"github.com/gofiber/fiber/v2"
@@ -22,16 +21,18 @@ func (r *Handler) HandleClassJoin(c *fiber.Ctx) error {
 		return gut.Err(false, "invalid body", err)
 	}
 
+	// * validate body
+	if err := gut.Validate(body); err != nil {
+		return err
+	}
+
 	// * get class by register code
 	class, err := r.database.P().ClassGetByRegisterCode(c.Context(), body.RegisterCode)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return gut.Err(false, "class not found", nil)
-		}
-		return gut.Err(false, "failed to get class", err)
+		return gut.Err(false, "class not found", err)
 	}
 
-	// * check if student is already joined
+	// * create class joinee
 	_, err = r.database.P().ClassJoineeCreate(c.Context(), &psql.ClassJoineeCreateParams{
 		UserId:  u.UserId,
 		ClassId: class.Id,

@@ -11,6 +11,7 @@ import (
 	adminEndpoint "backend/endpoint/admin"
 	publicEndpoint "backend/endpoint/public"
 	stateEndpoint "backend/endpoint/state"
+	studentEndpoint "backend/endpoint/student"
 	entityProcedure "backend/procedure/entity"
 	"backend/type/common"
 	"embed"
@@ -43,6 +44,7 @@ func main() {
 			publicEndpoint.Handle,
 			stateEndpoint.Handle,
 			adminEndpoint.Handle,
+			studentEndpoint.Handle,
 		),
 		fx.Invoke(
 			endpoint.Bind,

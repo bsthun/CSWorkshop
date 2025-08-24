@@ -22,3 +22,9 @@ WHERE metadata->'credential'->>'username' = sqlc.narg(username)::text;
 INSERT INTO users (oid, firstname, lastname, email, picture_url, is_admin, metadata)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
+
+-- name: UserUpdateMetadata :one
+UPDATE users
+SET metadata = $2
+WHERE id = $1
+RETURNING *;

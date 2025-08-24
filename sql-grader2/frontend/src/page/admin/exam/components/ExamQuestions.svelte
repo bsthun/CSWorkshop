@@ -55,7 +55,7 @@
 			.then((response) => {
 				if (response.success && response.data) {
 					selectedQuestionDetail = response.data
-					// Initialize form fields from exam question
+
 					editedTitle = response.data.examQuestion.title || ''
 					editedDescription = response.data.examQuestion.description || ''
 					editedCheckPrompt = response.data.examQuestion.checkPrompt || ''
@@ -91,9 +91,7 @@
 				if (response.success && response.data) {
 					hasChanges = false
 					toast.success('Question updated successfully')
-					// Reload the questions list to update titles
 					loadQuestions()
-					// Update the selected question data
 					if (selectedQuestionDetail) {
 						selectedQuestionDetail.examQuestion = response.data
 					}

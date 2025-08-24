@@ -15,14 +15,25 @@ func (r *Handler) HandleClassList(c *fiber.Ctx) error {
 	// * get user claims
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
-	// * get student class list with exam attempt counts
+	// * parse body
+	body := new(payload.StudentClassListRequest)
+	if err := c.BodyParser(body); err != nil {
+		return gut.Err(false, "invalid body", err)
+	}
+
+	// * validate body
+	if err := gut.Validate(body); err != nil {
+		return err
+	}
+
+	// * get student class list
 	rows, err := r.database.P().StudentClassList(c.Context(), u.UserId)
 	if err != nil {
 		return gut.Err(false, "failed to get classes", err)
 	}
 
-	// * map classes to payload
-	classes, er := gut.Iterate(rows, func(row psql.StudentClassListRow) (*payload.StudentClassListItem, *gut.ErrorInstance) {
+	// * map classes to items
+	classes, _ := gut.Iterate(rows, func(row psql.StudentClassListRow) (*payload.StudentClassListItem, *gut.ErrorInstance) {
 		return &payload.StudentClassListItem{
 			Class: &payload.Class{
 				Id:           row.Class.Id,
@@ -39,19 +50,13 @@ func (r *Handler) HandleClassList(c *fiber.Ctx) error {
 				CreatedAt: row.Semester.CreatedAt,
 				UpdatedAt: row.Semester.UpdatedAt,
 			},
-			ExamAttemptTotalCount:    row.ExamAttemptTotalCount,
-			ExamAttemptFinishedCount: row.ExamAttemptFinishedCount,
+			ExamTotalCount:    row.ExamTotalCount,
+			ExamFinishedCount: row.ExamFinishedCount,
 		}, nil
 	})
-	if er != nil {
-		return er
-	}
-
-	// * prepare response
-	responsePayload := &payload.StudentClassListResponse{
-		Classes: classes,
-	}
 
 	// * response
-	return c.JSON(response.Success(c, responsePayload))
+	return c.JSON(response.Success(c, &payload.StudentClassListResponse{
+		Classes: classes,
+	}))
 }
