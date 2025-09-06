@@ -138,3 +138,16 @@ WHERE exam_attempts.id = $1;
 SELECT *
 FROM exam_attempts
 WHERE database_name = $1;
+
+-- name: ExamQuestionListByAttempt :many
+SELECT sqlc.embed(exam_questions),
+       CASE 
+           WHEN es.check_query_passed = true AND es.check_prompt_passed = true THEN 'passed'
+           WHEN es.check_query_passed = true AND es.check_prompt_passed = false THEN 'rejected'
+           WHEN es.check_query_passed = false THEN 'invalid'
+           ELSE 'unsubmitted'
+       END as status
+FROM exam_questions
+LEFT JOIN exam_submissions es ON exam_questions.id = es.exam_question_id AND es.exam_attempt_id = $1
+WHERE exam_questions.exam_id = (SELECT exam_id FROM exam_attempts WHERE id = $1)
+ORDER BY exam_questions.order_num ASC;

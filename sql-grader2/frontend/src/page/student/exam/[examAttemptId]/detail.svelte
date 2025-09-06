@@ -102,7 +102,7 @@
 		<div class="mb-6">
 			<Badge variant="default" class="px-3 py-1 text-sm">
 				<TerminalIcon size={14} class="mr-2" />
-				Exam Active - Database Connection Available
+				Database Connection Available
 			</Badge>
 		</div>
 
@@ -142,7 +142,7 @@
 						</div>
 					</CardContent>
 				</Card>
-				<Card>
+				<Card class="transition-shadow hover:shadow-lg">
 					<CardHeader class="pb-3">
 						<CardTitle class="flex items-center gap-2">
 							<UserIcon class="h-5 w-5 text-purple-600" />

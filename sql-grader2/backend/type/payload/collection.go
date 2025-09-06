@@ -31,6 +31,7 @@ type SemesterListRequest struct {
 type SemesterClass struct {
 	Id           *uint64    `json:"id"`
 	SemesterId   *uint64    `json:"semesterId"`
+	Code         *string    `json:"code"`
 	Name         *string    `json:"name"`
 	RegisterCode *string    `json:"registerCode"`
 	JoineeCount  *uint64    `json:"joineeCount"`
@@ -404,7 +405,7 @@ type ClassExamAttemptRequest struct {
 	AccessCode *string `json:"accessCode" validate:"required"`
 }
 
-type ClassExamDetailRequest struct {
+type ExamAttemptIdRequest struct {
 	ExamAttemptId *uint64 `json:"examAttemptId" validate:"required"`
 }
 
@@ -426,4 +427,13 @@ type ClassExamDetailResponse struct {
 
 type ClassExamAttemptResponse struct {
 	ExamAttempt *ExamAttempt `json:"examAttempt"`
+}
+
+type ExamQuestionWithStatus struct {
+	ExamQuestion *ExamQuestion `json:"examQuestion"`
+	Status       *string       `json:"status" validate:"required,oneof=passed rejected invalid unsubmitted"`
+}
+
+type ExamQuestionListByAttemptResponse struct {
+	Questions []*ExamQuestionWithStatus `json:"questions"`
 }

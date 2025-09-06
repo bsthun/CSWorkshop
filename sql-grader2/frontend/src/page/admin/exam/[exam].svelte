@@ -159,6 +159,18 @@
 				</CardHeader>
 				<CardContent>
 					<div class="space-y-4">
+						<!-- Access Code -->
+						{#if examData.accessCode}
+							<div class="flex items-center justify-between rounded-lg bg-blue-50 p-3">
+								<span class="text-sm font-medium text-gray-700">Access Code</span>
+								<span 
+									class="cursor-pointer font-mono text-lg font-bold text-blue-600 transition-all blur-sm hover:blur-none"
+								>
+									{examData.accessCode}
+								</span>
+							</div>
+						{/if}
+
 						<div class="flex items-center gap-2 text-sm">
 							<HelpCircleIcon class="h-4 w-4" />
 							<span class="font-medium">

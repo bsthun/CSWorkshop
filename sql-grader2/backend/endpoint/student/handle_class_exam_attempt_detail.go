@@ -16,7 +16,7 @@ func (r *Handler) HandleClassExamAttemptDetail(c *fiber.Ctx) error {
 	u := c.Locals("l").(*jwt.Token).Claims.(*common.LoginClaims)
 
 	// * parse body
-	body := new(payload.ClassExamDetailRequest)
+	body := new(payload.ExamAttemptIdRequest)
 	if err := c.BodyParser(body); err != nil {
 		return gut.Err(false, "invalid body", err)
 	}

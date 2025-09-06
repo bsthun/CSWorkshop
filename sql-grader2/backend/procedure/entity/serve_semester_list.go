@@ -34,6 +34,7 @@ func (r *Service) ServeSemesterList(ctx context.Context) (*payload.SemesterListR
 			return &payload.SemesterClass{
 				Id:           class.Id,
 				SemesterId:   class.SemesterId,
+				Code:         class.Code,
 				Name:         class.Name,
 				RegisterCode: class.RegisterCode,
 				JoineeCount:  class.JoineeCount,

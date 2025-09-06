@@ -14,7 +14,7 @@ SELECT
 FROM classes
 LEFT JOIN class_joinees ON classes.id = class_joinees.class_id
 WHERE classes.semester_id = $1
-GROUP BY classes.id, classes.semester_id, classes.name, classes.register_code, classes.created_at, classes.updated_at
+GROUP BY classes.id, classes.semester_id, classes.code, classes.name, classes.register_code, classes.created_at, classes.updated_at
 ORDER BY classes.created_at DESC;
 
 -- name: SemesterCreate :one
