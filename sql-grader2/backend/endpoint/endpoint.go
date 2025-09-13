@@ -57,6 +57,7 @@ func Bind(
 	admin.Post("/exam/create", adminEndpoint.HandleExamCreate)
 	admin.Post("/exam/list", adminEndpoint.HandleExamList)
 	admin.Post("/exam/detail", adminEndpoint.HandleExamDetail)
+	admin.Post("/exam/edit", adminEndpoint.HandleExamEdit)
 	admin.Post("/exam/joinee/list", adminEndpoint.HandleExamJoineeList)
 	admin.Post("/exam/question/add", adminEndpoint.HandleExamQuestionAdd)
 	admin.Post("/exam/question/list", adminEndpoint.HandleExamQuestionList)
@@ -74,6 +75,8 @@ func Bind(
 	student.Post("/class/exam/attempt/detail", studentEndpoint.HandleClassExamAttemptDetail)
 	student.Post("/class/exam/attempt", studentEndpoint.HandleClassExamAttempt)
 	student.Post("/exam/question/list", studentEndpoint.HandleStudentExamQuestionList)
+	student.Post("/exam/question/detail", studentEndpoint.HandleStudentExamQuestionDetail)
+	student.Post("/exam/submit", studentEndpoint.HandleExamSubmit)
 
 	// * frontend
 	app.Get("*", func(c *fiber.Ctx) error {

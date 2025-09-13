@@ -25,3 +25,8 @@ sql:
               import: "backend/type/tuple"
               type: "CollectionSchemaMetadata"
               pointer: true
+          - column: "exam_submissions.result"
+            go_type:
+              import: "backend/type/tuple"
+              type: "ExamSubmissionResult"
+              pointer: true

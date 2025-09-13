@@ -22,6 +22,7 @@
 		PayloadExamQuestionWithStatusStatusEnum,
 	} from '$/util/backend/backend.ts'
 	import { toast } from 'svelte-sonner'
+	import SubmissionList from './component/SubmissionList.svelte'
 
 	export let examAttemptId: number
 
@@ -32,6 +33,8 @@
 	let submitting = false
 	let examData: PayloadExam
 	let classData: PayloadClass
+	let loadingDetail = false
+	let questionDetail: any = null
 
 	const loadExamData = () => {
 		loading = true
@@ -46,7 +49,7 @@
 				}
 				questions = questionResponse.data.questions
 				if (questions.length > 0 && !selectedQuestion) {
-					selectedQuestion = questions[0]
+					selectQuestion(questions[0])
 				}
 			})
 			.catch((err) => {
@@ -60,6 +63,37 @@
 	const selectQuestion = (question: PayloadExamQuestionWithStatus) => {
 		selectedQuestion = question
 		submissionAnswer = ''
+		loadingDetail = true
+
+		backend.student
+			.studentExamQuestionDetail({
+				examAttemptId,
+				examQuestionId: question.examQuestion.id,
+			})
+			.then((response) => {
+				if (response.success && response.data) {
+					questionDetail = response.data
+				}
+			})
+			.catch((err) => {
+				catcher(err)
+			})
+			.finally(() => {
+				loadingDetail = false
+			})
+	}
+
+	const loadQuestionList = () => {
+		backend.student
+			.studentExamQuestionList({ examAttemptId })
+			.then((response) => {
+				if (response.success && response.data) {
+					questions = response.data.questions
+				}
+			})
+			.catch((err) => {
+				catcher(err)
+			})
 	}
 
 	const submitAnswer = () => {
@@ -69,18 +103,28 @@
 		}
 
 		submitting = true
-		// TODO: Add actual submission endpoint when available
-		setTimeout(() => {
-			toast.success('Answer submitted successfully')
-			submitting = false
-			submissionAnswer = ''
-			// Update question status
-			const index = questions.findIndex((q) => q.examQuestion.id === selectedQuestion?.examQuestion.id)
-			if (index !== -1) {
-				questions[index].status = PayloadExamQuestionWithStatusStatusEnum.Passed
-				questions = questions
-			}
-		}, 1000)
+		backend.student
+			.examSubmit({
+				examAttemptId,
+				examQuestionId: selectedQuestion.examQuestion.id,
+				answer: submissionAnswer.trim(),
+			})
+			.then((response) => {
+				if (response.success) {
+					toast.success('Answer submitted successfully')
+					submissionAnswer = ''
+					loadQuestionList()
+					selectQuestion(selectedQuestion!)
+				} else {
+					toast.error(response.message || 'Submission failed')
+				}
+			})
+			.catch((err) => {
+				catcher(err)
+			})
+			.finally(() => {
+				submitting = false
+			})
 	}
 
 	onMount(() => {
@@ -151,7 +195,11 @@
 
 			<div class="flex-1 overflow-y-auto">
 				<div class="mx-auto max-w-4xl p-8">
-					{#if selectedQuestion}
+					{#if loadingDetail}
+						<div class="flex min-h-[400px] items-center justify-center">
+							<Loader2Icon class="text-primary h-8 w-8 animate-spin" />
+						</div>
+					{:else if selectedQuestion}
 						<div class="mb-6">
 							<h2 class="mb-2 text-xl font-bold">{selectedQuestion.examQuestion.title}</h2>
 							<div class="mb-4 text-sm text-gray-600">
@@ -164,6 +212,7 @@
 						<div class="mb-8 rounded-lg border bg-gray-50 p-6">
 							<p class="whitespace-pre-wrap text-gray-700">{selectedQuestion.examQuestion.description}</p>
 						</div>
+
 						<div class="space-y-4">
 							<div>
 								<Label for="answer">Your Answer</Label>
@@ -191,6 +240,8 @@
 								</Button>
 							</div>
 						</div>
+
+						<SubmissionList {questionDetail} />
 					{:else if !selectedQuestion}
 						<div class="flex h-full items-center justify-center text-gray-500">
 							Select a question to begin

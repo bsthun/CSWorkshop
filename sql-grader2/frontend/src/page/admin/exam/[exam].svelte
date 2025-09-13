@@ -14,7 +14,8 @@
 		InfoIcon,
 		Loader2Icon,
 		FileTextIcon,
-		BarChart3Icon
+		BarChart3Icon,
+		EditIcon,
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
@@ -25,11 +26,12 @@
 		PayloadExam,
 		PayloadClass,
 		PayloadCollection,
-		PayloadExamAttemptCount
+		PayloadExamAttemptCount,
 	} from '$/util/backend/backend.ts'
 	import TableStructureDialog from '../collection/dialog/TableStructureDialog.svelte'
 	import ExamQuestions from './components/ExamQuestions.svelte'
 	import ExamStudents from './components/ExamStudents.svelte'
+	import ExamEditDialog from './dialog/ExamEditDialog.svelte'
 
 	export let exam: number
 
@@ -40,6 +42,7 @@
 	let loading = true
 	let activeTab: 'questions' | 'students' = 'questions'
 	let showTableDialog = false
+	let editDialogOpen = false
 
 	const loadExamDetail = () => {
 		loading = true
@@ -70,6 +73,11 @@
 		return collectionData.metadata.structure.reduce((total: number, table: any) => total + (table.rowCount || 0), 0)
 	}
 
+	const handleExamUpdated = () => {
+		loadExamDetail()
+		editDialogOpen = false
+	}
+
 	onMount(() => {
 		loadExamDetail()
 	})
@@ -91,17 +99,23 @@
 			</Button>
 		</div>
 	{:else}
-		<div class="mb-6 flex flex-col gap-4">
-			<button
-				class="text-muted-foreground hover:text-primary flex items-center gap-2 hover:cursor-pointer"
-				onclick={() => navigate(`/admin/class/${examData.classId}`)}
-			>
-				<ArrowLeftIcon size={16} />
-				<span class="text-xs font-medium tracking-wide uppercase">{classData.name}</span>
-			</button>
-			<div class="flex items-center justify-between">
-				<PageTitle title={examData.name} description={classData.name} />
+		<div class="flex justify-between">
+			<div class="mb-6 flex flex-col gap-4">
+				<button
+					class="text-muted-foreground hover:text-primary flex items-center gap-2 hover:cursor-pointer"
+					onclick={() => navigate(`/admin/class/${examData.classId}`)}
+				>
+					<ArrowLeftIcon size={16} />
+					<span class="text-xs font-medium tracking-wide uppercase">{classData.name}</span>
+				</button>
+				<div class="flex items-center justify-between">
+					<PageTitle title={examData.name} description={classData.name} />
+				</div>
 			</div>
+			<Button variant="outline" size="sm" onclick={() => (editDialogOpen = true)}>
+				<EditIcon class="mr-2 h-4 w-4" />
+				Edit Exam
+			</Button>
 		</div>
 
 		<!-- Info Cards Row -->
@@ -130,11 +144,7 @@
 										<p class="text-xs text-gray-500">{collectionData.metadata.schemaFilename}</p>
 									{/if}
 								</div>
-								<Button
-									variant="ghost"
-									size="sm"
-									onclick={() => (showTableDialog = true)}
-								>
+								<Button variant="ghost" size="sm" onclick={() => (showTableDialog = true)}>
 									Show Details
 								</Button>
 							</div>
@@ -163,8 +173,8 @@
 						{#if examData.accessCode}
 							<div class="flex items-center justify-between rounded-lg bg-blue-50 p-3">
 								<span class="text-sm font-medium text-gray-700">Access Code</span>
-								<span 
-									class="cursor-pointer font-mono text-lg font-bold text-blue-600 transition-all blur-sm hover:blur-none"
+								<span
+									class="cursor-pointer font-mono text-lg font-bold text-blue-600 blur-sm transition-all hover:blur-none"
 								>
 									{examData.accessCode}
 								</span>
@@ -229,9 +239,9 @@
 		<Tab
 			tabs={[
 				{ id: 'questions', label: 'Questions', icon: HelpCircleIcon },
-				{ id: 'students', label: 'Students', icon: UsersIcon }
+				{ id: 'students', label: 'Students', icon: UsersIcon },
 			]}
-			activeTab={activeTab}
+			{activeTab}
 			on:change={(e) => handleTabChange(e.detail)}
 		/>
 
@@ -245,3 +255,5 @@
 </Container>
 
 <TableStructureDialog bind:open={showTableDialog} structure={collectionData?.metadata?.structure || []} />
+
+<ExamEditDialog bind:open={editDialogOpen} {examData} on:updated={handleExamUpdated} />

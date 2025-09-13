@@ -148,6 +148,20 @@ SELECT sqlc.embed(exam_questions),
            ELSE 'unsubmitted'
        END as status
 FROM exam_questions
-LEFT JOIN exam_submissions es ON exam_questions.id = es.exam_question_id AND es.exam_attempt_id = $1
+LEFT JOIN LATERAL (
+    SELECT * FROM exam_submissions 
+    WHERE exam_question_id = exam_questions.id 
+    AND exam_attempt_id = $1
+    ORDER BY created_at DESC
+    LIMIT 1
+) es ON true
 WHERE exam_questions.exam_id = (SELECT exam_id FROM exam_attempts WHERE id = $1)
 ORDER BY exam_questions.order_num ASC;
+
+-- name: ExamEdit :one
+UPDATE exams
+SET name = COALESCE(sqlc.narg(name), name),
+    opened_at = COALESCE(sqlc.narg(opened_at), opened_at),
+    closed_at = COALESCE(sqlc.narg(closed_at), closed_at)
+WHERE id = sqlc.arg(exam_id)
+RETURNING *;

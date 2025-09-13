@@ -117,13 +117,13 @@ CREATE TABLE exam_submissions
     exam_question_id    BIGINT REFERENCES exam_questions (id) ON DELETE CASCADE NOT NULL,
     exam_attempt_id     BIGINT REFERENCES exam_attempts (id) ON DELETE CASCADE  NOT NULL,
     answer              TEXT                                                    NOT NULL,
+    result              JSONB                                                   NOT NULL,
     check_query_passed  BOOLEAN                                                 NULL,
     check_query_at      TIMESTAMP                                               NULL,
     check_prompt_passed BOOLEAN                                                 NULL,
     check_prompt_at     TIMESTAMP                                               NULL,
     created_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (exam_question_id, exam_attempt_id)
 );
 
 -- * auto-update function for updated_at timestamps

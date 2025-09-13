@@ -5,6 +5,7 @@
 - Use pointer for struct
 - Receiver name: `r` (e.g., `func (r *Handler) HandleCreate(c *fiber.Ctx) error`)
 - Comment format: `// * lowercase compact action`
+- Use camelCase for json tags
 
 ## Endpoint Implementation
 
