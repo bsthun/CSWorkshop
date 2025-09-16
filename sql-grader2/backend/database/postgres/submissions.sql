@@ -23,8 +23,8 @@ WHERE (sqlc.narg(exam_attempt_id)::BIGINT IS NULL OR exam_submissions.exam_attem
 ORDER BY exam_submissions.created_at DESC;
 
 -- name: ExamSubmissionCreate :one
-INSERT INTO exam_submissions (exam_question_id, exam_attempt_id, answer, check_query_passed, check_query_at, check_prompt_passed, check_prompt_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO exam_submissions (exam_question_id, exam_attempt_id, answer, result, check_query_passed, check_query_at, check_prompt_passed, check_prompt_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING *;
 
 -- name: ExamQuestionGetById :one

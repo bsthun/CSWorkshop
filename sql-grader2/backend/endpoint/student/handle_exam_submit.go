@@ -5,7 +5,8 @@ import (
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
-	"fmt"
+	"backend/type/tuple"
+	"backend/util/orm"
 	"reflect"
 	"time"
 
@@ -55,32 +56,79 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 	var studentResult []map[string]any
 	var checkResult []map[string]any
 	checkQueryPassed := false
+	now := time.Now()
+
+	// * prepare result object
+	result := &tuple.ExamSubmissionResult{
+		ExecutionError:    "",
+		PromptError:       "",
+		PromptDescription: "",
+		Rows:              []any{},
+	}
 
 	if attemptDetails.ExamAttempt.DatabaseName != nil {
 		// * execute student answer query
-		studentQuery := fmt.Sprintf("USE `%s`; %s", *attemptDetails.ExamAttempt.DatabaseName, *body.Answer)
-		tx := r.gorm.Raw(studentQuery).Scan(&studentResult)
+		gorm, er := orm.Instance(*r.config.MysqlDsn, *attemptDetails.ExamAttempt.DatabaseName)
+		if er != nil {
+			return gut.Err(false, "failed to connect to exam database instance", er)
+		}
+		tx := gorm.Raw(*body.Answer).Scan(&studentResult)
 		if tx.Error != nil {
 			// * query failed to execute
 			checkQueryPassed = false
-		} else {
-			// * execute check query
-			checkQuery := fmt.Sprintf("USE `%s`; %s", *attemptDetails.ExamAttempt.DatabaseName, examQuestion.CheckQuery)
-			tx = r.gorm.Raw(checkQuery).Scan(&checkResult)
-			if tx.Error == nil {
-				// * compare results using reflect.DeepEqual
-				checkQueryPassed = reflect.DeepEqual(studentResult, checkResult)
+			result.ExecutionError = tx.Error.Error()
+
+			// * create submission with error
+			submission, err := r.database.P().ExamSubmissionCreate(c.Context(), &psql.ExamSubmissionCreateParams{
+				ExamQuestionId:    body.ExamQuestionId,
+				ExamAttemptId:     body.ExamAttemptId,
+				Answer:            body.Answer,
+				Result:            result,
+				CheckQueryPassed:  &checkQueryPassed,
+				CheckQueryAt:      &now,
+				CheckPromptPassed: nil,
+				CheckPromptAt:     nil,
+			})
+			if err != nil {
+				return gut.Err(false, "failed to create submission", err)
+			}
+
+			// * return success response with error result
+			return c.JSON(response.Success(c, &payload.ExamQuestionSubmitResponse{
+				Submission: &payload.ExamSubmission{
+					Id:                submission.Id,
+					ExamQuestionId:    submission.ExamQuestionId,
+					ExamAttemptId:     submission.ExamAttemptId,
+					Answer:            submission.Answer,
+					CheckQueryPassed:  submission.CheckQueryPassed,
+					CheckQueryAt:      submission.CheckQueryAt,
+					CheckPromptPassed: submission.CheckPromptPassed,
+					CheckPromptAt:     submission.CheckPromptAt,
+					CreatedAt:         submission.CreatedAt,
+					UpdatedAt:         submission.UpdatedAt,
+				},
+			}))
+		}
+
+		// * execute check query
+		tx = gorm.Raw(*examQuestion.CheckQuery).Scan(&checkResult)
+		if tx.Error == nil {
+			// * compare results using reflect.DeepEqual
+			checkQueryPassed = reflect.DeepEqual(studentResult, checkResult)
+			result.Rows = make([]any, len(studentResult))
+			for i, row := range studentResult {
+				result.Rows[i] = row
 			}
 		}
 	}
 
 	// * create submission
-	now := time.Now()
 	checkPromptPassed := false
 	submission, err := r.database.P().ExamSubmissionCreate(c.Context(), &psql.ExamSubmissionCreateParams{
 		ExamQuestionId:    body.ExamQuestionId,
 		ExamAttemptId:     body.ExamAttemptId,
 		Answer:            body.Answer,
+		Result:            result,
 		CheckQueryPassed:  &checkQueryPassed,
 		CheckQueryAt:      &now,
 		CheckPromptPassed: &checkPromptPassed,
