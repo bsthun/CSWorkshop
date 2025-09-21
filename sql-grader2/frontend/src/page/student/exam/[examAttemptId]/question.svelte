@@ -240,7 +240,6 @@
 								</Button>
 							</div>
 						</div>
-
 						<SubmissionList {questionDetail} />
 					{:else if !selectedQuestion}
 						<div class="flex h-full items-center justify-center text-gray-500">

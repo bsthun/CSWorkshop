@@ -83,6 +83,7 @@ func (r *Handler) HandleStudentExamQuestionDetail(c *fiber.Ctx) error {
 				ExamQuestionId:    result.ExamSubmission.ExamQuestionId,
 				ExamAttemptId:     result.ExamSubmission.ExamAttemptId,
 				Answer:            result.ExamSubmission.Answer,
+				Result:            result.ExamSubmission.Result,
 				CheckQueryPassed:  result.ExamSubmission.CheckQueryPassed,
 				CheckQueryAt:      result.ExamSubmission.CheckQueryAt,
 				CheckPromptPassed: result.ExamSubmission.CheckPromptPassed,

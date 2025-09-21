@@ -2,6 +2,7 @@ package openai
 
 import (
 	"backend/common/config"
+
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 )

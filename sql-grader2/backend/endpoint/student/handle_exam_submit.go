@@ -6,8 +6,6 @@ import (
 	"backend/type/payload"
 	"backend/type/response"
 	"backend/type/tuple"
-	"backend/util/orm"
-	"reflect"
 	"time"
 
 	"github.com/bsthun/gut"
@@ -52,33 +50,27 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 		return gut.Err(false, "question does not belong to this exam", nil)
 	}
 
-	// * execute student answer and check query
-	var studentResult []map[string]any
-	var checkResult []map[string]any
-	checkQueryPassed := false
-	now := time.Now()
-
 	// * prepare result object
 	result := &tuple.ExamSubmissionResult{
 		ExecutionError:    "",
 		PromptError:       "",
 		PromptDescription: "",
-		Rows:              []any{},
 	}
 
-	if attemptDetails.ExamAttempt.DatabaseName != nil {
-		// * execute student answer query
-		gorm, er := orm.Instance(*r.config.MysqlDsn, *attemptDetails.ExamAttempt.DatabaseName)
-		if er != nil {
-			return gut.Err(false, "failed to connect to exam database instance", er)
-		}
-		tx := gorm.Raw(*body.Answer).Scan(&studentResult)
-		if tx.Error != nil {
-			// * query failed to execute
-			checkQueryPassed = false
-			result.ExecutionError = tx.Error.Error()
+	// * prepare timing and status variables
+	now := time.Now()
+	checkQueryPassed := false
+	checkPromptPassed := false
+	var checkPromptAt *time.Time
 
-			// * create submission with error
+	// * check query execution and comparison
+	if attemptDetails.ExamAttempt.DatabaseName != nil {
+		queryPassed, er := r.submissionProcedure.ServeCheckQuery(c.Context(), *body.Answer, *examQuestion.CheckQuery, *attemptDetails.ExamAttempt.DatabaseName)
+		if er != nil {
+			// * query execution failed
+			result.ExecutionError = er.Errors[0].Err.Error()
+
+			// * create submission with execution error
 			submission, err := r.database.P().ExamSubmissionCreate(c.Context(), &psql.ExamSubmissionCreateParams{
 				ExamQuestionId:    body.ExamQuestionId,
 				ExamAttemptId:     body.ExamAttemptId,
@@ -110,20 +102,31 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 			}))
 		}
 
-		// * execute check query
-		tx = gorm.Raw(*examQuestion.CheckQuery).Scan(&checkResult)
-		if tx.Error == nil {
-			// * compare results using reflect.DeepEqual
-			checkQueryPassed = reflect.DeepEqual(studentResult, checkResult)
-			result.Rows = make([]any, len(studentResult))
-			for i, row := range studentResult {
-				result.Rows[i] = row
+		// * query executed successfully
+		checkQueryPassed = queryPassed
+
+		// * if query passed, check prompt requirements
+		if checkQueryPassed {
+			promptPassed, promptDescription, er := r.submissionProcedure.ServeCheckPrompt(c.Context(), *body.Answer, *examQuestion.CheckPrompt)
+			if er != nil {
+				// * prompt check failed due to error, but query passed
+				result.PromptError = er.Error()
+				checkPromptPassed = false
+			} else {
+				// * prompt check completed
+				checkPromptPassed = promptPassed
+				result.PromptDescription = promptDescription
+				checkPromptAt = &now
 			}
 		}
 	}
 
-	// * create submission
-	checkPromptPassed := false
+	// * create submission with final results
+	var checkPromptPassedPtr *bool
+	if checkPromptAt != nil {
+		checkPromptPassedPtr = &checkPromptPassed
+	}
+
 	submission, err := r.database.P().ExamSubmissionCreate(c.Context(), &psql.ExamSubmissionCreateParams{
 		ExamQuestionId:    body.ExamQuestionId,
 		ExamAttemptId:     body.ExamAttemptId,
@@ -131,8 +134,8 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 		Result:            result,
 		CheckQueryPassed:  &checkQueryPassed,
 		CheckQueryAt:      &now,
-		CheckPromptPassed: &checkPromptPassed,
-		CheckPromptAt:     nil,
+		CheckPromptPassed: checkPromptPassedPtr,
+		CheckPromptAt:     checkPromptAt,
 	})
 	if err != nil {
 		return gut.Err(false, "failed to create submission", err)

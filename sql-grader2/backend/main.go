@@ -14,6 +14,7 @@ import (
 	studentEndpoint "backend/endpoint/student"
 	entityProcedure "backend/procedure/entity"
 	schemaProcedure "backend/procedure/schema"
+	submissionProcedure "backend/procedure/submission"
 	"backend/type/common"
 	"embed"
 
@@ -43,6 +44,7 @@ func main() {
 			openai.Init,
 			entityProcedure.Serve,
 			schemaProcedure.Serve,
+			submissionProcedure.Serve,
 			publicEndpoint.Handle,
 			stateEndpoint.Handle,
 			adminEndpoint.Handle,

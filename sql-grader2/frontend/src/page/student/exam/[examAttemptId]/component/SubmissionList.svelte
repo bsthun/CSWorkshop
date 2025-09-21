@@ -72,6 +72,12 @@
 											Checked {formatDateTime(submission.examSubmission.checkQueryAt)}
 										</div>
 									{/if}
+									{#if submission.examSubmission.result?.executionError && !submission.examSubmission.checkQueryPassed}
+										<div class="mt-1 ml-8 rounded border border-red-200 bg-red-50 p-2">
+											<pre class="font-mono text-xs whitespace-pre-wrap text-red-700">{submission
+													.examSubmission.result.executionError}</pre>
+										</div>
+									{/if}
 								</div>
 							{/if}
 							{#if submission.examSubmission?.checkPromptPassed !== undefined}
@@ -87,6 +93,33 @@
 									{#if submission.examSubmission.checkPromptAt}
 										<div class="ml-8 text-xs text-gray-500">
 											Checked {formatDateTime(submission.examSubmission.checkPromptAt)}
+										</div>
+									{/if}
+									{#if submission.examSubmission.result?.promptDescription}
+										<div
+											class="mt-1 ml-8 rounded border p-2 {submission.examSubmission
+												.checkPromptPassed
+												? 'border-green-200 bg-green-50'
+												: 'border-red-200 bg-red-50'}"
+										>
+											<div class="flex items-start gap-1">
+												<p
+													class="text-xs {submission.examSubmission.checkPromptPassed
+														? 'text-green-700'
+														: 'text-red-700'}"
+												>
+													{submission.examSubmission.result.promptDescription}
+												</p>
+											</div>
+										</div>
+									{/if}
+									{#if submission.examSubmission.result?.promptError}
+										<div class="mt-1 ml-8 rounded bg-gray-50 p-1.5">
+											<div class="flex items-start gap-1">
+												<pre
+													class="font-mono text-xs whitespace-pre-wrap text-red-700">{submission
+														.examSubmission.result.promptError}</pre>
+											</div>
 										</div>
 									{/if}
 								</div>

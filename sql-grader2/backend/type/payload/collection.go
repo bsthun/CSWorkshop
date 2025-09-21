@@ -256,16 +256,17 @@ type ExamAttempt struct {
 }
 
 type ExamSubmission struct {
-	Id                *uint64    `json:"id"`
-	ExamQuestionId    *uint64    `json:"examQuestionId"`
-	ExamAttemptId     *uint64    `json:"examAttemptId"`
-	Answer            *string    `json:"answer"`
-	CheckQueryPassed  *bool      `json:"checkQueryPassed"`
-	CheckQueryAt      *time.Time `json:"checkQueryAt"`
-	CheckPromptPassed *bool      `json:"checkPromptPassed"`
-	CheckPromptAt     *time.Time `json:"checkPromptAt"`
-	CreatedAt         *time.Time `json:"createdAt"`
-	UpdatedAt         *time.Time `json:"updatedAt"`
+	Id                *uint64                     `json:"id"`
+	ExamQuestionId    *uint64                     `json:"examQuestionId"`
+	ExamAttemptId     *uint64                     `json:"examAttemptId"`
+	Answer            *string                     `json:"answer"`
+	Result            *tuple.ExamSubmissionResult `json:"result"`
+	CheckQueryPassed  *bool                       `json:"checkQueryPassed"`
+	CheckQueryAt      *time.Time                  `json:"checkQueryAt"`
+	CheckPromptPassed *bool                       `json:"checkPromptPassed"`
+	CheckPromptAt     *time.Time                  `json:"checkPromptAt"`
+	CreatedAt         *time.Time                  `json:"createdAt"`
+	UpdatedAt         *time.Time                  `json:"updatedAt"`
 }
 
 type SubmissionDetailResponse struct {
