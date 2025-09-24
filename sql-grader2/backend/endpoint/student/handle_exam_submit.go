@@ -28,6 +28,11 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 		return err
 	}
 
+	// * check if exam is opened
+	if er := r.submissionProcedure.ServeOpened(c.Context(), u.UserId, body.ExamAttemptId); er != nil {
+		return er
+	}
+
 	// * get exam attempt with verification
 	attemptDetails, err := r.database.P().ExamAttemptGetById(c.Context(), body.ExamAttemptId)
 	if err != nil {

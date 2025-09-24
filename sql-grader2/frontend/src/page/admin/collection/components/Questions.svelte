@@ -10,6 +10,7 @@
 	import { backend, catcher } from '$/util/backend.ts'
 	import type { PayloadCollectionQuestionListItem, PayloadCollectionQuestionDetail } from '$/util/backend/backend.ts'
 	import { toast } from 'svelte-sonner'
+	import { Carta, MarkdownEditor } from 'carta-md'
 
 	export let collectionId: number
 
@@ -20,6 +21,11 @@
 	let saving = false
 	let deleteDialogOpen = false
 	let deleting = false
+
+	// Carta instance
+	const carta = new Carta({
+		sanitizer: false,
+	})
 
 	// Form fields
 	let editedTitle = ''
@@ -259,12 +265,14 @@
 							<!-- Description Field -->
 							<div class="space-y-2">
 								<Label for="description">Description</Label>
-								<Textarea
-									id="description"
-									bind:value={editedDescription}
-									placeholder="Question description..."
-									rows="3"
-								/>
+								<div class="border rounded-md">
+									<MarkdownEditor
+										{carta}
+										bind:value={editedDescription}
+										placeholder="Question description..."
+										mode="tabs"
+									/>
+								</div>
 							</div>
 
 							<!-- Check Prompt Field -->
@@ -275,6 +283,7 @@
 									bind:value={editedCheckPrompt}
 									placeholder="Check prompt for validation..."
 									rows="4"
+									class="font-mono text-sm"
 								/>
 							</div>
 

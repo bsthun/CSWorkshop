@@ -58,8 +58,9 @@ func (r *Handler) HandleClassDetail(c *fiber.Ctx) error {
 				CreatedAt:  row.User.CreatedAt,
 				UpdatedAt:  row.User.UpdatedAt,
 			},
-			CreatedAt: row.ClassJoinee.CreatedAt,
-			UpdatedAt: row.ClassJoinee.UpdatedAt,
+			ExamAttemptCount: row.ExamAttemptCount,
+			CreatedAt:        row.ClassJoinee.CreatedAt,
+			UpdatedAt:        row.ClassJoinee.UpdatedAt,
 		}, nil
 	})
 	if er != nil {

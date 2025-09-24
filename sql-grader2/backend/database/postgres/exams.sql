@@ -17,15 +17,20 @@ ORDER BY exams.created_at DESC;
 
 -- name: ExamJoineeList :many
 SELECT sqlc.embed(exam_attempts), sqlc.embed(class_joinees), sqlc.embed(users),
-       COUNT(CASE WHEN es.check_query_passed = true AND es.check_prompt_passed = true THEN 1 END) as passed_count,
-       COUNT(CASE WHEN es.check_query_passed = true AND es.check_prompt_passed = false THEN 1 END) as rejected_count,
-       COUNT(CASE WHEN es.check_query_passed = false THEN 1 END) as invalid_count,
-       COUNT(eq.id) - COUNT(es.id) as unsubmitted_count
+       COUNT(CASE WHEN latest_submissions.check_query_passed = true AND latest_submissions.check_prompt_passed = true THEN 1 END) as passed_count,
+       COUNT(CASE WHEN latest_submissions.check_query_passed = true AND latest_submissions.check_prompt_passed = false THEN 1 END) as rejected_count,
+       COUNT(CASE WHEN latest_submissions.check_query_passed = false THEN 1 END) as invalid_count,
+       COUNT(eq.id) - COUNT(latest_submissions.id) as unsubmitted_count
 FROM exam_attempts
 JOIN class_joinees ON exam_attempts.class_joinee_id = class_joinees.id
 JOIN users ON class_joinees.user_id = users.id
 JOIN exam_questions eq ON exam_attempts.exam_id = eq.exam_id
-LEFT JOIN exam_submissions es ON eq.id = es.exam_question_id AND es.exam_attempt_id = exam_attempts.id
+LEFT JOIN LATERAL (
+    SELECT DISTINCT ON (exam_question_id) *
+    FROM exam_submissions
+    WHERE exam_question_id = eq.id AND exam_attempt_id = exam_attempts.id
+    ORDER BY exam_question_id, created_at DESC
+) latest_submissions ON true
 WHERE exam_attempts.exam_id = $1
 GROUP BY exam_attempts.id, class_joinees.id, users.id
 ORDER BY exam_attempts.created_at DESC;
@@ -71,7 +76,6 @@ WHERE id = $1;
 SELECT sqlc.embed(exams),
        sqlc.embed(classes),
        sqlc.embed(collections),
-       COALESCE(COUNT(CASE WHEN exam_attempts.opened_at IS NOT NULL THEN 1 END), 0)::BIGINT as attempt_opened_count,
        COALESCE(COUNT(CASE WHEN exam_attempts.started_at IS NOT NULL THEN 1 END), 0)::BIGINT as attempt_started_count,
        COALESCE(COUNT(CASE WHEN exam_attempts.finished_at IS NOT NULL THEN 1 END), 0)::BIGINT as attempt_finished_count,
        COALESCE(COUNT(DISTINCT exam_questions.id), 0)::BIGINT as exam_question_count,
@@ -84,6 +88,39 @@ LEFT JOIN exam_questions ON exams.id = exam_questions.exam_id
 LEFT JOIN collection_questions ON collections.id = collection_questions.collection_id
 WHERE exams.id = $1
 GROUP BY exams.id, classes.id, collections.id;
+
+-- name: ExamScoreDistribution :many
+WITH student_scores AS (
+    SELECT 
+        ea.id as attempt_id,
+        COALESCE(COUNT(CASE WHEN es.check_query_passed = true AND es.check_prompt_passed = true THEN 1 END), 0)::BIGINT as passed_count
+    FROM exam_attempts ea
+    LEFT JOIN exam_submissions es ON ea.id = es.exam_attempt_id
+    WHERE ea.exam_id = $1 AND ea.finished_at IS NOT NULL
+    GROUP BY ea.id
+),
+question_count AS (
+    SELECT COALESCE(COUNT(*), 0)::BIGINT as total_questions
+    FROM exam_questions
+    WHERE exam_id = $1
+),
+score_distribution AS (
+    SELECT 
+        passed_count as score,
+        COUNT(*)::BIGINT as student_count
+    FROM student_scores
+    GROUP BY passed_count
+    UNION ALL
+    SELECT 
+        generate_series(0, (SELECT total_questions FROM question_count))::BIGINT as score,
+        0::BIGINT as student_count
+)
+SELECT 
+    score,
+    SUM(student_count)::BIGINT as student_count
+FROM score_distribution
+GROUP BY score
+ORDER BY score;
 
 -- name: ExamQuestionDetail :one
 SELECT sqlc.embed(exam_questions), sqlc.embed(collection_questions)
@@ -104,8 +141,8 @@ GROUP BY exams.id, exam_attempts.id
 ORDER BY exams.created_at DESC;
 
 -- name: ExamAttemptCreate :one
-INSERT INTO exam_attempts (exam_id, class_joinee_id, opened_at, database_name)
-VALUES ($1, $2, CURRENT_TIMESTAMP, $3)
+INSERT INTO exam_attempts (exam_id, class_joinee_id, database_name)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: ExamAttemptGetByExamAndJoinee :one
@@ -113,9 +150,15 @@ SELECT *
 FROM exam_attempts
 WHERE exam_id = $1 AND class_joinee_id = $2;
 
--- name: ExamAttemptUpdateOpenedAt :one
+-- name: ExamAttemptUpdateStartedAt :one
 UPDATE exam_attempts
-SET opened_at = CURRENT_TIMESTAMP
+SET started_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+
+-- name: ExamAttemptUpdateUpdatedAt :one
+UPDATE exam_attempts
+SET updated_at = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
 

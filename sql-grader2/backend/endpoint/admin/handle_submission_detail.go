@@ -67,7 +67,6 @@ func (r *Handler) HandleSubmissionDetail(c *fiber.Ctx) error {
 			Id:            row.ExamAttempt.Id,
 			ExamId:        row.ExamAttempt.ExamId,
 			ClassJoineeId: row.ExamAttempt.ClassJoineeId,
-			OpenedAt:      row.ExamAttempt.OpenedAt,
 			StartedAt:     row.ExamAttempt.StartedAt,
 			FinishedAt:    row.ExamAttempt.FinishedAt,
 			CreatedAt:     row.ExamAttempt.CreatedAt,

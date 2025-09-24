@@ -13,6 +13,7 @@ import (
 type Server interface {
 	ServeCheckQuery(ctx context.Context, studentAnswer string, checkQuery string, databaseName string) (bool, *gut.ErrorInstance)
 	ServeCheckPrompt(ctx context.Context, studentAnswer string, checkPrompt string) (bool, string, *gut.ErrorInstance)
+	ServeOpened(ctx context.Context, userId *uint64, examAttemptId *uint64) *gut.ErrorInstance
 }
 
 type Service struct {

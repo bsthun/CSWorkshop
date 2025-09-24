@@ -2,17 +2,10 @@
 	import { onMount } from 'svelte'
 	import { navigate } from 'svelte-navigator'
 	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$/lib/shadcn/components/ui/card'
-	import { Button } from '$/lib/shadcn/components/ui/button'
 	import { Avatar, AvatarImage, AvatarFallback } from '$/lib/shadcn/components/ui/avatar'
-	import {
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow
-	} from '$/lib/shadcn/components/ui/table'
-	import { Badge } from '$/lib/shadcn/components/ui/badge'
+	import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$/lib/shadcn/components/ui/table'
+	import * as HoverCard from '$/lib/shadcn/components/ui/hover-card/index.js'
+	import UserProfile from '$/component/share/UserProfile.svelte'
 	import {
 		ArrowLeftIcon,
 		UserIcon,
@@ -26,7 +19,7 @@
 		ClockIcon,
 		CalendarIcon,
 		InfoIcon,
-		Loader2Icon
+		Loader2Icon,
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
@@ -35,43 +28,38 @@
 	import type { PayloadSubmissionListItem } from '$/util/backend/backend.ts'
 	import SubmissionDetailDialog from './dialog/SubmissionDetailDialog.svelte'
 
-	// Get query parameters
-	const urlParams = new URLSearchParams(window.location.search)
+	import { useLocation } from 'svelte-navigator'
+
+	const location = useLocation()
+
+	const urlParams = new URLSearchParams($location.search)
 	const examAttemptId = urlParams.get('examAttemptId')
 	const examQuestionId = urlParams.get('examQuestionId')
+
+	const group: 'examAttempt' | 'examQuestion' = examQuestionId ? 'examQuestion' : 'examAttempt'
 
 	let submissions: PayloadSubmissionListItem[] = []
 	let loading = true
 	let selectedSubmission: PayloadSubmissionListItem | null = null
 	let showDetailDialog = false
 
-	// Student and exam info (from first submission)
 	let studentInfo: any = null
 	let examInfo: any = null
 
 	const loadSubmissions = () => {
-		if (!examAttemptId) {
-			navigate('/admin')
-			return
-		}
-
 		loading = true
-		const params: any = { examAttemptId: parseInt(examAttemptId) }
+		const params: any = { examAttemptId: examAttemptId }
 		if (examQuestionId) {
-			params.examQuestionId = parseInt(examQuestionId)
+			params.examQuestionId = examQuestionId
 		}
 
 		backend.admin
 			.submissionList(params)
 			.then((response) => {
-				if (response.success && response.data) {
-					submissions = response.data.submissions || []
-					
-					// Extract student and exam info from first submission
-					if (submissions.length > 0) {
-						studentInfo = submissions[0].student
-						examInfo = submissions[0].exam
-					}
+				submissions = response.data.submissions || []
+				if (submissions.length > 0) {
+					studentInfo = submissions[0].student
+					examInfo = submissions[0].exam
 				}
 			})
 			.catch(catcher)
@@ -92,35 +80,6 @@
 		}
 	}
 
-	const getStatusText = (submission: any) => {
-		if (submission.checkPromptPassed && submission.checkQueryPassed) {
-			return 'Passed'
-		} else if (submission.checkPromptPassed === false || submission.checkQueryPassed === false) {
-			return 'Failed'
-		} else if (submission.answer) {
-			return 'Submitted'
-		} else {
-			return 'Not Submitted'
-		}
-	}
-
-	const getStatusVariant = (submission: any): any => {
-		if (submission.checkPromptPassed && submission.checkQueryPassed) {
-			return 'default'
-		} else if (submission.checkPromptPassed === false || submission.checkQueryPassed === false) {
-			return 'destructive'
-		} else if (submission.answer) {
-			return 'secondary'
-		} else {
-			return 'outline'
-		}
-	}
-
-	const handleViewDetail = (submission: PayloadSubmissionListItem) => {
-		selectedSubmission = submission
-		showDetailDialog = true
-	}
-
 	const getInitials = (firstname: string, lastname: string) => {
 		return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase()
 	}
@@ -135,16 +94,6 @@
 		<div class="flex min-h-[400px] items-center justify-center">
 			<Loader2Icon class="text-primary h-8 w-8 animate-spin" />
 		</div>
-	{:else if !examAttemptId}
-		<div class="flex min-h-[400px] flex-col items-center justify-center">
-			<InfoIcon class="mb-4 h-16 w-16 text-gray-400" />
-			<h3 class="mb-2 text-lg font-semibold">Missing Parameters</h3>
-			<p class="text-muted-foreground mb-4">Exam attempt ID is required</p>
-			<Button onclick={() => navigate('/admin')}>
-				<ArrowLeftIcon class="mr-2 h-4 w-4" />
-				Back to Admin
-			</Button>
-		</div>
 	{:else}
 		<div class="mb-6 flex flex-col gap-4">
 			<button
@@ -156,12 +105,12 @@
 			</button>
 			<div class="flex items-center justify-between">
 				{#if studentInfo && examInfo}
-					<PageTitle 
+					<PageTitle
 						title="{studentInfo.firstname} {studentInfo.lastname}"
 						description="Exam: {examInfo.name}"
 					/>
 				{:else}
-					<PageTitle title="Submission Details" description="Loading..." />
+					<PageTitle title="Submission Details" description="" />
 				{/if}
 			</div>
 		</div>
@@ -178,7 +127,7 @@
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div class="flex items-center gap-4 mb-4">
+						<div class="mb-4 flex items-center gap-4">
 							<Avatar class="h-12 w-12">
 								<AvatarImage src={studentInfo.pictureUrl} alt="" />
 								<AvatarFallback>
@@ -198,11 +147,19 @@
 							{#if submissions[0]?.attempt}
 								<div class="flex items-center justify-between">
 									<span class="text-gray-500">Started</span>
-									<span>{submissions[0].attempt.startedAt ? formatDateTime(submissions[0].attempt.startedAt) : 'Not started'}</span>
+									<span
+										>{submissions[0].attempt.startedAt
+											? formatDateTime(submissions[0].attempt.startedAt)
+											: 'Not started'}</span
+									>
 								</div>
 								<div class="flex items-center justify-between">
 									<span class="text-gray-500">Finished</span>
-									<span>{submissions[0].attempt.finishedAt ? formatDateTime(submissions[0].attempt.finishedAt) : 'In progress'}</span>
+									<span
+										>{submissions[0].attempt.finishedAt
+											? formatDateTime(submissions[0].attempt.finishedAt)
+											: 'In progress'}</span
+									>
 								</div>
 							{/if}
 						</div>
@@ -257,7 +214,9 @@
 					Submissions ({submissions.length})
 				</CardTitle>
 				<CardDescription>
-					{examQuestionId ? 'Showing submissions for a specific question' : 'All submissions for this attempt'}
+					{examQuestionId
+						? 'Showing submissions for a specific question'
+						: 'All submissions for this attempt'}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -265,20 +224,17 @@
 					<div class="flex flex-col items-center justify-center py-12">
 						<FileTextIcon class="mb-4 h-16 w-16 text-gray-400" />
 						<h3 class="mb-2 text-lg font-semibold">No Submissions</h3>
-						<p class="text-muted-foreground text-center">
-							No submissions found for this attempt.
-						</p>
+						<p class="text-muted-foreground text-center">No submissions found for this attempt.</p>
 					</div>
 				{:else}
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Question</TableHead>
+								<TableHead>{group === 'examAttempt' ? 'Question' : 'Student'}</TableHead>
 								<TableHead>Status</TableHead>
-								<TableHead>Answer Preview</TableHead>
+								<TableHead>Answer</TableHead>
+								<TableHead>Message</TableHead>
 								<TableHead>Submitted</TableHead>
-								<TableHead>Checked</TableHead>
-								<TableHead class="text-right">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -286,65 +242,100 @@
 								{@const status = getStatusIcon(submission.submission)}
 								<TableRow class="hover:bg-gray-50">
 									<TableCell>
-										<div>
-											<div class="font-medium">
-												{submission.question.title || `Question ${submission.question.orderNum || submission.question.id}`}
-											</div>
-											{#if submission.question.description}
-												<div class="text-sm text-gray-500 line-clamp-1">
-													{submission.question.description}
+										{#if group === 'examAttempt'}
+											<div>
+												<div class="font-medium">
+													{submission.question.title ||
+														`Question ${submission.question.orderNum || submission.question.id}`}
 												</div>
-											{/if}
-										</div>
+												{#if submission.question.description}
+													<div class="line-clamp-1 text-sm text-gray-500">
+														{submission.question.description}
+													</div>
+												{/if}
+											</div>
+										{:else}
+											<UserProfile user={submission.student} />
+										{/if}
 									</TableCell>
 									<TableCell>
-										<Badge variant={getStatusVariant(submission.submission)} class="flex items-center gap-1 w-fit">
-											<svelte:component this={status.icon} class="h-3 w-3 {status.color}" />
-											{getStatusText(submission.submission)}
-										</Badge>
+										<div class="flex justify-center">
+											<svelte:component this={status.icon} size={16} class={status.color} />
+										</div>
 									</TableCell>
 									<TableCell>
 										{#if submission.submission.answer}
 											<div class="max-w-xs">
-												<code class="text-xs bg-gray-100 px-2 py-1 rounded line-clamp-2">
-													{submission.submission.answer.substring(0, 100)}{submission.submission.answer.length > 100 ? '...' : ''}
+												<code class="line-clamp-2 rounded bg-gray-100 px-2 py-1 text-xs">
+													{submission.submission.answer.substring(0, 100)}{submission
+														.submission.answer.length > 100
+														? '...'
+														: ''}
 												</code>
 											</div>
 										{:else}
-											<span class="text-gray-400 text-sm">No answer</span>
+											<span class="text-sm text-gray-400">No answer</span>
 										{/if}
+									</TableCell>
+									<TableCell>
+										<div class="max-w-48">
+											{#if submission.submission.result?.promptDescription}
+												<HoverCard.Root>
+													<HoverCard.Trigger>
+														<p
+															class="cursor-pointer truncate font-mono text-xs {submission
+																.submission.checkPromptPassed
+																? 'text-green-700'
+																: 'text-red-700'}"
+														>
+															{submission.submission.result.promptDescription}
+														</p>
+													</HoverCard.Trigger>
+													<HoverCard.Content>
+														<p class="font-mono text-sm">
+															{submission.submission.result.promptDescription}
+														</p>
+													</HoverCard.Content>
+												</HoverCard.Root>
+											{:else if submission.submission.result?.executionError}
+												<HoverCard.Root>
+													<HoverCard.Trigger>
+														<p
+															class="cursor-pointer truncate font-mono text-xs text-red-700"
+														>
+															{submission.submission.result.executionError}
+														</p>
+													</HoverCard.Trigger>
+													<HoverCard.Content>
+														<pre class="font-mono text-sm whitespace-pre-wrap">{submission
+																.submission.result.executionError}</pre>
+													</HoverCard.Content>
+												</HoverCard.Root>
+											{:else if submission.submission.result?.promptError}
+												<HoverCard.Root>
+													<HoverCard.Trigger>
+														<p
+															class="cursor-pointer truncate font-mono text-xs text-red-700"
+														>
+															{submission.submission.result.promptError}
+														</p>
+													</HoverCard.Trigger>
+													<HoverCard.Content>
+														<pre class="font-mono text-sm whitespace-pre-wrap">{submission
+																.submission.result.promptError}</pre>
+													</HoverCard.Content>
+												</HoverCard.Root>
+											{/if}
+										</div>
 									</TableCell>
 									<TableCell>
 										{#if submission.submission.createdAt}
-											<span class="text-sm">{formatDateTime(submission.submission.createdAt)}</span>
+											<span class="text-sm"
+												>{formatDateTime(submission.submission.createdAt)}</span
+											>
 										{:else}
-											<span class="text-gray-400 text-sm">Not submitted</span>
+											<span class="text-sm text-gray-400">Not submitted</span>
 										{/if}
-									</TableCell>
-									<TableCell>
-										{#if submission.submission.checkQueryAt || submission.submission.checkPromptAt}
-											<div class="text-xs space-y-1">
-												{#if submission.submission.checkPromptAt}
-													<div>Prompt: {formatDateTime(submission.submission.checkPromptAt)}</div>
-												{/if}
-												{#if submission.submission.checkQueryAt}
-													<div>Query: {formatDateTime(submission.submission.checkQueryAt)}</div>
-												{/if}
-											</div>
-										{:else}
-											<span class="text-gray-400 text-sm">Not checked</span>
-										{/if}
-									</TableCell>
-									<TableCell class="text-right">
-										<Button 
-											variant="ghost" 
-											size="sm" 
-											onclick={() => handleViewDetail(submission)}
-											disabled={!submission.submission.answer}
-										>
-											<EyeIcon class="h-4 w-4 mr-2" />
-											Details
-										</Button>
 									</TableCell>
 								</TableRow>
 							{/each}
@@ -356,7 +347,4 @@
 	{/if}
 </Container>
 
-<SubmissionDetailDialog 
-	bind:open={showDetailDialog} 
-	submission={selectedSubmission}
-/>
+<SubmissionDetailDialog bind:open={showDetailDialog} submission={selectedSubmission} />

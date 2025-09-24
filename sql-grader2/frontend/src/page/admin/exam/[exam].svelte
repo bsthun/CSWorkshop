@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { navigate, Link } from 'svelte-navigator'
+	import { navigate, useLocation } from 'svelte-navigator'
 	import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '$/lib/shadcn/components/ui/card'
 	import { Button } from '$/lib/shadcn/components/ui/button'
 	import {
@@ -16,17 +16,25 @@
 		FileTextIcon,
 		BarChart3Icon,
 		EditIcon,
+		TrendingUpIcon,
+		LineChartIcon,
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
 	import Tab from '$/component/ui/Tab.svelte'
 	import { backend, catcher } from '$/util/backend.ts'
 	import { formatDate, formatDateTime } from '$/util/format.ts'
+	import { toast } from 'svelte-sonner'
+	import { AreaChart } from 'layerchart'
+	import { curveNatural } from 'd3-shape'
+	import { scaleLinear } from 'd3-scale'
+	import * as Chart from '$/lib/shadcn/components/ui/chart'
 	import type {
 		PayloadExam,
 		PayloadClass,
 		PayloadCollection,
 		PayloadExamAttemptCount,
+		PayloadExamScoreDistributionItem,
 	} from '$/util/backend/backend.ts'
 	import TableStructureDialog from '../collection/dialog/TableStructureDialog.svelte'
 	import ExamQuestions from './components/ExamQuestions.svelte'
@@ -35,12 +43,27 @@
 
 	export let exam: number
 
+	const location = useLocation()
+
 	let examData: PayloadExam
 	let classData: PayloadClass
 	let collectionData: PayloadCollection
 	let attemptCount: PayloadExamAttemptCount
+	let scoreDistribution: PayloadExamScoreDistributionItem[] = []
+
+	const getChartData = () => {
+		if (!scoreDistribution?.length) return []
+		return scoreDistribution.map((item) => ({
+			score: item.score,
+			studentCount: item.studentCount,
+		}))
+	}
+
+	const chartConfig = {
+		studentCount: { label: 'Students', color: 'hsl(var(--chart-1))' },
+	} satisfies Chart.ChartConfig
 	let loading = true
-	let activeTab: 'questions' | 'students' = 'questions'
+	let activeTab: 'questions' | 'students'
 	let showTableDialog = false
 	let editDialogOpen = false
 
@@ -54,6 +77,7 @@
 					classData = response.data.class
 					collectionData = response.data.collection
 					attemptCount = response.data.attemptCount
+					scoreDistribution = response.data.scoreDistribution || []
 				}
 			})
 			.catch((err) => {
@@ -66,6 +90,17 @@
 
 	const handleTabChange = (tab: 'questions' | 'students') => {
 		activeTab = tab
+		const fragment = tab === 'questions' ? '#question' : '#student'
+		navigate(`/admin/exam/${exam}${fragment}`, { replace: true })
+	}
+
+	const initializeTab = () => {
+		const hash = $location.hash.slice(1)
+		if (hash === 'student') {
+			activeTab = 'students' as const
+		} else {
+			activeTab = 'questions' as const
+		}
 	}
 
 	const getTotalRows = () => {
@@ -79,6 +114,7 @@
 	}
 
 	onMount(() => {
+		initializeTab()
 		loadExamDetail()
 	})
 </script>
@@ -173,38 +209,67 @@
 						{#if examData.accessCode}
 							<div class="flex items-center justify-between rounded-lg bg-blue-50 p-3">
 								<span class="text-sm font-medium text-gray-700">Access Code</span>
-								<span
+								<button
 									class="cursor-pointer font-mono text-lg font-bold text-blue-600 blur-sm transition-all hover:blur-none"
+									onclick={() => {
+										navigator.clipboard.writeText(examData.accessCode)
+										toast.success('Access code copied to clipboard')
+									}}
 								>
 									{examData.accessCode}
-								</span>
+								</button>
 							</div>
 						{/if}
 
-						<div class="flex items-center gap-2 text-sm">
-							<HelpCircleIcon class="h-4 w-4" />
-							<span class="font-medium">
-								{examData.questionCount} / {collectionData.questionCount} questions
-							</span>
-						</div>
-
-						<!-- Attempt Statistics -->
-						<div class="rounded-lg bg-gray-50 p-3">
-							<h5 class="mb-2 text-sm font-medium text-gray-700">Attempt Statistics</h5>
-							<div class="grid grid-cols-3 gap-3 text-center">
-								<div>
-									<div class="text-lg font-semibold text-blue-600">{attemptCount.openedCount}</div>
-									<div class="text-xs text-gray-500">Opened</div>
+						<div class="space-y-3">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center gap-2 text-sm">
+									<HelpCircleIcon class="h-4 w-4" />
+									<span class="font-medium">
+										{examData.questionCount} / {collectionData.questionCount} questions
+									</span>
 								</div>
-								<div>
+
+								<!-- Attempt Statistics -->
+								<div class="flex items-center gap-2">
 									<div class="text-lg font-semibold text-yellow-600">{attemptCount.startedCount}</div>
 									<div class="text-xs text-gray-500">Started</div>
-								</div>
-								<div>
+									<div class="w-2 text-gray-500">•</div>
 									<div class="text-lg font-semibold text-green-600">{attemptCount.finishedCount}</div>
 									<div class="text-xs text-gray-500">Finished</div>
 								</div>
 							</div>
+
+							{#if scoreDistribution[0].studentCount > 0}
+								<div class="rounded-lg bg-gray-50 p-3">
+									<Chart.Container config={chartConfig} class="h-24 w-full">
+										<AreaChart
+											data={getChartData()}
+											x="score"
+											xScale={scaleLinear()}
+											series={[
+												{
+													key: 'studentCount',
+													label: 'Students',
+													color: chartConfig.studentCount.color,
+												},
+											]}
+											axis="x"
+											props={{
+												area: {
+													curve: curveNatural,
+													'fill-opacity': 0.3,
+													line: { class: 'stroke-1' },
+												},
+											}}
+										>
+											{#snippet tooltip()}
+												<Chart.Tooltip />
+											{/snippet}
+										</AreaChart>
+									</Chart.Container>
+								</div>
+							{/if}
 						</div>
 
 						<div class="space-y-2 border-t pt-3 text-sm">
@@ -213,7 +278,7 @@
 									<CalendarIcon class="h-3 w-3" />
 									Created
 								</span>
-								<span>{formatDate(examData.createdAt)}</span>
+								<span>{formatDateTime(examData.createdAt)}</span>
 							</div>
 							<div class="flex items-center justify-between">
 								<span class="flex items-center gap-1 text-gray-500">

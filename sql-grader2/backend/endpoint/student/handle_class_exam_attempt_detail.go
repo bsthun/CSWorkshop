@@ -48,11 +48,11 @@ func (r *Handler) HandleClassExamAttemptDetail(c *fiber.Ctx) error {
 		return gut.Err(false, "user database credential not found", nil)
 	}
 
-	// * update exam attempt opened_at if null
-	if attemptData.ExamAttempt.OpenedAt == nil {
-		_, err = r.database.P().ExamAttemptUpdateOpenedAt(c.Context(), attemptData.ExamAttempt.Id)
+	// * update exam attempt started_at if null
+	if attemptData.ExamAttempt.StartedAt == nil {
+		_, err = r.database.P().ExamAttemptUpdateStartedAt(c.Context(), attemptData.ExamAttempt.Id)
 		if err != nil {
-			return gut.Err(false, "failed to update attempt opened time", err)
+			return gut.Err(false, "failed to update attempt started time", err)
 		}
 	}
 

@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { navigate, Link } from 'svelte-navigator'
+	import { navigate, Link, useLocation } from 'svelte-navigator'
 	import { Card, CardContent, CardHeader, CardTitle } from '$/lib/shadcn/components/ui/card'
 	import { Button } from '$/lib/shadcn/components/ui/button'
+	import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$/lib/shadcn/components/ui/table'
+	import UserProfile from '$/component/share/UserProfile.svelte'
 	import {
 		ArrowLeftIcon,
 		UsersIcon,
@@ -13,8 +15,7 @@
 		CopyIcon,
 		PlusIcon,
 		HelpCircleIcon,
-		CheckCircleIcon,
-		CalendarIcon,
+				CalendarIcon,
 		ClockIcon,
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
@@ -42,7 +43,8 @@
 	let loadingExams = false
 	let showEditDialog = false
 	let showCreateExamDialog = false
-	let activeTab: 'students' | 'exams' = 'students'
+	const location = useLocation()
+	let activeTab: 'student' | 'exam'
 
 	const loadClass = () => {
 		loading = true
@@ -64,7 +66,7 @@
 	}
 
 	const loadExams = () => {
-		if (activeTab !== 'exams') return
+		if (activeTab !== 'exam') return
 
 		loadingExams = true
 		backend.admin
@@ -90,10 +92,21 @@
 		loadExams()
 	}
 
-	const handleTabChange = (tab: 'students' | 'exams') => {
+	const handleTabChange = (tab: 'student' | 'exam') => {
 		activeTab = tab
-		if (tab === 'exams') {
+		const fragment = tab === 'student' ? '#student' : '#exam'
+		navigate(`/admin/class/${cls}${fragment}`, { replace: true })
+		if (tab === 'exam') {
 			loadExams()
+		}
+	}
+
+	const initializeTab = () => {
+		const hash = $location.hash.slice(1)
+		if (hash === 'exam') {
+			activeTab = 'exam' as const
+		} else {
+			activeTab = 'student' as const
 		}
 	}
 
@@ -104,8 +117,14 @@
 		}
 	}
 
+	
+	
 	onMount(() => {
+		initializeTab()
 		loadClass()
+		if ($location.hash.slice(1) === 'exam') {
+			loadExams()
+		}
 	})
 </script>
 
@@ -154,14 +173,14 @@
 		<div class="mb-6 flex items-center justify-between">
 			<Tab
 				tabs={[
-					{ id: 'students', label: 'Students', icon: UsersIcon },
-					{ id: 'exams', label: 'Exams', icon: BookOpenIcon }
+					{ id: 'student', label: 'Students', icon: UsersIcon },
+					{ id: 'exam', label: 'Exams', icon: BookOpenIcon },
 				]}
-				activeTab={activeTab}
+				{activeTab}
 				on:change={(e) => handleTabChange(e.detail)}
 			/>
 
-			{#if activeTab === 'exams'}
+			{#if activeTab === 'exam'}
 				<Button class="gap-2" onclick={() => (showCreateExamDialog = true)}>
 					<PlusIcon class="h-4 w-4" />
 					Create Exam
@@ -170,37 +189,50 @@
 		</div>
 
 		<!-- Tab Content -->
-		{#if activeTab === 'students'}
-			<div class="space-y-4">
-				<h3 class="text-lg font-semibold">Students ({joinees.length})</h3>
-				{#if joinees.length === 0}
-					<div class="flex items-center justify-center py-8">
-						<div class="text-center">
-							<UsersIcon class="mx-auto mb-2 h-12 w-12 text-gray-400" />
-							<p class="text-gray-500">No students enrolled yet</p>
+		{#if activeTab === 'student'}
+			<Card>
+				<CardHeader class="pb-3">
+					<CardTitle class="flex items-center gap-2">
+						<UsersIcon class="h-5 w-5" />
+						Students ({joinees.length})
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{#if joinees.length === 0}
+						<div class="flex flex-col items-center justify-center py-12">
+							<UsersIcon class="mb-4 h-16 w-16 text-gray-400" />
+							<h3 class="mb-2 text-lg font-semibold">No Students</h3>
+							<p class="text-muted-foreground text-center">No students have enrolled in this class yet.</p>
 						</div>
-					</div>
-				{:else}
-					<div class="space-y-2">
-						{#each joinees as joinee}
-							<Card>
-								<CardContent class="py-3">
-									<div class="flex items-center justify-between">
-										<div>
-											<p class="font-medium">{joinee.user.firstname} {joinee.user.lastname}</p>
-											<p class="text-sm text-gray-600">{joinee.user.email}</p>
-										</div>
-										<div class="text-right text-sm text-gray-500">
-											<p>User ID: {joinee.user.id}</p>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-						{/each}
-					</div>
-				{/if}
-			</div>
-		{:else if activeTab === 'exams'}
+					{:else}
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>Student</TableHead>
+									<TableHead>Joined At</TableHead>
+									<TableHead class="text-right">Total Exam Attempts</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{#each joinees as joinee}
+									<TableRow class="hover:bg-gray-50">
+										<TableCell>
+											<UserProfile user={joinee.user} />
+										</TableCell>
+										<TableCell>
+											<span class="text-sm">{formatDateTime(joinee.createdAt)}</span>
+										</TableCell>
+										<TableCell class="text-right">
+											<span class="text-sm font-medium">{joinee.examAttemptCount}</span>
+										</TableCell>
+									</TableRow>
+								{/each}
+							</TableBody>
+						</Table>
+					{/if}
+				</CardContent>
+			</Card>
+		{:else if activeTab === 'exam'}
 			<div class="space-y-4">
 				<h3 class="text-lg font-semibold">Exams</h3>
 				{#if loadingExams}
@@ -226,82 +258,86 @@
 									<CardHeader class="gap-2">
 										<CardTitle class="flex items-center gap-1">
 											<BookOpenIcon size={12} class="text-muted-foreground" />
-											<span class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+											<span
+												class="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+											>
 												EXAM
 											</span>
 										</CardTitle>
 										<h3 class="text-lg font-semibold">{examItem.exam.name}</h3>
-									<div class="flex items-center gap-1 text-sm text-gray-600">
-										<span class="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-											COLLECTION
-										</span>
-									</div>
-									<h4 class="font-semibold">{examItem.collection.name}</h4>
-								</CardHeader>
-								<CardContent>
-									<div class="space-y-3 text-sm">
-										<div class="flex items-center gap-2 text-gray-600">
-											<HelpCircleIcon class="h-4 w-4" />
-											<span class="font-medium">
-												{examItem.exam.questionCount} / {examItem.collection.questionCount} questions
+										<div class="flex items-center gap-1 text-sm text-gray-600">
+											<span
+												class="text-muted-foreground text-xs font-medium tracking-wide uppercase"
+											>
+												COLLECTION
 											</span>
 										</div>
-
-										<div class="grid grid-cols-2 gap-3 text-gray-500">
-											<!-- Created -->
-											<div class="flex flex-col gap-1">
-												<div class="flex items-center gap-1">
-													<CalendarIcon class="h-3 w-3" />
-													<span class="text-xs font-medium text-gray-400 uppercase"
-														>Created</span
-													>
-												</div>
-												<span class="text-sm">{formatDate(examItem.exam.createdAt)}</span>
-											</div>
-
-											<!-- Opens -->
-											<div class="flex flex-col gap-1">
-												<div class="flex items-center gap-1">
-													<ClockIcon class="h-3 w-3" />
-													<span class="text-xs font-medium text-gray-400 uppercase"
-														>Opens</span
-													>
-												</div>
-												<span class="text-sm">
-													{examItem.exam.openedAt
-														? formatDateTime(examItem.exam.openedAt)
-														: 'Not set'}
+										<h4 class="font-semibold">{examItem.collection.name}</h4>
+									</CardHeader>
+									<CardContent>
+										<div class="space-y-3 text-sm">
+											<div class="flex items-center gap-2 text-gray-600">
+												<HelpCircleIcon class="h-4 w-4" />
+												<span class="font-medium">
+													{examItem.exam.questionCount} / {examItem.collection.questionCount} questions
 												</span>
 											</div>
 
-											<!-- Updated -->
-											<div class="flex flex-col gap-1">
-												<div class="flex items-center gap-1">
-													<CalendarIcon class="h-3 w-3" />
-													<span class="text-xs font-medium text-gray-400 uppercase"
-														>Updated</span
-													>
+											<div class="grid grid-cols-2 gap-3 text-gray-500">
+												<!-- Created -->
+												<div class="flex flex-col gap-1">
+													<div class="flex items-center gap-1">
+														<CalendarIcon class="h-3 w-3" />
+														<span class="text-xs font-medium text-gray-400 uppercase"
+															>Created</span
+														>
+													</div>
+													<span class="text-sm">{formatDate(examItem.exam.createdAt)}</span>
 												</div>
-												<span class="text-sm">{formatDate(examItem.exam.updatedAt)}</span>
-											</div>
 
-											<!-- Closes -->
-											<div class="flex flex-col gap-1">
-												<div class="flex items-center gap-1">
-													<ClockIcon class="h-3 w-3" />
-													<span class="text-xs font-medium text-gray-400 uppercase"
-														>Closes</span
-													>
+												<!-- Opens -->
+												<div class="flex flex-col gap-1">
+													<div class="flex items-center gap-1">
+														<ClockIcon class="h-3 w-3" />
+														<span class="text-xs font-medium text-gray-400 uppercase"
+															>Opens</span
+														>
+													</div>
+													<span class="text-sm">
+														{examItem.exam.openedAt
+															? formatDateTime(examItem.exam.openedAt)
+															: 'Not set'}
+													</span>
 												</div>
-												<span class="text-sm">
-													{examItem.exam.closedAt
-														? formatDateTime(examItem.exam.closedAt)
-														: 'Not set'}
-												</span>
+
+												<!-- Updated -->
+												<div class="flex flex-col gap-1">
+													<div class="flex items-center gap-1">
+														<CalendarIcon class="h-3 w-3" />
+														<span class="text-xs font-medium text-gray-400 uppercase"
+															>Updated</span
+														>
+													</div>
+													<span class="text-sm">{formatDate(examItem.exam.updatedAt)}</span>
+												</div>
+
+												<!-- Closes -->
+												<div class="flex flex-col gap-1">
+													<div class="flex items-center gap-1">
+														<ClockIcon class="h-3 w-3" />
+														<span class="text-xs font-medium text-gray-400 uppercase"
+															>Closes</span
+														>
+													</div>
+													<span class="text-sm">
+														{examItem.exam.closedAt
+															? formatDateTime(examItem.exam.closedAt)
+															: 'Not set'}
+													</span>
+												</div>
 											</div>
 										</div>
-									</div>
-								</CardContent>
+									</CardContent>
 								</Card>
 							</Link>
 						{/each}

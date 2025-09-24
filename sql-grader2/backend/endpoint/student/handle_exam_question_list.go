@@ -26,6 +26,11 @@ func (r *Handler) HandleStudentExamQuestionList(c *fiber.Ctx) error {
 		return err
 	}
 
+	// * check if exam is opened
+	if er := r.submissionProcedure.ServeOpened(c.Context(), u.UserId, body.ExamAttemptId); er != nil {
+		return er
+	}
+
 	// * get exam attempt to verify ownership
 	attemptData, err := r.database.P().ExamAttemptGetById(c.Context(), body.ExamAttemptId)
 	if err != nil {

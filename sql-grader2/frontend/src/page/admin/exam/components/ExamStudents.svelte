@@ -3,17 +3,17 @@
 	import { Link } from 'svelte-navigator'
 	import { Card, CardContent, CardHeader, CardTitle } from '$/lib/shadcn/components/ui/card'
 	import { Button } from '$/lib/shadcn/components/ui/button'
-	import { Avatar, AvatarImage, AvatarFallback } from '$/lib/shadcn/components/ui/avatar'
+	import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$/lib/shadcn/components/ui/table'
+	import UserProfile from '$/component/share/UserProfile.svelte'
 	import {
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow
-	} from '$/lib/shadcn/components/ui/table'
-	import { Badge } from '$/lib/shadcn/components/ui/badge'
-	import { UsersIcon, Loader2Icon, EyeIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from 'lucide-svelte'
+		UsersIcon,
+		Loader2Icon,
+		CheckCircle2Icon,
+		CircleSlashIcon,
+		CircleXIcon,
+		CircleIcon,
+		EyeIcon,
+	} from 'lucide-svelte'
 	import { backend, catcher } from '$/util/backend.ts'
 	import type { PayloadExamJoineeListItem } from '$/util/backend/backend.ts'
 	import { formatDateTime } from '$/util/format.ts'
@@ -38,33 +38,11 @@
 			})
 	}
 
-	const getStatusBadge = (joinee: PayloadExamJoineeListItem) => {
-		if (joinee.finishedAt) {
-			return { text: 'Finished', variant: 'default', icon: CheckCircleIcon, color: 'text-green-600' }
-		} else if (joinee.startedAt) {
-			return { text: 'In Progress', variant: 'secondary', icon: ClockIcon, color: 'text-yellow-600' }
-		} else if (joinee.openedAt) {
-			return { text: 'Opened', variant: 'outline', icon: EyeIcon, color: 'text-blue-600' }
-		} else {
-			return { text: 'Not Started', variant: 'outline', icon: XCircleIcon, color: 'text-gray-600' }
-		}
-	}
-
-	const getScoreColor = (score: number, total: number) => {
-		const percentage = total > 0 ? (score / total) * 100 : 0
-		if (percentage >= 80) return 'text-green-600'
-		if (percentage >= 60) return 'text-yellow-600'
-		return 'text-red-600'
-	}
-
 	const getTotalScore = (scores: any) => {
 		return scores.passed + scores.rejected + scores.invalid + scores.unsubmitted
 	}
 
-	const getInitials = (firstname: string, lastname: string) => {
-		return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase()
-	}
-
+	
 	onMount(() => {
 		loadJoinees()
 	})
@@ -86,60 +64,49 @@
 			<div class="flex flex-col items-center justify-center py-12">
 				<UsersIcon class="mb-4 h-16 w-16 text-gray-400" />
 				<h3 class="mb-2 text-lg font-semibold">No Student Attempts</h3>
-				<p class="text-muted-foreground text-center">
-					No students have started this exam yet.
-				</p>
+				<p class="text-muted-foreground text-center">No students have started this exam yet.</p>
 			</div>
 		{:else}
 			<Table>
 				<TableHeader>
 					<TableRow>
 						<TableHead>Student</TableHead>
-						<TableHead>Status</TableHead>
 						<TableHead>Score</TableHead>
 						<TableHead>Started</TableHead>
-						<TableHead>Finished</TableHead>
+						<TableHead>Updated</TableHead>
 						<TableHead class="text-right">Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{#each joinees as joinee}
-						{@const status = getStatusBadge(joinee)}
 						{@const totalScore = getTotalScore(joinee.score)}
 						<TableRow class="hover:bg-gray-50">
 							<TableCell>
-								<div class="flex items-center gap-3">
-									<Avatar class="h-8 w-8">
-										<AvatarImage src={joinee.joinee.user.pictureUrl} alt="" />
-										<AvatarFallback class="text-xs">
-											{getInitials(joinee.joinee.user.firstname, joinee.joinee.user.lastname)}
-										</AvatarFallback>
-									</Avatar>
-									<div>
-										<div class="font-medium">
-											{joinee.joinee.user.firstname} {joinee.joinee.user.lastname}
-										</div>
-										<div class="text-sm text-gray-500">{joinee.joinee.user.email}</div>
-									</div>
-								</div>
-							</TableCell>
-							<TableCell>
-								<Badge variant={status.variant} class="flex items-center gap-1 w-fit">
-									<svelte:component this={status.icon} class="h-3 w-3 {status.color}" />
-									{status.text}
-								</Badge>
+								<UserProfile user={joinee.joinee.user} />
 							</TableCell>
 							<TableCell>
 								{#if totalScore > 0}
-									<div class="flex flex-col">
-										<span class="font-medium {getScoreColor(joinee.score.passed, totalScore)}">
-											{joinee.score.passed}/{totalScore}
-										</span>
-										<div class="flex gap-1 text-xs text-gray-500">
-											<span class="text-green-600">✓{joinee.score.passed}</span>
-											<span class="text-red-600">✗{joinee.score.rejected}</span>
-											<span class="text-yellow-600">!{joinee.score.invalid}</span>
-											<span class="text-gray-400">-{joinee.score.unsubmitted}</span>
+									<div class="flex items-center gap-3">
+										<div class="flex items-center gap-1">
+											<CheckCircle2Icon class="h-4 w-4 text-green-500" />
+											<span class="text-sm font-medium text-green-600">{joinee.score.passed}</span
+											>
+										</div>
+										<div class="flex items-center gap-1">
+											<CircleSlashIcon class="h-4 w-4 text-orange-500" />
+											<span class="text-sm font-medium text-orange-600"
+												>{joinee.score.rejected}</span
+											>
+										</div>
+										<div class="flex items-center gap-1">
+											<CircleXIcon class="h-4 w-4 text-red-500" />
+											<span class="text-sm font-medium text-red-600">{joinee.score.invalid}</span>
+										</div>
+										<div class="flex items-center gap-1">
+											<CircleIcon class="h-4 w-4 text-gray-400" />
+											<span class="text-sm font-medium text-gray-500"
+												>{joinee.score.unsubmitted}</span
+											>
 										</div>
 									</div>
 								{:else}
@@ -147,33 +114,36 @@
 								{/if}
 							</TableCell>
 							<TableCell>
-								{#if joinee.startedAt}
+								<div class="flex flex-col">
+									<span class="text-xs text-gray-500">Started at</span>
 									<span class="text-sm">{formatDateTime(joinee.startedAt)}</span>
-								{:else}
-									<span class="text-gray-400 text-sm">Not started</span>
-								{/if}
+								</div>
 							</TableCell>
 							<TableCell>
-								{#if joinee.finishedAt}
-									<span class="text-sm">{formatDateTime(joinee.finishedAt)}</span>
-								{:else}
-									<span class="text-gray-400 text-sm">In progress</span>
-								{/if}
+								<div class="flex flex-col">
+									<span class="text-xs text-gray-500">
+										{#if joinee.finishedAt}
+											Finished at
+										{:else}
+											Last action at
+										{/if}
+									</span>
+									<span class="text-sm">
+										{#if joinee.finishedAt}
+											{formatDateTime(joinee.finishedAt)}
+										{:else}
+											{formatDateTime(joinee.updatedAt)}
+										{/if}
+									</span>
+								</div>
 							</TableCell>
 							<TableCell class="text-right">
-								{#if joinee.startedAt}
-									<Link to="/admin/attempt?examAttemptId={joinee.id}">
-										<Button variant="ghost" size="sm">
-											<EyeIcon class="h-4 w-4 mr-2" />
-											View Details
-										</Button>
-									</Link>
-								{:else}
-									<Button variant="ghost" size="sm" disabled>
-										<EyeIcon class="h-4 w-4 mr-2" />
-										No Attempt
+								<Link to="/admin/attempt?examAttemptId={joinee.id}">
+									<Button variant="ghost" size="sm">
+										<EyeIcon class="mr-2 h-4 w-4" />
+										View Details
 									</Button>
-								{/if}
+								</Link>
 							</TableCell>
 						</TableRow>
 					{/each}

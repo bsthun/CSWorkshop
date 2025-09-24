@@ -102,7 +102,6 @@ CREATE TABLE exam_attempts
     id              BIGSERIAL PRIMARY KEY,
     exam_id         BIGINT REFERENCES exams (id) ON DELETE CASCADE         NOT NULL,
     class_joinee_id BIGINT REFERENCES class_joinees (id) ON DELETE CASCADE NOT NULL,
-    opened_at       TIMESTAMP                                              NULL,
     started_at      TIMESTAMP                                              NULL,
     finished_at     TIMESTAMP                                              NULL,
     database_name   VARCHAR(255)                                           NULL,

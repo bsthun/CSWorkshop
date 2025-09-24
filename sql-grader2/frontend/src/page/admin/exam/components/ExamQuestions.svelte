@@ -14,6 +14,7 @@
 	} from '$/util/backend/backend.ts'
 	import { toast } from 'svelte-sonner'
 	import AddQuestionDialog from '../dialog/AddQuestionDialog.svelte'
+	import { Carta, MarkdownEditor } from 'carta-md'
 
 	export let examId: number
 	export let collectionData: PayloadCollection
@@ -25,6 +26,11 @@
 	let saving = false
 	let addDialogOpen = false
 	let deleting = false
+
+	// Carta instance
+	const carta = new Carta({
+		sanitizer: false,
+	})
 
 	// Form fields
 	let editedTitle = ''
@@ -257,12 +263,14 @@
 
 							<div class="space-y-2">
 								<Label for="description">Description</Label>
-								<Textarea
-									id="description"
-									bind:value={editedDescription}
-									placeholder="Question description..."
-									rows={3}
-								/>
+								<div class="rounded-md border">
+									<MarkdownEditor
+										{carta}
+										bind:value={editedDescription}
+										placeholder="Question description..."
+										mode="tabs"
+									/>
+								</div>
 							</div>
 
 							<div class="space-y-2">
@@ -272,6 +280,7 @@
 									bind:value={editedCheckPrompt}
 									placeholder="Check prompt for validation..."
 									rows={4}
+									class="font-mono text-sm"
 								/>
 							</div>
 

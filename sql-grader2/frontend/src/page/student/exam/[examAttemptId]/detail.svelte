@@ -34,7 +34,6 @@
 	let classData: PayloadClass
 	let credentialData: PayloadExamCredential
 	let loading = true
-	let copiedField: string | null = null
 
 	const loadExamAttemptDetail = () => {
 		loading = true
@@ -54,14 +53,6 @@
 			.finally(() => {
 				loading = false
 			})
-	}
-
-	const copyToClipboard = async (text: string, field: string) => {
-		await navigator.clipboard.writeText(text)
-		copiedField = field
-		setTimeout(() => {
-			copiedField = null
-		}, 2000)
 	}
 
 	onMount(() => {
@@ -178,44 +169,24 @@
 									name="Dialect"
 									value={credentialData.dialect}
 									copy={false}
-									{copiedField}
-									onCopy={copyToClipboard}
 								/>
-								<ExamAttemptDetailCredentialField
-									name="Host"
-									value={credentialData.host}
-									copy={true}
-									{copiedField}
-									onCopy={copyToClipboard}
-								/>
-								<ExamAttemptDetailCredentialField
-									name="Port"
-									value={credentialData.port}
-									copy={true}
-									{copiedField}
-									onCopy={copyToClipboard}
-								/>
+								<ExamAttemptDetailCredentialField name="Host" value={credentialData.host} copy={true} />
+								<ExamAttemptDetailCredentialField name="Port" value={credentialData.port} copy={true} />
 								<ExamAttemptDetailCredentialField
 									name="Database"
 									value={credentialData.databaseName}
 									copy={true}
-									{copiedField}
-									onCopy={copyToClipboard}
 								/>
 								<ExamAttemptDetailCredentialField
 									name="Username"
 									value={credentialData.user}
 									copy={true}
-									{copiedField}
-									onCopy={copyToClipboard}
 								/>
 								<ExamAttemptDetailCredentialField
 									name="Password"
 									value={credentialData.password}
 									blur={true}
 									copy={true}
-									{copiedField}
-									onCopy={copyToClipboard}
 								/>
 							</div>
 						</div>
@@ -256,6 +227,11 @@
 							<li>Save your work frequently</li>
 							<li>Contact your instructor if you encounter technical difficulties</li>
 						</ul>
+					</div>
+					<div class="flex justify-end border-t pt-4">
+						<Button onclick={() => navigate(`/student/exam/${examAttemptId}/question`)}>
+							Start Exam
+						</Button>
 					</div>
 				</div>
 			</CardContent>

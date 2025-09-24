@@ -10,7 +10,9 @@ JOIN semesters ON classes.semester_id = semesters.id
 WHERE classes.id = $1;
 
 -- name: ClassJoineeList :many
-SELECT sqlc.embed(class_joinees), sqlc.embed(users)
+SELECT sqlc.embed(class_joinees), 
+       sqlc.embed(users),
+       (SELECT COUNT(*)::BIGINT FROM exam_attempts WHERE exam_attempts.class_joinee_id = class_joinees.id) AS exam_attempt_count
 FROM class_joinees
 JOIN users ON class_joinees.user_id = users.id
 WHERE class_joinees.class_id = $1

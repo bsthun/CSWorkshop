@@ -1,6 +1,7 @@
 package adminEndpoint
 
 import (
+	"backend/generate/psql"
 	"backend/type/common"
 	"backend/type/payload"
 	"backend/type/response"
@@ -37,6 +38,23 @@ func (r *Handler) HandleExamDetail(c *fiber.Ctx) error {
 		return gut.Err(false, "failed to get exam detail", err)
 	}
 
+	// * get score distribution for the exam
+	scoreDistributionRows, err := r.database.P().ExamScoreDistribution(c.Context(), body.ExamId)
+	if err != nil {
+		return gut.Err(false, "failed to get score distribution", err)
+	}
+
+	// * map score distribution to payload
+	scoreDistribution, er := gut.Iterate(scoreDistributionRows, func(row psql.ExamScoreDistributionRow) (*payload.ExamScoreDistributionItem, *gut.ErrorInstance) {
+		return &payload.ExamScoreDistributionItem{
+			Score:        row.Score,
+			StudentCount: row.StudentCount,
+		}, nil
+	})
+	if er != nil {
+		return er
+	}
+
 	// * prepare response
 	responsePayload := &payload.ExamDetailResponse{
 		Exam: &payload.Exam{
@@ -69,10 +87,10 @@ func (r *Handler) HandleExamDetail(c *fiber.Ctx) error {
 			QuestionCount: row.CollectionQuestionCount,
 		},
 		AttemptCount: &payload.ExamAttemptCount{
-			OpenedCount:   row.AttemptOpenedCount,
 			StartedCount:  row.AttemptStartedCount,
 			FinishedCount: row.AttemptFinishedCount,
 		},
+		ScoreDistribution: scoreDistribution,
 	}
 
 	// * response

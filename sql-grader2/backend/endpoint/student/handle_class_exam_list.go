@@ -67,7 +67,6 @@ func (r *Handler) HandleClassExamList(c *fiber.Ctx) error {
 				Id:            examRow.ExamAttempt.Id,
 				ExamId:        examRow.ExamAttempt.ExamId,
 				ClassJoineeId: examRow.ExamAttempt.ClassJoineeId,
-				OpenedAt:      examRow.ExamAttempt.OpenedAt,
 				StartedAt:     examRow.ExamAttempt.StartedAt,
 				FinishedAt:    examRow.ExamAttempt.FinishedAt,
 				CreatedAt:     examRow.ExamAttempt.CreatedAt,

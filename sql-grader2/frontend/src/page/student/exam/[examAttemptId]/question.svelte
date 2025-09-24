@@ -12,7 +12,6 @@
 	import { Button } from '$/lib/shadcn/components/ui/button'
 	import { Textarea } from '$/lib/shadcn/components/ui/textarea'
 	import { Label } from '$/lib/shadcn/components/ui/label'
-	import Container from '$/component/layout/Container.svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
 	import { backend, catcher } from '$/util/backend'
 	import {
@@ -23,6 +22,8 @@
 	} from '$/util/backend/backend.ts'
 	import { toast } from 'svelte-sonner'
 	import SubmissionList from './component/SubmissionList.svelte'
+	import ExamTimer from './component/ExamTimer.svelte'
+	import { marked } from 'marked'
 
 	export let examAttemptId: number
 
@@ -132,14 +133,14 @@
 	})
 </script>
 
-<div class="m-auto max-w-screen-xl pt-16 pr-6 pb-8 pl-2 max-lg:px-4 max-lg:pt-12 max-md:px-2">
+<div class="m-auto max-w-screen-xl pt-16 pr-6 pl-2 max-lg:px-4 max-lg:pt-12 max-md:px-2">
 	{#if loading}
 		<div class="flex min-h-[400px] items-center justify-center">
 			<Loader2Icon class="text-primary h-8 w-8 animate-spin" />
 		</div>
 	{:else}
 		<div class="flex h-[calc(100vh-4rem)]">
-			<div class="flex w-96 flex-col border-r">
+			<div class="relative flex w-96 flex-col border-r">
 				<div class="flex-shrink-0 p-4">
 					{#if examData && classData}
 						<div class="my-4 flex flex-col gap-4">
@@ -191,9 +192,10 @@
 						{/each}
 					</div>
 				</div>
+				<ExamTimer closedAt={examData?.closedAt} />
 			</div>
 
-			<div class="flex-1 overflow-y-auto">
+			<div class="relative flex-1 overflow-y-auto">
 				<div class="mx-auto max-w-4xl p-8">
 					{#if loadingDetail}
 						<div class="flex min-h-[400px] items-center justify-center">
@@ -210,7 +212,9 @@
 						</div>
 
 						<div class="mb-8 rounded-lg border bg-gray-50 p-6">
-							<p class="whitespace-pre-wrap text-gray-700">{selectedQuestion.examQuestion.description}</p>
+							<div class="prose max-w-none">
+								{@html marked.parse(selectedQuestion.examQuestion.description || '')}
+							</div>
 						</div>
 
 						<div class="space-y-4">
@@ -251,3 +255,94 @@
 		</div>
 	{/if}
 </div>
+
+<style lang="scss">
+	.prose {
+		:global(h1), :global(h2), :global(h3), :global(h4) {
+			font-weight: bold;
+			margin-top: 1em;
+			margin-bottom: .5em;
+		}
+
+		:global(h1) {
+			font-size: 1.5em;
+		}
+
+		:global(h2) {
+			font-size: 1.3em;
+		}
+
+		:global(h3) {
+			font-size: 1.1em;
+		}
+
+		:global(p) {
+			margin-bottom: .5em;
+		}
+
+		:global(ul), :global(ol) {
+			list-style: initial;
+			padding-left: 2em;
+			margin-bottom: 1em;
+		}
+
+		:global(li) {
+			margin-bottom: .5em;
+		}
+
+		:global(pre) {
+			background-color: #f5f5f5;
+			padding: 0.75em;
+			border-radius: 0.25em;
+			overflow-x: auto;
+			margin-bottom: 1em;
+		}
+
+		:global(code) {
+			font-family: monospace;
+			background-color: #f5f5f5;
+			padding: 0.2em 0.4em;
+			border-radius: 0.2em;
+		}
+
+		:global(table) {
+			width: 100%;
+			border-collapse: collapse;
+			margin-bottom: 1em;
+			overflow-x: auto;
+			display: block;
+		}
+
+		:global(th) {
+			background-color: #f5f5f5;
+			font-weight: bold;
+			text-align: left;
+			padding: 0.5em 0.75em;
+			border: 1px solid #e2e8f0;
+		}
+
+		:global(td) {
+			padding: 0.5em 0.75em;
+			border: 1px solid #e2e8f0;
+			vertical-align: top;
+		}
+
+		:global(tr:nth-child(even)) {
+			background-color: #fdfdfd;
+		}
+
+		:global(tbody tr:hover) {
+			background-color: #f1f5f9;
+		}
+
+		:global(caption) {
+			font-style: italic;
+			padding: 0.5em 0;
+			caption-side: bottom;
+		}
+
+		:global(hr) {
+			margin-bottom: 1em;
+		}
+	}
+</style>

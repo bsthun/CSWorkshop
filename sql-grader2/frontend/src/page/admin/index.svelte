@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
+	import { navigate, useLocation } from 'svelte-navigator'
 	import { Button } from '$/lib/shadcn/components/ui/button'
 	import { SectionIcon, GraduationCapIcon, PlusIcon } from 'lucide-svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
@@ -15,7 +16,8 @@
 	import { backend, catcher } from '$/util/backend.ts'
 	import type { PayloadCollection, PayloadSemester } from '$/util/backend/backend.ts'
 
-	let activeTab: 'collection' | 'class' = 'collection'
+	const location = useLocation()
+	let activeTab: 'collection' | 'class'
 	
 	// Collection state
 	let collections: PayloadCollection[] = []
@@ -105,6 +107,8 @@
 
 	const switchTab = (tab: 'collection' | 'class') => {
 		activeTab = tab
+		const fragment = tab === 'collection' ? '#collection' : '#class'
+		navigate(`/admin${fragment}`, { replace: true })
 		if (tab === 'collection' && collections.length === 0) {
 			loadCollections('', 1)
 		} else if (tab === 'class' && semesters.length === 0) {
@@ -112,7 +116,17 @@
 		}
 	}
 
+	const initializeTab = () => {
+		const hash = $location.hash.slice(1)
+		if (hash === 'class') {
+			activeTab = 'class' as const
+		} else {
+			activeTab = 'collection' as const
+		}
+	}
+
 	onMount(() => {
+		initializeTab()
 		loadCollections('', 1)
 		loadSemesters()
 	})

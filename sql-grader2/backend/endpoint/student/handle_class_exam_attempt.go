@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/bsthun/gut"
 	"github.com/gofiber/fiber/v2"
@@ -36,6 +37,15 @@ func (r *Handler) HandleClassExamAttempt(c *fiber.Ctx) error {
 		return gut.Err(false, "exam not found", err)
 	}
 
+	// * check if exam is open
+	now := time.Now()
+	if now.Before(*exam.OpenedAt) {
+		return gut.Err(false, "exam is not opened yet", nil)
+	}
+	if now.After(*exam.ClosedAt) {
+		return gut.Err(false, "exam is already closed", nil)
+	}
+
 	// * check access code
 	if exam.AccessCode == nil || *exam.AccessCode != *body.AccessCode {
 		return gut.Err(false, "invalid access code", nil)
@@ -57,6 +67,9 @@ func (r *Handler) HandleClassExamAttempt(c *fiber.Ctx) error {
 	})
 	if err == nil {
 		return gut.Err(false, "user already enrolled in this exam", nil)
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return gut.Err(false, "unable to check existing exam attempt", err)
 	}
 
 	// * generate unique database name for this attempt
@@ -131,7 +144,6 @@ func (r *Handler) HandleClassExamAttempt(c *fiber.Ctx) error {
 			Id:            attempt.Id,
 			ExamId:        attempt.ExamId,
 			ClassJoineeId: attempt.ClassJoineeId,
-			OpenedAt:      attempt.OpenedAt,
 			StartedAt:     attempt.StartedAt,
 			FinishedAt:    attempt.FinishedAt,
 			CreatedAt:     attempt.CreatedAt,

@@ -150,9 +150,10 @@ type User struct {
 }
 
 type ClassJoinee struct {
-	User      *User      `json:"user"`
-	CreatedAt *time.Time `json:"createdAt"`
-	UpdatedAt *time.Time `json:"updatedAt"`
+	User             *User      `json:"user"`
+	ExamAttemptCount *uint64    `json:"examAttemptCount"`
+	CreatedAt        *time.Time `json:"createdAt"`
+	UpdatedAt        *time.Time `json:"updatedAt"`
 }
 
 type SemesterInfo struct {
@@ -218,7 +219,6 @@ type ExamJoineeListItem struct {
 	Id            *uint64     `json:"id"`
 	ExamId        *uint64     `json:"examId"`
 	ClassJoineeId *uint64     `json:"classJoineeId"`
-	OpenedAt      *time.Time  `json:"openedAt"`
 	StartedAt     *time.Time  `json:"startedAt"`
 	FinishedAt    *time.Time  `json:"finishedAt"`
 	CreatedAt     *time.Time  `json:"createdAt"`
@@ -248,7 +248,6 @@ type ExamAttempt struct {
 	Id            *uint64    `json:"id"`
 	ExamId        *uint64    `json:"examId"`
 	ClassJoineeId *uint64    `json:"classJoineeId"`
-	OpenedAt      *time.Time `json:"openedAt"`
 	StartedAt     *time.Time `json:"startedAt"`
 	FinishedAt    *time.Time `json:"finishedAt"`
 	CreatedAt     *time.Time `json:"createdAt"`
@@ -347,9 +346,13 @@ type CollectionDetailResponse struct {
 }
 
 type ExamAttemptCount struct {
-	OpenedCount   *uint64 `json:"openedCount"`
 	StartedCount  *uint64 `json:"startedCount"`
 	FinishedCount *uint64 `json:"finishedCount"`
+}
+
+type ExamScoreDistributionItem struct {
+	Score        *uint64 `json:"score"`
+	StudentCount *uint64 `json:"studentCount"`
 }
 
 type ExamQuestionIdRequest struct {
@@ -362,10 +365,11 @@ type ExamQuestionDetailResponse struct {
 }
 
 type ExamDetailResponse struct {
-	Exam         *Exam             `json:"exam"`
-	Class        *Class            `json:"class"`
-	Collection   *Collection       `json:"collection"`
-	AttemptCount *ExamAttemptCount `json:"attemptCount"`
+	Exam              *Exam                        `json:"exam"`
+	Class             *Class                       `json:"class"`
+	Collection        *Collection                  `json:"collection"`
+	AttemptCount      *ExamAttemptCount            `json:"attemptCount"`
+	ScoreDistribution []*ExamScoreDistributionItem `json:"scoreDistribution"`
 }
 
 type StudentClassListItem struct {
