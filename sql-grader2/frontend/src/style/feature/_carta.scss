@@ -1,0 +1,401 @@
+.carta-theme__default {
+  $background: #ffffff;
+  $background-light: #f6f8fa;
+  $border: #e1e4e8;
+  $accent: #0366d6;
+
+  &.carta-editor {
+    background-color: $background;
+    border-radius: calc(var(--radius) - 2px);
+
+    &:focus-within {
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 2px var(--ring);
+    }
+
+    .carta-wrapper {
+      padding: 1rem;
+      flex-grow: 1;
+    }
+
+    .carta-input,
+    .carta-renderer {
+      min-height: 120px;
+      max-height: 160px;
+      overflow: auto;
+    }
+
+    .carta-font-code {
+      font-family: 'Fira Code', monospace;
+      caret-color: #24292e;
+      font-size: 0.95rem;
+      color: #24292e;
+    }
+
+    .carta-toolbar {
+      height: 2.5rem;
+
+      background-color: $background-light;
+
+      border-top-left-radius: calc(var(--radius) - 2px);
+      border-top-right-radius: calc(var(--radius) - 2px);
+
+      .carta-icon {
+        width: 2rem;
+        height: 2rem;
+
+        &:hover {
+          color: #24292e;
+          background-color: $background-light;
+        }
+      }
+    }
+
+    .carta-toolbar-left button,
+    .carta-toolbar-right,
+    .carta-filler {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .carta-toolbar-left {
+      & > *:first-child {
+        border-top-left-radius: calc(var(--radius) - 2px);
+      }
+
+      & > * {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 0.95rem;
+      }
+
+      button {
+        height: 100%;
+      }
+
+      .carta-active {
+        background-color: $background;
+        color: #24292e;
+
+        border-right: 1px solid var(--border);
+        border-bottom: 1px solid $background;
+
+        &:not(:first-child) {
+          border-left: 1px solid var(--border);
+        }
+      }
+    }
+
+    .carta-toolbar-right {
+      padding-right: 12px;
+    }
+
+    .carta-icons-menu {
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      min-width: 180px;
+      background: $background;
+
+      .carta-icon-full {
+        padding-left: 6px;
+        padding-right: 6px;
+
+        margin-top: 2px;
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:hover {
+          color: #24292e;
+          background-color: $background-light;
+        }
+
+        span {
+          margin-left: 6px;
+          color: #24292e;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+
+  // Plugin emoji
+  &.carta-emoji {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+
+    width: 19rem;
+    max-height: 14rem;
+    overflow-x: auto;
+    overflow-y: auto;
+    border-radius: 4px;
+    font-family: inherit;
+    background-color: $background;
+    word-break: break-word;
+    scroll-padding: 6px;
+  }
+
+  &.carta-emoji button {
+    background: $background-light;
+
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 4px;
+    border: 0;
+    padding: 0;
+    margin: 0.175rem;
+
+    min-width: 2rem;
+    height: 2rem;
+    font-size: 1.2rem;
+    line-height: 100%;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  &.carta-emoji button:hover,
+  &.carta-emoji button.carta-active {
+    background: $background-light;
+  }
+
+  // Plugin slash
+  &.carta-slash {
+    width: 18rem;
+    max-height: 14rem;
+    overflow-y: scroll;
+    border-radius: 4px;
+    font-family: inherit;
+    background-color: $background;
+    padding: 6px;
+    scroll-padding: 6px;
+  }
+
+  &.carta-slash span {
+    width: fit-content;
+  }
+
+  &.carta-slash button {
+    background: none;
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 4px;
+  }
+
+  &.carta-slash .carta-slash-group {
+    padding: 0 4px 0 4px;
+    margin-bottom: 4px;
+    font-size: 0.8rem;
+  }
+
+  &.carta-slash button.carta-active,
+  &.carta-slash button:hover {
+    background: $background-light;
+    cursor: pointer;
+  }
+
+  &.carta-slash .carta-snippet-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  &.carta-slash .carta-snippet-description {
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+  }
+}
+
+html.dark .carta-theme__github .shiki,
+html.dark .carta-theme__github .shiki span {
+  color: var(--shiki-dark) !important;
+}
+
+// Carta renderer prose styling
+.carta-renderer {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #24292e;
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    color: #24292e;
+    scroll-margin-top: 4rem;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5em;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3em;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  h4 {
+    font-size: 1.125rem;
+  }
+
+  h5, h6 {
+    font-size: 1rem;
+  }
+
+  p {
+    margin-bottom: 1em;
+    color: #586069;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong {
+    font-weight: 600;
+    color: #24292e;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  a {
+    color: #0366d6;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  ul, ol {
+    margin-bottom: 1em;
+    padding-left: 2em;
+  }
+
+  ul {
+    list-style-type: disc;
+
+    ul {
+      list-style-type: circle;
+    }
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+
+  li {
+    margin-bottom: 0.25em;
+
+    p {
+      margin-bottom: 0.5em;
+    }
+  }
+
+  blockquote {
+    margin: 1em 0;
+    padding: 0 1em;
+    border-left: 4px solid #dfe2e5;
+    background-color: #f6f8fa;
+    color: #6a737d;
+
+    p {
+      color: inherit;
+    }
+  }
+
+  pre {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 1em;
+    margin: 1em 0;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+
+    code {
+      background-color: transparent;
+      border-radius: 0;
+      padding: 0;
+      font-size: 0.875rem;
+    }
+  }
+
+  code {
+    font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    background-color: rgba(175, 184, 193, 0.2);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.875em;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    border: 1px solid var(--border);
+
+    th, td {
+      padding: 0.75em;
+      text-align: left;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f6f8fa;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background-color: var(--border);
+    margin: 2em 0;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin: 1em 0;
+  }
+
+  // Task list styling
+  input[type="checkbox"] {
+    margin-right: 0.5em;
+  }
+
+  // Inline code in lists and other elements
+  li code,
+  p code,
+  h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
+    background-color: rgba(175, 184, 193, 0.2);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-size: 0.875em;
+  }
+}
