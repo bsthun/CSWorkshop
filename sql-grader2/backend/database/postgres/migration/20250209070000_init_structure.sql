@@ -123,7 +123,6 @@ CREATE TABLE exam_submissions
     check_prompt_at     TIMESTAMP                                               NULL,
     created_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (exam_question_id, exam_attempt_id)
 );
 
 -- * auto-update function for updated_at timestamps

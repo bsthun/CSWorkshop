@@ -132,7 +132,7 @@
 			</DrawerDescription>
 		</DrawerHeader>
 
-		<div class="flex-1 overflow-visible px-4">
+		<div class="flex-1 overflow-scroll px-4">
 			{#if loading}
 				<div class="flex min-h-[300px] items-center justify-center">
 					<Loader2Icon class="text-primary h-8 w-8 animate-spin" />
@@ -144,7 +144,7 @@
 					<p class="text-muted-foreground text-center text-sm">There are no exams for this class yet.</p>
 				</div>
 			{:else}
-				<ScrollArea class="h-[calc(100vh-200px)]">
+				<ScrollArea class="h-full">
 					<div class="flex flex-col space-y-4 pb-4">
 						{#each exams as exam}
 							<button onclick={() => handleExamClick(exam)}>
