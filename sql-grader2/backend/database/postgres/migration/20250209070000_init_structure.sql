@@ -122,7 +122,7 @@ CREATE TABLE exam_submissions
     check_prompt_passed BOOLEAN                                                 NULL,
     check_prompt_at     TIMESTAMP                                               NULL,
     created_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP                                               NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- * auto-update function for updated_at timestamps

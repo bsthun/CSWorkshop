@@ -32,7 +32,7 @@
 			</div>
 			<DialogTitle class="text-center text-xl">Time's Up!</DialogTitle>
 			<DialogDescription class="text-center">
-				The examination time has ended. You will be redirected to the home page in shortly.
+				The examination time has ended. <br />You will be redirected to the home page in shortly.
 			</DialogDescription>
 		</DialogHeader>
 		<DialogFooter class="flex justify-center">
