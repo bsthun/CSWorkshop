@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
+	import { onMount, onDestroy } from 'svelte'
 	import { navigate } from 'svelte-navigator'
 	import {
 		ArrowLeftIcon,
@@ -36,28 +36,38 @@
 	let classData: PayloadClass
 	let loadingDetail = false
 	let questionDetail: any = null
+	let pollingInterval: NodeJS.Timeout | null = null
+	let pollingFirstLoad = true
 
 	const loadExamData = () => {
-		loading = true
-		Promise.all([
-			backend.student.classExamAttemptDetail({ examAttemptId }),
-			backend.student.studentExamQuestionList({ examAttemptId }),
-		])
-			.then(([detailResponse, questionResponse]) => {
+		if (pollingFirstLoad) {
+			loading = true
+		}
+
+		backend.student
+			.classExamAttemptDetail({ examAttemptId })
+			.then((detailResponse) => {
 				if (detailResponse.success && detailResponse.data) {
 					examData = detailResponse.data.exam
 					classData = detailResponse.data.class
 				}
-				questions = questionResponse.data.questions
-				if (questions.length > 0 && !selectedQuestion) {
-					selectQuestion(questions[0])
+				// Only load question list on first load
+				if (pollingFirstLoad) {
+					loadQuestionList()
 				}
 			})
 			.catch((err) => {
 				catcher(err)
+				if (pollingInterval) {
+					clearInterval(pollingInterval)
+					pollingInterval = null
+				}
 			})
 			.finally(() => {
-				loading = false
+				if (pollingFirstLoad) {
+					loading = false
+					pollingFirstLoad = false
+				}
 			})
 	}
 
@@ -88,8 +98,9 @@
 		backend.student
 			.studentExamQuestionList({ examAttemptId })
 			.then((response) => {
-				if (response.success && response.data) {
-					questions = response.data.questions
+				questions = response.data.questions
+				if (questions.length > 0 && !selectedQuestion) {
+					selectQuestion(questions[0])
 				}
 			})
 			.catch((err) => {
@@ -130,6 +141,17 @@
 
 	onMount(() => {
 		loadExamData()
+		pollingInterval = setInterval(() => {
+			loadExamData()
+		}, 2000)
+	})
+
+	onDestroy(() => {
+		// Clean up polling interval
+		if (pollingInterval) {
+			clearInterval(pollingInterval)
+			pollingInterval = null
+		}
 	})
 </script>
 
@@ -192,7 +214,7 @@
 						{/each}
 					</div>
 				</div>
-				<ExamTimer closedAt={examData?.closedAt} />
+				<ExamTimer closedAt={examData?.closedAt} {questions} />
 			</div>
 
 			<div class="relative flex-1 overflow-y-auto">
@@ -258,10 +280,13 @@
 
 <style lang="scss">
 	.prose {
-		:global(h1), :global(h2), :global(h3), :global(h4) {
+		:global(h1),
+		:global(h2),
+		:global(h3),
+		:global(h4) {
 			font-weight: bold;
 			margin-top: 1em;
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 		}
 
 		:global(h1) {
@@ -277,17 +302,18 @@
 		}
 
 		:global(p) {
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 		}
 
-		:global(ul), :global(ol) {
+		:global(ul),
+		:global(ol) {
 			list-style: initial;
 			padding-left: 2em;
 			margin-bottom: 1em;
 		}
 
 		:global(li) {
-			margin-bottom: .5em;
+			margin-bottom: 0.5em;
 		}
 
 		:global(pre) {

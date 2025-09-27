@@ -42,7 +42,6 @@
 		return scores.passed + scores.rejected + scores.invalid + scores.unsubmitted
 	}
 
-	
 	onMount(() => {
 		loadJoinees()
 	})

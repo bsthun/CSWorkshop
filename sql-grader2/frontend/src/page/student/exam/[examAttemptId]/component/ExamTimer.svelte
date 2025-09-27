@@ -2,8 +2,10 @@
 	import { onDestroy } from 'svelte'
 	import { navigate } from 'svelte-navigator'
 	import ExamTimeupDialog from './ExamTimeupDialog.svelte'
+	import type { PayloadExamQuestionWithStatus } from '$/util/backend/backend.ts'
 
 	export let closedAt: string | null = null
+	export let questions: PayloadExamQuestionWithStatus[] = []
 
 	let timeRemaining = { hours: 0, minutes: 0, seconds: 0 }
 	let timerInterval: ReturnType<typeof setInterval> | null = null
@@ -88,4 +90,4 @@
 	</div>
 {/if}
 
-<ExamTimeupDialog bind:open={timeUpDialogOpen} />
+<ExamTimeupDialog bind:open={timeUpDialogOpen} {questions} />

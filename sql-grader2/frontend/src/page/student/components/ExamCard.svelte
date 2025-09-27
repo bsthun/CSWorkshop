@@ -64,16 +64,13 @@
 			<FileTextIcon class="h-4 w-4" />
 			<span>{exam.questionCount} questions</span>
 		</div>
-
-		<div class="space-y-2">
-			<div class="text-muted-foreground flex items-center gap-2 text-sm">
-				<CalendarIcon class="h-4 w-4" />
-				<span>Opens: {formatDate(exam.exam.openedAt)}</span>
-			</div>
-			<div class="text-muted-foreground flex items-center gap-2 text-sm">
-				<ClockIcon class="h-4 w-4" />
-				<span>Closes: {formatDate(exam.exam.closedAt)}</span>
-			</div>
+		<div class="text-muted-foreground flex items-center gap-2 text-sm">
+			<CalendarIcon class="h-4 w-4" />
+			<span>Opens: {formatDate(exam.exam.openedAt)}</span>
+		</div>
+		<div class="text-muted-foreground flex items-center gap-2 text-sm">
+			<ClockIcon class="h-4 w-4" />
+			<span>Closes: {formatDate(exam.exam.closedAt)}</span>
 		</div>
 
 		{#if exam.exam.accessCode && exam.status === PayloadClassExamListItemStatusEnum.Opened}
@@ -84,13 +81,7 @@
 
 		{#if exam.examAttempt && exam.status === PayloadClassExamListItemStatusEnum.Attempted}
 			<div class="border-t pt-2">
-				<p class="text-xs text-blue-600">Started: {formatDate(exam.examAttempt.openedAt)}</p>
-			</div>
-		{/if}
-
-		{#if exam.examAttempt && exam.status === PayloadClassExamListItemStatusEnum.Finished}
-			<div class="border-t pt-2">
-				<p class="text-xs text-green-600">Finished: {formatDate(exam.examAttempt.finishedAt)}</p>
+				<p class="text-xs text-blue-600">Already started exam attempt</p>
 			</div>
 		{/if}
 	</CardContent>

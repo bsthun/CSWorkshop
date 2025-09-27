@@ -28,7 +28,20 @@ RETURNING *;
 SELECT sqlc.embed(classes),
        sqlc.embed(semesters),
        (SELECT COUNT(*)::BIGINT FROM exams WHERE exams.class_id = classes.id) AS exam_total_count,
-       (SELECT COUNT(*)::BIGINT FROM exam_attempts WHERE exam_attempts.class_joinee_id = class_joinees.id AND exam_attempts.finished_at IS NOT NULL) AS exam_finished_count
+       (SELECT COUNT(DISTINCT exams.id)::BIGINT 
+        FROM exams 
+        LEFT JOIN exam_attempts ON exams.id = exam_attempts.exam_id AND exam_attempts.class_joinee_id = class_joinees.id
+        WHERE exams.class_id = classes.id 
+          AND (
+            (exam_attempts.id = (
+              SELECT id FROM exam_attempts 
+              WHERE exam_id = exams.id AND class_joinee_id = class_joinees.id 
+              ORDER BY created_at DESC 
+              LIMIT 1
+            ) AND exam_attempts.finished_at IS NOT NULL)
+            OR exams.closed_at < NOW()
+          )
+       ) AS exam_finished_count
 FROM class_joinees
 JOIN classes ON class_joinees.class_id = classes.id
 JOIN semesters ON classes.semester_id = semesters.id

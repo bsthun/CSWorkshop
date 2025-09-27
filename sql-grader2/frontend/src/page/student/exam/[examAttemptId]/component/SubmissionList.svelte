@@ -73,8 +73,8 @@
 										</div>
 									{/if}
 									{#if submission.examSubmission.result?.executionError && !submission.examSubmission.checkQueryPassed}
-										<div class="mt-1 ml-8 rounded border border-red-200 bg-red-50 p-2">
-											<pre class="font-mono text-xs whitespace-pre-wrap text-red-700">{submission
+										<div class="mt-1 ml-8 rounded border border-red-200 bg-red-50 p-2 overflow-x-auto">
+											<pre class="font-mono text-xs whitespace-pre-wrap text-red-700 break-words">{submission
 													.examSubmission.result.executionError}</pre>
 										</div>
 									{/if}
@@ -97,29 +97,25 @@
 									{/if}
 									{#if submission.examSubmission.result?.promptDescription}
 										<div
-											class="mt-1 ml-8 rounded border p-2 {submission.examSubmission
+											class="mt-1 ml-8 rounded border p-2 overflow-x-auto {submission.examSubmission
 												.checkPromptPassed
 												? 'border-green-200 bg-green-50'
 												: 'border-red-200 bg-red-50'}"
 										>
-											<div class="flex items-start gap-1">
-												<p
-													class="text-xs {submission.examSubmission.checkPromptPassed
-														? 'text-green-700'
-														: 'text-red-700'}"
-												>
-													{submission.examSubmission.result.promptDescription}
-												</p>
-											</div>
+											<p
+												class="text-xs break-words {submission.examSubmission.checkPromptPassed
+													? 'text-green-700'
+													: 'text-red-700'}"
+											>
+												{submission.examSubmission.result.promptDescription}
+											</p>
 										</div>
 									{/if}
 									{#if submission.examSubmission.result?.promptError}
-										<div class="mt-1 ml-8 rounded bg-gray-50 p-1.5">
-											<div class="flex items-start gap-1">
-												<pre
-													class="font-mono text-xs whitespace-pre-wrap text-red-700">{submission
-														.examSubmission.result.promptError}</pre>
-											</div>
+										<div class="mt-1 ml-8 rounded bg-gray-50 p-1.5 overflow-x-auto">
+											<pre
+												class="font-mono text-xs whitespace-pre-wrap text-red-700 break-words">{submission
+													.examSubmission.result.promptError}</pre>
 										</div>
 									{/if}
 								</div>
@@ -128,8 +124,8 @@
 
 						<!-- Right side: Code block -->
 						<div class="flex-1">
-							<div class="rounded border bg-gray-50 p-3">
-								<pre class="overflow-x-auto font-mono text-xs text-gray-700"><code
+							<div class="rounded border bg-gray-50 p-3 overflow-x-auto">
+								<pre class="font-mono text-xs text-gray-700 whitespace-pre-wrap break-words"><code
 										>{submission.examSubmission?.answer || ''}</code
 									></pre>
 							</div>

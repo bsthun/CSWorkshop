@@ -129,7 +129,7 @@
 			<InfoIcon class="mb-4 h-16 w-16 text-gray-400" />
 			<h3 class="mb-2 text-lg font-semibold">Exam not found</h3>
 			<p class="text-muted-foreground mb-4">The exam you're looking for doesn't exist</p>
-			<Button onclick={() => navigate('/admin')}>
+			<Button onclick={() => navigate('/admin#class')}>
 				<ArrowLeftIcon class="mr-2 h-4 w-4" />
 				Back to Admin
 			</Button>
@@ -139,7 +139,7 @@
 			<div class="mb-6 flex flex-col gap-4">
 				<button
 					class="text-muted-foreground hover:text-primary flex items-center gap-2 hover:cursor-pointer"
-					onclick={() => navigate(`/admin/class/${examData.classId}`)}
+					onclick={() => navigate(`/admin/class/${examData.classId}#exam`)}
 				>
 					<ArrowLeftIcon size={16} />
 					<span class="text-xs font-medium tracking-wide uppercase">{classData.name}</span>

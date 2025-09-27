@@ -100,7 +100,7 @@ func (r *Handler) HandleCollectionSchemaUpload(c *fiber.Ctx) error {
 	}
 
 	// * execute schema file using mysql command
-	cmd := exec.Command("mysql", "--protocol=TCP", "-h", matches[3], "-P", matches[4], "-u", matches[1], "-p"+matches[2], tempDatabaseName)
+	cmd := exec.Command("mysql", "--protocol=TCP", "--ssl-verify-server-cert=false", "-h", matches[3], "-P", matches[4], "-u", matches[1], "-p"+matches[2], tempDatabaseName)
 
 	cmd.Stdin = bytes.NewBuffer([]byte(content))
 	cmd.Stdout = os.Stdout

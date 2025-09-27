@@ -20,6 +20,10 @@
 		CalendarIcon,
 		InfoIcon,
 		Loader2Icon,
+		CheckCircle2Icon,
+		CircleSlashIcon,
+		CircleXIcon,
+		CircleIcon,
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
 	import PageTitle from '$/component/ui/PageTitle.svelte'
@@ -46,7 +50,7 @@
 	let studentInfo: any = null
 	let examInfo: any = null
 
-	const loadSubmissions = () => {
+	const loadSubmissions! = () => {
 		loading = true
 		const params: any = { examAttemptId: examAttemptId }
 		if (examQuestionId) {
@@ -69,14 +73,14 @@
 	}
 
 	const getStatusIcon = (submission: any) => {
-		if (submission.checkPromptPassed && submission.checkQueryPassed) {
-			return { icon: CheckCircleIcon, color: 'text-green-600', bg: 'bg-green-100' }
-		} else if (submission.checkPromptPassed === false || submission.checkQueryPassed === false) {
-			return { icon: XCircleIcon, color: 'text-red-600', bg: 'bg-red-100' }
-		} else if (submission.answer) {
-			return { icon: AlertTriangleIcon, color: 'text-yellow-600', bg: 'bg-yellow-100' }
+		if (submission.checkQueryPassed && submission.checkPromptPassed) {
+			return { icon: CheckCircle2Icon, color: 'text-green-600', bg: 'bg-green-100' }
+		} else if (submission.checkQueryPassed && !submission.checkPromptPassed) {
+			return { icon: CircleSlashIcon, color: 'text-yellow-600', bg: 'bg-yellow-100' }
+		} else if (!submission.checkQueryPassed && !submission.checkPromptPassed) {
+			return { icon: CircleXIcon, color: 'text-red-600', bg: 'bg-red-100' }
 		} else {
-			return { icon: MinusCircleIcon, color: 'text-gray-400', bg: 'bg-gray-100' }
+			return { icon: CircleIcon, color: 'text-gray-400', bg: 'bg-gray-100' }
 		}
 	}
 
@@ -214,9 +218,7 @@
 					Submissions ({submissions.length})
 				</CardTitle>
 				<CardDescription>
-					{examQuestionId
-						? 'Showing submissions for a specific question'
-						: 'All submissions for this attempt'}
+					{examQuestionId ? 'All submissions for this question' : 'All submissions for this attempt'}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -245,14 +247,11 @@
 										{#if group === 'examAttempt'}
 											<div>
 												<div class="font-medium">
-													{submission.question.title ||
-														`Question ${submission.question.orderNum || submission.question.id}`}
+													{submission.question.title}
 												</div>
-												{#if submission.question.description}
-													<div class="line-clamp-1 text-sm text-gray-500">
-														{submission.question.description}
-													</div>
-												{/if}
+												<div class="line-clamp-1 max-w-xs truncate text-sm text-gray-500">
+													{submission.question.description}
+												</div>
 											</div>
 										{:else}
 											<UserProfile user={submission.student} />
