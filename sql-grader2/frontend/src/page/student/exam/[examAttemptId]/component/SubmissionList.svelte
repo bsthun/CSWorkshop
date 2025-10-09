@@ -1,8 +1,18 @@
 <script lang="ts">
-	import { CheckCircle2Icon, CircleSlashIcon, CircleXIcon, CircleIcon } from 'lucide-svelte'
+	import { CheckCircle2Icon, CircleSlashIcon, CircleXIcon, CircleIcon, GitCompareIcon } from 'lucide-svelte'
 	import { formatDateTime } from '$/util/format'
+	import { Button } from '$/lib/shadcn/components/ui/button'
+	import SubmissionCompare from './SubmissionCompare.svelte'
 
 	export let questionDetail: any
+	
+	let compareDrawerOpen = false
+	let selectedSubmissionId: number | null = null
+	
+	const handleCompare = (submissionId: number) => {
+		selectedSubmissionId = submissionId
+		compareDrawerOpen = true
+	}
 </script>
 
 {#if questionDetail?.submissions && questionDetail.submissions.length > 0}
@@ -43,15 +53,28 @@
 								{submission.status}
 							</span>
 						</div>
-						<div class="text-right">
-							<span class="text-xs font-semibold text-gray-500">
-								#{questionDetail.submissions.length - idx}
-							</span>
-							{#if submission.examSubmission?.createdAt}
-								<span class="text-xs text-gray-500">
-									• {formatDateTime(submission.examSubmission.createdAt)}
-								</span>
+						<div class="flex items-center gap-3">
+							{#if !submission.examSubmission?.result?.executionError}
+								<Button 
+									size="sm" 
+									variant="outline" 
+									class="h-6 px-2 text-xs"
+									onclick={() => handleCompare(submission.examSubmission.id)}
+								>
+									<GitCompareIcon class="mr-1 h-3 w-3" />
+									Compare
+								</Button>
 							{/if}
+							<div class="text-right">
+								<span class="text-xs font-semibold text-gray-500">
+									#{questionDetail.submissions.length - idx}
+								</span>
+								{#if submission.examSubmission?.createdAt}
+									<span class="text-xs text-gray-500">
+										• {formatDateTime(submission.examSubmission.createdAt)}
+									</span>
+								{/if}
+							</div>
 						</div>
 					</div>
 
@@ -136,3 +159,9 @@
 		</div>
 	</div>
 {/if}
+
+<SubmissionCompare 
+	bind:open={compareDrawerOpen} 
+	submissionId={selectedSubmissionId}
+	questionName={questionDetail?.name || ''}
+/>

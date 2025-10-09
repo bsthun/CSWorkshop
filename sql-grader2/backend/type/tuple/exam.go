@@ -7,9 +7,9 @@ import (
 )
 
 type ExamSubmissionResult struct {
-	ExecutionError    string `json:"executionError"`
-	PromptError       string `json:"promptError"`
-	PromptDescription string `json:"promptDescription"`
+	ExecutionError    *string `json:"executionError"`
+	PromptError       *string `json:"promptError"`
+	PromptDescription *string `json:"promptDescription"`
 }
 
 func (r *ExamSubmissionResult) Scan(value any) error {

@@ -232,11 +232,8 @@
 
 								<!-- Attempt Statistics -->
 								<div class="flex items-center gap-2">
-									<div class="text-lg font-semibold text-yellow-600">{attemptCount.startedCount}</div>
-									<div class="text-xs text-gray-500">Started</div>
-									<div class="w-2 text-gray-500">•</div>
-									<div class="text-lg font-semibold text-green-600">{attemptCount.finishedCount}</div>
-									<div class="text-xs text-gray-500">Finished</div>
+									<div class="text-sm font-semibold text-yellow-600">{attemptCount.startedCount}</div>
+									<div class="text-xs text-gray-500">Submission</div>
 								</div>
 							</div>
 

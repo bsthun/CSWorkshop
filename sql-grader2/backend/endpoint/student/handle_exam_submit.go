@@ -57,9 +57,9 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 
 	// * prepare result object
 	result := &tuple.ExamSubmissionResult{
-		ExecutionError:    "",
-		PromptError:       "",
-		PromptDescription: "",
+		ExecutionError:    nil,
+		PromptError:       nil,
+		PromptDescription: nil,
 	}
 
 	// * prepare timing and status variables
@@ -73,7 +73,7 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 		queryPassed, er := r.submissionProcedure.ServeCheckQuery(c.Context(), *body.Answer, *examQuestion.CheckQuery, *attemptDetails.ExamAttempt.DatabaseName)
 		if er != nil {
 			// * query execution failed
-			result.ExecutionError = er.Errors[0].Err.Error()
+			result.ExecutionError = gut.Ptr(er.Errors[0].Err.Error())
 
 			// * create submission with execution error
 			submission, err := r.database.P().ExamSubmissionCreate(c.Context(), &psql.ExamSubmissionCreateParams{
@@ -115,12 +115,12 @@ func (r *Handler) HandleExamSubmit(c *fiber.Ctx) error {
 			promptPassed, promptDescription, er := r.submissionProcedure.ServeCheckPrompt(c.Context(), *body.Answer, *examQuestion.CheckPrompt)
 			if er != nil {
 				// * prompt check failed due to error, but query passed
-				result.PromptError = er.Error()
+				result.PromptError = gut.Ptr(er.Error())
 				checkPromptPassed = false
 			} else {
 				// * prompt check completed
 				checkPromptPassed = promptPassed
-				result.PromptDescription = promptDescription
+				result.PromptDescription = gut.Ptr(promptDescription)
 				checkPromptAt = &now
 			}
 		}

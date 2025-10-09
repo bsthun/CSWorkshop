@@ -77,7 +77,7 @@ func (r *Service) ServeCheckPrompt(ctx context.Context, studentAnswer string, ch
 
 	chatCompletion, err := r.openaiClient.Chat.Completions.New(ctx, chatParams)
 	if err != nil {
-		return false, "", gut.Err(false, "unable to get chat completion from OpenAI", err)
+		return false, "", gut.Err(false, "unable to get chat completion from openai", err)
 	}
 
 	responseContent := chatCompletion.Choices[0].Message.Content
@@ -85,7 +85,7 @@ func (r *Service) ServeCheckPrompt(ctx context.Context, studentAnswer string, ch
 	var result *PromptCheckResult
 	err = json.Unmarshal([]byte(responseContent), &result)
 	if err != nil {
-		return false, "", gut.Err(false, "unable to parse OpenAI response", err)
+		return false, "", gut.Err(false, "unable to parse openai response", err)
 	}
 
 	return result.Passed, result.Description, nil

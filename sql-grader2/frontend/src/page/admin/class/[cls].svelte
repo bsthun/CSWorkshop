@@ -15,7 +15,7 @@
 		CopyIcon,
 		PlusIcon,
 		HelpCircleIcon,
-				CalendarIcon,
+		CalendarIcon,
 		ClockIcon,
 	} from 'lucide-svelte'
 	import Container from '$/component/layout/Container.svelte'
@@ -117,8 +117,6 @@
 		}
 	}
 
-	
-	
 	onMount(() => {
 		initializeTab()
 		loadClass()
@@ -170,7 +168,7 @@
 		</div>
 
 		<!-- Tab Navigation -->
-		<div class="mb-6 flex items-center justify-between">
+		<div class="flex items-start justify-between">
 			<Tab
 				tabs={[
 					{ id: 'student', label: 'Students', icon: UsersIcon },
@@ -202,7 +200,9 @@
 						<div class="flex flex-col items-center justify-center py-12">
 							<UsersIcon class="mb-4 h-16 w-16 text-gray-400" />
 							<h3 class="mb-2 text-lg font-semibold">No Students</h3>
-							<p class="text-muted-foreground text-center">No students have enrolled in this class yet.</p>
+							<p class="text-muted-foreground text-center">
+								No students have enrolled in this class yet.
+							</p>
 						</div>
 					{:else}
 						<Table>

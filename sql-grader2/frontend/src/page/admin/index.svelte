@@ -18,7 +18,7 @@
 
 	const location = useLocation()
 	let activeTab: 'collection' | 'class'
-	
+
 	// Collection state
 	let collections: PayloadCollection[] = []
 	let collectionsLoading = true
@@ -133,7 +133,7 @@
 </script>
 
 <Container>
-	<div class="mb-6 flex items-center justify-between">
+	<div class="flex items-start justify-between">
 		<PageTitle description="Manage collections and classes" title="Admin Panel" />
 		<div class="flex gap-2">
 			{#if activeTab === 'collection'}
@@ -182,18 +182,18 @@
 
 	<!-- Collections Tab Content -->
 	{#if activeTab === 'collection'}
-		<CollectionContent 
-			{collections} 
-			loading={collectionsLoading} 
-			on:createCollection={() => (showCreateCollectionDialog = true)} 
+		<CollectionContent
+			{collections}
+			loading={collectionsLoading}
+			on:createCollection={() => (showCreateCollectionDialog = true)}
 		/>
 	{/if}
 
 	<!-- Classes Tab Content -->
 	{#if activeTab === 'class'}
-		<ClassContent 
-			{semesters} 
-			loading={classesLoading} 
+		<ClassContent
+			{semesters}
+			loading={classesLoading}
 			on:createClass={() => (showCreateClassDialog = true)}
 			on:createSemester={() => (showCreateSemesterDialog = true)}
 			on:editSemester={(e) => handleSemesterEdit(e.detail.semester)}

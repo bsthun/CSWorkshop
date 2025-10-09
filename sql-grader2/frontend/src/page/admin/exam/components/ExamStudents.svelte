@@ -139,7 +139,7 @@
 							<TableCell class="text-right">
 								<Link to="/admin/attempt?examAttemptId={joinee.id}">
 									<Button variant="ghost" size="sm">
-										<EyeIcon class="mr-2 h-4 w-4" />
+										<EyeIcon class="h-4 w-4" />
 										View Details
 									</Button>
 								</Link>

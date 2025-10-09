@@ -77,6 +77,7 @@ func Bind(
 	student.Post("/exam/question/list", studentEndpoint.HandleStudentExamQuestionList)
 	student.Post("/exam/question/detail", studentEndpoint.HandleStudentExamQuestionDetail)
 	student.Post("/exam/submit", studentEndpoint.HandleExamSubmit)
+	student.Post("/exam/submission/compare", studentEndpoint.HandleExamSubmissionCompare)
 
 	// * frontend
 	app.Get("*", func(c *fiber.Ctx) error {

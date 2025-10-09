@@ -9,3 +9,21 @@ type ExamQuestionSubmitRequest struct {
 type ExamQuestionSubmitResponse struct {
 	Submission *ExamSubmission `json:"submission"`
 }
+
+type ExamQuestionSubmissionCompare struct {
+	Submitted *ExamQuestionSubmissionCompareTable `json:"submitted"`
+	Expected  *ExamQuestionSubmissionCompareTable `json:"expected"`
+}
+
+type ExamQuestionSubmissionCompareTable struct {
+	Header []*string `json:"header"`
+	Rows   [][]any   `json:"rows"`
+}
+
+type ExamSubmissionCompareRequest struct {
+	SubmissionId *uint64 `json:"submissionId" validate:"required"`
+}
+
+type ExamSubmissionCompareResponse struct {
+	Comparison *ExamQuestionSubmissionCompare `json:"comparison"`
+}
